@@ -1,0 +1,408 @@
+roject Name: KYC Portal — Client-Facing Financial Operations Dashboard
+Target Surface: Desktop web app (1440px wide, 900px tall minimum), tablet-responsive secondary
+Visual Language: Dark glassmorphic fintech — deep teal/emerald base with lime-neon accent, frosted glass panels, depth-layered backgrounds, premium data-dense layout
+Mood Board Reference: NexusBank dashboard (attached image) — preserve the deep green-to-black atmospheric background, glassy card surfaces, teal/purple/lime accent palette, and rounded card radius language. Elevate every element to enterprise-grade polish.
+
+🎨 COLOR SYSTEM
+Background Layers (Z-depth stacking)
+TokenValueUsage--bg-void#050c0eTrue app background--bg-base#071214Page canvas, behind everything--bg-mesh-1radial-gradient(ellipse 80% 60% at 10% 20%, #0d3830 0%, transparent 60%)Left atmospheric glow--bg-mesh-2radial-gradient(ellipse 60% 50% at 85% 70%, #0a2a22 0%, transparent 55%)Right atmospheric glow--bg-grainSVG grain noise overlay, opacity: 0.035Micro-texture over everything--panelrgba(255,255,255,0.04)Glass card base--panel-borderrgba(255,255,255,0.09)Card borders--surfacergba(255,255,255,0.07)Input fields, inner cards
+Accent Palette
+TokenHexRole--accent-lime#a8ff3ePrimary CTA, active states, ring fills--accent-teal#00d4aaSecondary accent, chart line, status positive--accent-purple#9b7ff4Tertiary, donut segments, tags--accent-amber#ffb547Warning states, pending indicators--accent-red#ff5a5aDanger, blocked status, failed--accent-cyan#3de8e8Hover glow, chart tooltip border
+Typography Colors
+TokenUsage--text #f0f8f5Primary text--muted #6b8a82Secondary/label text--muted-soft #3d5a52Disabled, placeholder
+
+🔤 TYPOGRAPHY
+Display/Heading Font: Clash Display (Variable, weights 400–700)
+— Use for page titles, KPI numbers, card headers
+— Letter spacing: -0.02em for headings, -0.03em for large numerals
+Body/UI Font: DM Sans (Variable, weights 300–600)
+— All labels, paragraphs, table rows, nav items
+Mono/Data Font: JetBrains Mono (weights 400–500)
+— API keys, hash values, timestamps, code strings, card numbers
+Scale:
+
+Page title: Clash Display 38px / 700 / -0.03em
+Section header: Clash Display 20px / 600
+KPI number (large): Clash Display 44px / 700 / tabular-nums
+KPI label: DM Sans 11px / 500 / uppercase / 0.08em tracking
+Body: DM Sans 14px / 400
+Caption/muted: DM Sans 12px / 400
+Mono data: JetBrains Mono 13px / 400
+
+
+📐 LAYOUT STRUCTURE
+Overall Grid
+
+Sidebar: 72px wide, icon-only nav (expands to 220px on hover with spring animation)
+Main content: fluid, internal 12-col grid with 24px gutters
+Right panel: 320px fixed, glassmorphic, contains card widget + transactions
+Top bar: 64px tall, full width minus sidebar
+
+Z-Layer Stack (bottom to top)
+
+Background mesh gradients + grain
+Sidebar (position: fixed, left)
+Top bar (position: sticky, top)
+Main grid cards
+Right panel
+Floating tooltips
+Notification/calendar popovers (portal-rendered)
+Modals / drawers
+
+
+🧱 COMPONENT SPECIFICATIONS
+
+1. SIDEBAR NAV
+Dimensions: 72px wide (collapsed), 220px (expanded on hover)
+Background: rgba(255,255,255,0.03) + backdrop-filter: blur(24px)
+Border-right: 1px solid rgba(255,255,255,0.07)
+Transition: width cubic-bezier(0.16, 1, 0.3, 1) 300ms with text fade-in
+Logo area (top):
+
+72px × 72px zone
+Center: animated logo mark — two overlapping arcs that slowly rotate in opposite directions (CSS @keyframes, duration 20s linear infinite, paused on reduced-motion)
+On expand: logo slides left, wordmark "NexusKYC" fades in, Clash Display 16px / 600
+
+Nav Items (6 total):
+Each item: 48px tall, 8px horizontal margin, 8px border-radius
+
+Icon: 20px Lucide icon, stroke --muted default
+Active state: background rgba(168, 255, 62, 0.1), icon stroke --accent-lime, left border 2px solid --accent-lime
+Hover: background rgba(255,255,255,0.05), icon stroke --text, transition 150ms
+On expand: label appears 8px right of icon, DM Sans 14px / 500
+Tooltip (collapsed mode only): appears right of nav on hover, glass pill, DM Sans 12px
+
+Nav Items List:
+
+Home / Account Status — LayoutDashboard icon
+Usage & Stats — BarChart2 icon
+Billing — CreditCard icon
+API Keys — Key icon
+Audit Logs — ScrollText icon
+KYB Upload — Upload icon
+
+Bottom of sidebar:
+
+Theme toggle (sun/moon animated flip)
+Sign out button (icon only, LogOut icon, hover: red tint)
+Sidebar collapse toggle at very bottom
+
+
+2. TOP BAR
+Height: 64px
+Background: rgba(5, 12, 14, 0.8) + backdrop-filter: blur(20px) saturate(180%)
+Border-bottom: 1px solid rgba(255,255,255,0.06)
+Left side:
+
+Breadcrumb: DM Sans 13px / muted + > separator + current page name DM Sans 15px / 500 / --text
+Animated page transition: breadcrumb text slides up + fades when route changes
+
+Center:
+
+Search bar: 420px wide, background: rgba(255,255,255,0.05), border-radius: 24px, border: 1px solid rgba(255,255,255,0.08)
+Placeholder: "Search payments, keys, events…"
+Left: Search icon 16px --muted
+On focus: border glows --accent-teal with box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.15), transition 200ms
+Cmd+K keyboard shortcut pill shown right-aligned inside input
+
+Right side (left to right):
+
+Status pill — live animated: pulsing dot + label
+
+Online: lime dot + "Live" (dot pulses at 2s interval using @keyframes pulse-dot)
+Offline: amber dot + "Offline"
+
+
+Date range selector — pill button, calendar icon + current range "Mar 1 – Mar 23"
+
+On click: AnimatedPopover with mini calendar + quick-select chips
+
+
+Notifications bell — badge counter (red, top-right of icon)
+
+On click: popover slides down, shows audit log events grouped by type, each with icon + time
+Unread items have lime left border
+
+
+Help button — HelpCircle icon
+Avatar + name — circular avatar (40px), name "Hi Stefan!" to left, Clash Display 14px
+
+On click: dropdown with account info + sign out
+
+
+
+
+3. MAIN CONTENT — ACCOUNT STATUS / HOME PAGE
+Page title area:
+
+Clash Display 38px / 700 "My Dashboard"
+Subtitle: DM Sans 14px / muted "Welcome back, Stefan — last login 2 hours ago"
+Animated entry: title slides up 20px + fades in, subtitle follows 100ms later
+
+Filter pill tabs (below title):
+
+Pills: "All", "Withdrawals", "Savings", "Deposits"
+Background (inactive): rgba(255,255,255,0.05), border: rgba(255,255,255,0.08)
+Active: background: --accent-lime, color: #050c0e (black text on lime)
+Transition: sliding background indicator that morphs between active states (not just color swap — use a shared layoutId motion element)
+Active pill has subtle scale 1.02 on click
+
+
+4. KPI RING CARDS (4 cards, top row)
+Card dimensions: 168px × 168px
+Layout: horizontal row, 16px gap
+Background: rgba(255,255,255,0.04) + backdrop-filter: blur(16px)
+Border: 1px solid rgba(255,255,255,0.08)
+Border-radius: 20px
+Box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)
+Each card contains:
+
+Animated SVG ring (stroke-dasharray / stroke-dashoffset, drawn on mount, spring easing, 800ms)
+Center: large KPI number Clash Display 28px / 700
+Below number: label DM Sans 11px / uppercase / --muted
+Small badge top-right: trend pill (+12% green, -4% red)
+Ring stroke: 8px width, stroke-linecap: round
+Ring track: rgba(255,255,255,0.06)
+
+The 4 KPIs:
+
+KYB Status — ring: --accent-teal — value: "Verified" — 100% fill
+Ops Status — ring: --accent-lime — value: "Active" — 90% fill
+Risk Tier — ring: --accent-purple — value: "Low" — 75% fill
+Plan — ring: --accent-amber — value: "Growth" — 60% fill
+
+Hover state: card lifts translateY(-4px), shadow deepens, ring glows with filter: drop-shadow(0 0 8px <ring-color>)
+On mount: staggered entrance, each card delays 80ms after the previous
+
+5. REVENUE FLOW CHART WIDGET
+Dimensions: full width (spans 8 cols), height 280px
+Background + border: same glass card treatment
+Border-radius: 20px
+Header row:
+
+Left: "Revenue Flow" Clash Display 20px / 600
+Right: "View All >" link + date range pill
+
+Chart: Recharts BarChart with custom bars
+
+Bar style: hatched diagonal fill texture (SVG <pattern> with diagonal lines, stroke: --accent-purple, 45° angle, 4px spacing)
+Selected bar (current month): solid --accent-purple, no hatching, taller visual emphasis
+Tooltip: glass pill floating above selected bar, shows +$2,240, connected by thin vertical line to bar top
+Tooltip has animated entrance: scales from 0.8 → 1.0, cubic-bezier(0.34, 1.56, 0.64, 1)
+X-axis labels: DM Sans 12px / --muted, no gridlines shown
+Y-axis: faint labels left side, JetBrains Mono 11px / --muted-soft
+On hover: non-selected bars dim to 30% opacity, selected lifts slightly
+
+
+6. AVAILABLE EXPENSES DONUT WIDGET
+Dimensions: 3 cols wide × 220px
+Donut chart: 140px diameter, 18px stroke width
+
+Segments: Food (teal), Clothes (lime), Other (purple)
+Center label: $1,750 Clash Display 22px / 700 + "Total Expenses" DM Sans 11px / muted
+Animation: segments draw sequentially on mount, 600ms each, stagger 100ms
+On segment hover: that arc lifts outward 6px, tooltip shows category + amount + % share
+
+Legend (right of donut):
+
+Each item: colored dot (8px, solid, matching segment) + category name + amount
+DM Sans 13px, spacing 12px between items
+
+
+7. INCOME + EXPENSE MINI CARDS
+2 cards stacked, 4 cols wide each
+Height: 104px each, 12px gap between
+Background: rgba(255,255,255,0.05)
+Border-radius: 16px
+Each card:
+
+Label: "Income" / "Expense" DM Sans 13px / --muted
+Value: Clash Display 28px / 700 / --text
+Sub-label: "This week's income" DM Sans 11px / --muted
+Trend badge: pill +12% with matching icon (arrow up/down), border-radius: 20px
+
+Income: background: rgba(168, 255, 62, 0.15), text --accent-lime
+Expense: background: rgba(0, 212, 170, 0.12), text --accent-teal
+
+
+Three-dot menu (top right): ··· button, on click shows context menu (View details, Export, Set alert)
+
+
+8. RIGHT PANEL — MY CARD
+Panel width: 320px, full height minus topbar
+Background: rgba(255,255,255,0.03) + backdrop-filter: blur(20px)
+Left border: 1px solid rgba(255,255,255,0.07)
+Padding: 24px
+Section: "My Card"
+
+Header: "My Card" Clash Display 18px / 600 + "View All >" DM Sans 13px / --accent-teal
+
+Card visual (physical card replica):
+
+Dimensions: 272px × 160px
+Background: linear-gradient(135deg, #00d4aa 0%, #007a64 40%, #00402e 100%)
+border-radius: 20px
+box-shadow: 0 20px 60px rgba(0, 212, 170, 0.25), 0 8px 24px rgba(0,0,0,0.5)
+Chip icon: golden SVG chip pattern, top-left
+Card network logo: top-right (abstract circles)
+Balance label: "Total Balance" DM Sans 11px / rgba(255,255,255,0.7)
+Balance value: $22,350.50 Clash Display 26px / 700 / white
+Card number: 4358 4445 0968 2323 JetBrains Mono 13px / rgba(255,255,255,0.7), with middle digits as ••••
+Expiry: 08/24 same mono style
++ button (top-right of card area): 36px circle, background: white, color: --bg-base, adds new card
+Hover interaction: card tilts 3D on mouse move (perspective: 800px, rotateX ±5°, rotateY ±8°, smooth spring tracking)
+Stacked cards effect: second card peeking below with slight scale-down and y-offset
+
+
+9. TRANSACTIONS LIST
+Section header: "Transactions" Clash Display 18px / 600 + "View All >"
+Each transaction row:
+
+Height: 56px
+Left: app logo in 36px circle (border-radius: 50%, solid brand color bg)
+Center: app name DM Sans 14px / 500 / --text + date DM Sans 12px / --muted
+Right: amount Clash Display 15px / 600 in --accent-red for debits, --accent-teal for credits
+Hover: row background lifts to rgba(255,255,255,0.04), subtle left-border --accent-teal 2px appears, transition: 150ms
+On click: drawer slides in from right showing full transaction detail
+
+3 transactions shown:
+
+Figma (#9b7ff4 bg) | Figma | -$15.00
+Grammarly (#00d4aa bg) | Grammarly | -$10.00
+Blender (#ff6b35 bg) | Blender | -$15.00
+
+
+10. BOTTOM ROW — ADD FRIENDS + SPENDING SPARKLINE
+Add Friends card:
+
+Width: ~140px, height: 80px
+Label: "Add friends" DM Sans 14px / 500
+Sub: "Invite friends to join and earn rewards together" DM Sans 11px / --muted
+Avatars: 3 overlapping circles (32px), each a person photo with border: 2px solid --bg-base
++ avatar at end: dashed border, muted icon
+
+Spending Sparkline card:
+
+Width: ~160px, height: 80px
+Label: "Spending" DM Sans 14px / 500
+Recharts AreaChart, ultra-minimal: single teal line with subtle fill, no axes, no gridlines
+Line animates drawing from left on mount: stroke-dasharray + stroke-dashoffset trick
+Area fill: linear-gradient(180deg, rgba(0,212,170,0.3) 0%, rgba(0,212,170,0) 100%)
+
+
+✨ ADVANCED ANIMATION SPECIFICATIONS
+Page Load Sequence (staggered orchestration)
+0ms    — Background mesh gradients fade in (opacity 0→1, 400ms)
+100ms  — Sidebar slides in from left (translateX -72px → 0, spring)
+150ms  — TopBar slides down from top (translateY -64px → 0, spring)
+250ms  — Page title fades up (translateY 20px → 0, 400ms ease-out)
+350ms  — KPI cards enter one by one (translateY 24px → 0, stagger 80ms each)
+550ms  — Chart widgets fade + scale (scale 0.97→1, opacity 0→1, 350ms)
+700ms  — Right panel slides in from right (translateX 40px → 0, spring)
+900ms  — Transaction rows appear with stagger (opacity 0→1, translateY 8px→0)
+1100ms — Ring chart animations begin (stroke-dashoffset draws)
+Micro-interactions
+
+Number counters: KPI numbers count up from 0 on mount using a custom counter hook, easeOutCubic, 1200ms duration
+Ring draws: SVG stroke-dashoffset animated with cubic-bezier(0.34, 1.56, 0.64, 1) (slight overshoot)
+Card hover: translateY(-4px) scale(1.01) + deepened shadow, transition: all 200ms cubic-bezier(0.34, 1.56, 0.64, 1)
+Button press: scale(0.96) on mousedown, releases on mouseup
+Pill tab switch: shared layout animation, lime background morphs between pills (no hard cut)
+Notification badge: appears with scale(0→1) spring + subtle rotate(12deg→0) shake
+Popover open: scales from 0.95, opacity 0 → 1.0, opacity 1, origin at trigger element, spring(stiffness: 400, damping: 30)
+Route transition: outgoing page fades + slides up 12px, incoming page fades in + slides up from 12px below, 250ms overlap
+Tooltip on bar chart: follows cursor smoothly with 60ms lag (lerp), doesn't teleport
+Donut hover: hovered segment moves outward 6px with cubic-bezier(0.34, 1.56, 0.64, 1) spring bounce
+Card 3D tilt: smooth requestAnimationFrame tracking, max ±8° on any axis, perspective: 800px
+Transaction row hover: left accent bar slides in from scaleX(0→1), transform-origin: left, 150ms
+
+Ambient Animations (always running, low CPU)
+
+Background grain: subtle @keyframes grain-shift — transform: translate(0,0) to translate(4px, 4px) on 8s loop
+Active nav item: lime accent border pulses opacity 0.7→1.0 on 3s loop
+Live status dot: @keyframes pulse-ring — concentric ring expands from dot, fades out, 2s loop
+Logo arcs: counter-rotate slowly, animation: spin-cw 20s linear infinite and spin-ccw 28s linear infinite
+
+
+🎛️ INTERACTIVE STATES TO DESIGN
+For every interactive element, design all states:
+StateNotesDefaultBase appearanceHoverColor shift + motionFocusLime ring box-shadow: 0 0 0 3px rgba(168,255,62,0.35)Active/PressedScale down, darkenLoadingSkeleton shimmer with gradient sweepErrorRed border glow box-shadow: 0 0 0 3px rgba(255,90,90,0.3)Disabled40% opacity, cursor: not-allowedEmptyEmptyState with icon + muted message
+
+📱 RESPONSIVE NOTES
+1440px (Design target): Full 3-column layout as described
+1280px: Right panel collapses to bottom drawer, main area expands
+1024px (tablet): Sidebar becomes bottom tab bar, single column layout, right panel becomes modal sheet
+Mobile: Not primary target but top bar collapses to hamburger
+
+🗂️ FIGMA FILE STRUCTURE
+📁 KYC Portal Dashboard
+  📁 🎨 Design Tokens
+    — Colors (all CSS vars above)
+    — Typography styles
+    — Shadow styles
+    — Border radius tokens
+  📁 🧩 Components
+    📁 Atoms
+      — Button (Primary, Secondary, Ghost, Danger)
+      — Badge / Pill
+      — Input
+      — IconButton
+      — Avatar
+      — Skeleton
+      — Toggle
+    📁 Molecules
+      — KPI Ring Card
+      — Transaction Row
+      — Nav Item
+      — Trend Badge
+      — Glass Card
+      — Popover Shell
+    📁 Organisms
+      — Sidebar Nav
+      — Top Bar
+      — Revenue Flow Chart
+      — Donut + Legend Widget
+      — Right Panel (Card + Transactions)
+      — KYB Status Widget
+  📁 📄 Pages
+    — Home / Account Status (PRIMARY — design this first)
+    — Portal Stats / Usage
+    — Billing Balance
+    — API Keys
+    — Audit Logs
+    — KYB Upload
+  📁 🔄 Flows & Prototypes
+    — Login → Dashboard
+    — Notification panel open
+    — Card 3D hover
+    — Route transition between pages
+  📁 📐 Grid & Spacing
+    — 12-col grid overlay
+    — Spacing reference (4px base unit)
+
+🚫 WHAT TO EXPLICITLY AVOID
+
+No white or light backgrounds anywhere — this is a dark-first product
+No Inter or Roboto fonts
+No flat solid color cards — everything must have glass depth
+No sharp corners — minimum border-radius: 12px on all cards
+No static number displays — every KPI must animate on load
+No generic purple gradients on white
+No placeholder gray boxes where real data shapes should be
+No center-aligned everything — use intentional asymmetry
+No tooltip that just repeats the bar value in plain text — make it feel premium
+
+
+✅ DELIVERABLE CHECKLIST FOR FIGMA
+
+ Design tokens page with all colors, type, shadows
+ Component library (atoms → organisms)
+ Home page frame at 1440×900, full fidelity
+ All hover/focus/active variants in component states
+ Prototype: page load animation timeline annotated
+ Prototype: at least 3 interactive flows (login, notification panel, KYB upload)
+ Prototype: sidebar expand/collapse interaction
+ Spacing annotations on all major layout zones
+ Dark mode as primary; optional light mode toggle state
+ Responsive frames: 1440, 1280, 1024
+

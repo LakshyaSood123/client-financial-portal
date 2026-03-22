@@ -1,0 +1,13 @@
+packages:
+  "framer-motion": "For staggered entry animations, animated rings, and fluid sidebar transitions"
+  "recharts": "For the revenue flow bar chart and expenses donut chart"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility to safely merge Tailwind CSS classes"
+  "date-fns": "For formatting the static mock dates if needed"
+
+images: []
+
+notes:
+  - "The app uses a fixed, immersive glassmorphic dark theme based on the prompt instructions."
+  - "All data is static/mocked for the dashboard demonstration."
+  - "Fonts loaded via CDN in index.css (Clash Display, DM Sans, JetBrains Mono)."
