@@ -18,9 +18,9 @@ export function TopBar() {
     >
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm shrink-0">
-        <span className="text-[#6b8a82] font-medium hover:text-foreground cursor-pointer transition-colors">Home</span>
+        <span className="text-[#6b8a82] font-medium hover:text-foreground cursor-pointer transition-colors">Portal</span>
         <ChevronRight className="w-3.5 h-3.5 text-[#3d5a52]" />
-        <span className="text-foreground font-medium" style={{ fontSize: 15 }}>My Dashboard</span>
+        <span className="text-foreground font-medium" style={{ fontSize: 15 }}>Account Overview</span>
       </div>
 
       {/* Search bar */}
@@ -29,7 +29,7 @@ export function TopBar() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6b8a82] group-focus-within:text-[#00d4aa] transition-colors" />
           <input
             type="text"
-            placeholder="Search payments, keys, events…"
+            placeholder="Search verifications, webhooks, API keys…"
             className="w-full h-10 text-sm text-foreground placeholder:text-[#3d5a52] pr-16 pl-11 rounded-3xl outline-none transition-all duration-200"
             style={{
               background: "rgba(255,255,255,0.05)",
@@ -62,17 +62,17 @@ export function TopBar() {
           style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
         >
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: '#a8ff3e' }} />
-            <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: '#a8ff3e' }} />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: "#a8ff3e" }} />
+            <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: "#a8ff3e" }} />
           </span>
-          <span style={{ color: '#a8ff3e' }}>Live</span>
+          <span style={{ color: "#a8ff3e" }}>Live</span>
         </div>
 
         {/* Date range */}
         <button
           className="text-xs font-medium flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-colors hover:bg-white/10"
           style={{
-            color: '#6b8a82',
+            color: "#6b8a82",
             background: "rgba(255,255,255,0.04)",
             border: "1px solid rgba(255,255,255,0.06)",
           }}
@@ -85,7 +85,7 @@ export function TopBar() {
           <Bell className="w-5 h-5" />
           <span
             className="absolute top-1 right-1 w-2 h-2 rounded-full"
-            style={{ background: '#ff5a5a', border: '1.5px solid #050c0e' }}
+            style={{ background: "#ff5a5a", border: "1.5px solid #050c0e" }}
           />
         </button>
 
@@ -95,7 +95,7 @@ export function TopBar() {
         </button>
 
         {/* Avatar */}
-        <div className="flex items-center gap-3 pl-4 cursor-pointer group" style={{ borderLeft: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="flex items-center gap-3 pl-4 cursor-pointer group" style={{ borderLeft: "1px solid rgba(255,255,255,0.08)" }}>
           <p className="text-sm font-display font-semibold text-foreground group-hover:text-[#a8ff3e] transition-colors">
             Hi Stefan!
           </p>

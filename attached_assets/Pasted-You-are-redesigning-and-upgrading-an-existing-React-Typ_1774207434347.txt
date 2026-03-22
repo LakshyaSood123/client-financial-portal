@@ -1,0 +1,235 @@
+You are redesigning and upgrading an existing React + TypeScript + Vite KYC frontend. The current project already has a working portal structure, routing, theming, widgets, and API helpers. Your job is not to build a generic finance dashboard. Your job is to transform the existing UI into a domain-correct KYC/KYB client portal while preserving the strongest parts of the current visual design language.
+
+Core instruction:
+Keep the premium dark dashboard aesthetic, clean card layout, ring KPI widgets, right-side utility column, strong sidebar navigation, and polished analytics feel. But replace all finance-banking-personal-card language, visuals, widgets, and assumptions with KYC/KYB/compliance/account-operations features that match the actual project.
+
+Important correction:
+Do not frame this as a “banking dashboard,” “wallet dashboard,” or “personal finance app.”
+This product is a KYC/KYB client portal with account status, onboarding, verification, webhooks, billing, API keys, audit logs, usage stats, and compliance-related activity.
+
+What is wrong with the current visual reference:
+The screenshot has strong layout and styling, but much of the content is wrong for this product.
+The following concepts must be removed or renamed because they are off-domain:
+- MyCard
+- Transactions as bank/card spending
+- RevenueFlow as generic finance chart
+- Add friends
+- Spending mini widget
+- card number style blocks
+- income/expense framing
+- withdrawals/savings/deposits tabs if they imply personal finance
+- anything that looks like a debit/credit card app
+
+What should remain from the visual reference:
+- left vertical icon navigation
+- large hero title area
+- filter/tab strip under the title
+- four circular KPI/ring cards
+- one large primary analytics panel
+- one secondary donut/breakdown panel
+- right sidebar with compact summary card and activity feed
+- bottom summary cards
+- dark premium visual tone
+- subtle glow, glass, neon-accent highlights
+- clean spacing and card hierarchy
+- polished chart presentation
+
+Design goal:
+Convert the layout into a real KYC/KYB portal dashboard that feels intentional, operational, and enterprise-grade. It should look like a high-end compliance/product dashboard, not a dribbble-style finance clone.
+
+Main product sections that should be reflected:
+- Account Status
+- Usage / Stats
+- Billing
+- API Keys
+- Audit Logs
+- Webhooks
+- KYB Upload
+- Onboarding state
+- Recent activity / alerts
+- Verification and compliance summaries
+
+Required content replacements:
+1. Hero area
+Replace:
+- “My Dashboard”
+- “Welcome back, Stefan”
+With:
+- a more product-appropriate heading such as “Account Overview”, “Compliance Dashboard”, or “Portal Overview”
+- a subtitle that references tenant/account state, verification progress, or operational status
+Examples:
+- “Monitor your onboarding, verification status, webhooks, and usage”
+- “Account health, KYB progress, and integration activity in one view”
+
+2. Top filter/tabs row
+Replace finance tabs like:
+- All
+- Withdrawals
+- Savings
+- Deposits
+With domain tabs or scopes such as:
+- Overview
+- Verification
+- Integrations
+- Billing
+or
+- All
+- Webhooks
+- API Keys
+- Usage
+or
+- Account
+- Activity
+- Alerts
+- Documents
+These tabs must have real product meaning.
+
+3. Four ring KPI cards
+These are one of the strongest parts of the current design and should stay, but the content must be domain-correct.
+Use them for:
+- KYB Status
+- Ops Status
+- Risk Tier
+- Plan
+or alternatively:
+- Verification Progress
+- Account Health
+- Risk Level
+- Integration Health
+The labels and values must be accurate for the KYC domain.
+Examples:
+- Approved / Pending / Rejected
+- Active / Suspended / Blocked
+- Low / Medium / High
+- Free Tier / Starter / Pro / Enterprise
+
+4. Large primary chart card
+Replace generic finance chart content with operational portal metrics.
+Valid replacements:
+- Verification volume over time
+- Jobs processed over time
+- Webhook deliveries over time
+- Daily API usage
+- Onboarding submissions trend
+- Audit events trend
+This panel should become the main analytics story of the portal.
+
+5. Secondary donut / breakdown card
+Replace “Available expenses” or finance breakdowns with:
+- Job status breakdown
+- Webhook delivery status breakdown
+- Verification result breakdown
+- KYB document review status
+- API request outcome split
+This should be a real operational breakdown.
+
+6. Right-side top summary card
+Replace fake debit/credit card UI entirely.
+This card should become one of:
+- Account Summary
+- Plan & Limits
+- Billing Balance
+- Tenant Summary
+- Verification Snapshot
+Useful contents:
+- tenant name
+- tenant ID
+- plan
+- current billing balance
+- environment
+- verification status
+- account ops status
+Do not use card numbers or fake payment card visuals.
+
+7. Right-side activity list
+Keep the list pattern, but replace “transactions” with:
+- Recent Activity
+- Audit Events
+- Latest Actions
+- Recent Integrations
+Each list item should resemble things like:
+- API key created
+- webhook test sent
+- KYB document uploaded
+- billing balance updated
+- delivery replay requested
+- audit event recorded
+The list should feel operational and product-specific.
+
+8. Bottom cards
+Replace income/expense widgets with useful summaries such as:
+- Billing Balance
+- Current Plan
+- Webhook Failures
+- Open Alerts
+- API Keys Active
+- Documents Uploaded
+- Last Sync
+- Onboarding Step
+These cards should summarize actionable account data.
+
+Navigation changes:
+Sidebar should reflect real routes and domain features. Use the existing project structure as the source of truth.
+Primary items should map to:
+- Account Status
+- Usage
+- Webhooks
+- Billing
+- API Keys
+- Audit Logs
+- KYB Upload
+If you include icons, make them fit the compliance/integration/product context.
+
+Content and terminology rules:
+- Use “tenant”, “account”, “verification”, “KYB”, “ops status”, “risk tier”, “plan”, “usage”, “webhooks”, “audit logs”, “API keys”, “billing”, “deliveries”
+- Avoid “wallet”, “banking”, “friends”, “cards”, “savings”, “deposits”, “withdrawals”, “income”, “expense” unless clearly adapted to the real product domain
+- Avoid generic lorem ipsum business dashboard labels
+- Every widget title should map to a feature the product actually has or should have soon
+
+UX expectations:
+- keep the interface premium and modern
+- preserve the strong visual hierarchy
+- make the dashboard feel useful for a customer integrating with a KYC platform
+- prioritize clarity of operational state over decorative fluff
+- if space is limited, show fewer but more meaningful cards
+- ensure responsiveness for desktop and tablet/mobile
+- maintain dark/light theme compatibility if the project already supports it
+
+Engineering direction:
+You are working inside an existing React codebase with reusable UI components, route structure, and CSS classes.
+Do not rebuild from scratch unless necessary.
+Prefer adapting current pages/components.
+Preserve existing routing and data-flow concepts where possible.
+Map the redesign to the current portal pages and existing data helpers.
+
+Implementation priorities:
+1. Replace off-domain text and widgets with KYC/KYB portal content
+2. Upgrade the main portal overview/dashboard to match the new layout
+3. Reuse the ring KPI cards for account/compliance metrics
+4. Turn the right rail into account summary + recent activity
+5. Convert finance charts into usage/verification/webhook analytics
+6. Ensure all labels and CTAs map to real product actions
+7. Keep the polished visual quality of the current mockup
+
+Expected output:
+Produce:
+- revised information architecture for the dashboard
+- section-by-section UI changes
+- exact copy replacements for titles, subtitles, card labels, and CTA labels
+- component-level implementation plan
+- if coding, update the existing portal overview/dashboard page to reflect this new domain-correct design
+
+Concrete target dashboard example:
+A good finished dashboard could look like this:
+- Header: “Account Overview”
+- Subtitle: “Monitor KYB progress, integration health, billing, and recent activity”
+- Tabs: Overview, Verification, Integrations, Billing
+- KPI rings: KYB Status, Ops Status, Risk Tier, Plan
+- Main chart: Usage / Jobs Processed
+- Breakdown chart: Webhook Delivery Status
+- Right summary card: Account Summary with tenant, plan, balance, environment
+- Right activity list: Recent Activity with uploads, API key events, webhook tests, audit actions
+- Bottom cards: Billing Balance, API Keys Active, Webhook Failures, Audit Events
+
+Do not leave the design as a finance clone with renamed labels only.
+The structure, semantics, and actions must genuinely reflect a KYC/KYB portal.

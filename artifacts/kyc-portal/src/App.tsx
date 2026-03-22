@@ -17,6 +17,7 @@ function Router() {
       {/* Client routes */}
       <Route path="/" component={Dashboard} />
       <Route path="/usage" component={Dashboard} />
+      <Route path="/webhooks" component={Dashboard} />
       <Route path="/billing" component={Dashboard} />
       <Route path="/api-keys" component={Dashboard} />
       <Route path="/audit-logs" component={Dashboard} />

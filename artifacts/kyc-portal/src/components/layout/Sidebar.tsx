@@ -7,6 +7,7 @@ import {
   Key, 
   ScrollText, 
   Upload,
+  Webhook,
   LogOut,
   Settings,
   Shield,
@@ -15,8 +16,9 @@ import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/" },
+  { icon: LayoutDashboard, label: "Overview", path: "/" },
   { icon: BarChart2, label: "Usage", path: "/usage" },
+  { icon: Webhook, label: "Webhooks", path: "/webhooks" },
   { icon: CreditCard, label: "Billing", path: "/billing" },
   { icon: Key, label: "API Keys", path: "/api-keys" },
   { icon: ScrollText, label: "Audit Logs", path: "/audit-logs" },
