@@ -8,7 +8,8 @@ import {
   ScrollText, 
   Upload,
   LogOut,
-  Settings
+  Settings,
+  Shield,
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
@@ -115,6 +116,24 @@ export function Sidebar() {
       </nav>
 
       <div className="px-3 mt-auto pt-6 border-t border-white/5 space-y-2 shrink-0">
+        <Link
+          href="/admin"
+          className="w-full flex items-center h-12 px-3 rounded-xl text-muted-foreground hover:text-[#ff5a5a] hover:bg-[rgba(255,90,90,0.1)] transition-all duration-200 group"
+        >
+          <Shield className="w-5 h-5 shrink-0" />
+          <AnimatePresence>
+            {isHovered && (
+              <motion.span
+                className="ml-4 font-medium whitespace-nowrap text-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                Admin Panel
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </Link>
         <button className="w-full flex items-center h-12 px-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200 group">
           <Settings className="w-5 h-5 shrink-0 group-hover:rotate-90 transition-transform duration-500" />
           <AnimatePresence>
