@@ -1,0 +1,47 @@
+Create a premium soft-dashboard UI with a light pastel blue-gray theme and deep black contrast cards.
+
+Layout:
+- A large rounded master container filling most of the canvas
+- A tall black vertical sidebar on the left with rounded corners and white outline icons
+- A clean top header with a large greeting on the left and small utility icons plus avatar on the right
+- Main content arranged in a modular dashboard grid
+- Top row with 4 small KPI cards and 1 taller black highlight card on the right
+- Middle row with 2 stacked small metric cards on the left, a wide revenue chart card in the center, and a to-do list section on the right
+- Bottom row with a large recent-emails card and a smaller black event card on the bottom-right
+
+Visual style:
+- Use a very light cool gray / blue-gray page background
+- Use cards that are slightly darker than the background, in a soft misty blue-gray tint
+- Avoid pure white cards
+- Avoid harsh borders
+- Use very subtle or near-invisible shadows
+- Use large rounded corners on all cards and containers
+- Make the design feel calm, polished, and expensive
+- Use black as the main high-contrast accent for the sidebar and key action cards
+- Keep the interface minimal and airy, with lots of breathing room
+
+Color direction:
+- Background: pale cool gray-blue
+- Cards: slightly darker pastel blue-gray
+- High contrast surfaces: near-black
+- Text: black for primary, muted gray for secondary
+- Small status pills in green and soft red/pink
+
+Box treatment:
+- Large-radius rounded rectangles
+- Soft monochrome tint layering
+- Cards should feel embedded into the background through gentle tonal difference rather than strong shadows
+- Minimal border visibility
+- Flat-premium aesthetic, not glassmorphism, not neumorphism, not heavily shadowed
+
+Typography:
+- Bold friendly sans-serif headline
+- Large bold KPI numbers
+- Muted labels and metadata
+- Clean modern SaaS dashboard feel
+
+Overall mood:
+- premium fintech dashboard
+- calm executive interface
+- soft pastel surfaces with black anchors
+- highly polished, minimal, modern, and structured

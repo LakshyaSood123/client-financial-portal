@@ -7,10 +7,8 @@ import {
 } from "lucide-react";
 
 const card = {
-  background: "#ffffff",
-  border: "1px solid rgba(28,43,74,0.07)",
-  borderRadius: 16,
-  boxShadow: "0 2px 16px rgba(28,43,74,0.08)",
+  background: "#c3d3e6",
+  borderRadius: 22,
 } as React.CSSProperties;
 
 const ALERTS = [
