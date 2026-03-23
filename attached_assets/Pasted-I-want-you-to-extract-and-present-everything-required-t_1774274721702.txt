@@ -1,0 +1,178 @@
+I want you to extract and present everything required to reproduce the exact UI you built, so another AI can recreate it precisely in a different codebase.
+
+Your task is not to summarize loosely. Your task is to produce a full implementation handoff of the current UI exactly as built.
+
+Goal:
+Give me a complete replication package for the current dashboard UI so I can hand it to another coding AI and have it rebuilt as closely as possible.
+
+Important:
+I do not want generic descriptions like “dark modern dashboard” or “premium neon style.”
+I want exact implementation details.
+
+What you need to provide:
+1. High-level UI overview
+- Explain the page structure from top to bottom and left to right
+- Describe the layout grid
+- Describe the visual hierarchy
+- Describe what is in the left sidebar, top bar, main content area, right rail, cards, charts, and bottom widgets
+
+2. Exact component structure
+For every visible section, tell me:
+- component name
+- purpose
+- parent-child structure
+- whether it is reusable
+- props/state used
+- which file it belongs to if relevant
+Examples:
+- Sidebar
+- Top header
+- Tab switcher
+- KPI ring cards
+- Account summary card
+- Jobs processed chart card
+- Webhooks donut card
+- Recent activity list
+- Bottom metric cards
+
+3. Exact copy/content used in the UI
+List all visible text exactly as it appears, including:
+- page title
+- subtitle
+- sidebar labels
+- tab labels
+- KPI labels and values
+- account summary labels and values
+- button labels
+- chart titles
+- section headings
+- activity item text
+- card labels
+Do not paraphrase. Give the exact wording.
+
+4. Exact styling system
+Describe the UI styling in implementation detail:
+- colors used
+- gradients used
+- glow effects
+- shadows
+- border colors
+- background colors
+- radius values
+- spacing patterns
+- typography scale
+- font weights
+- icon sizes
+- card sizes
+- sidebar width
+- right rail width
+- tab sizing
+- ring card sizing
+- responsive behavior
+If possible, give actual CSS values, variables, and class names.
+
+5. Exact CSS/Tailwind/classes
+If the UI was built with CSS classes, Tailwind, or inline style objects, give me:
+- the exact classes used
+- the exact CSS rules used
+- all important class names
+- all relevant style tokens and variables
+Do not just say “uses dark green background”; provide the real implementation values.
+
+6. Exact layout measurements
+Provide concrete implementation details such as:
+- page max width
+- content padding
+- gap spacing between cards
+- sidebar width
+- top bar height
+- card dimensions
+- chart container sizes
+- right rail width
+- KPI card width/height
+- tab container dimensions
+Use actual values where possible.
+
+7. Icons and visual assets
+Tell me:
+- what icons are used
+- where they come from
+- their sizes
+- their colors
+- their active/inactive styling
+- whether they are SVGs, icon libraries, or custom shapes
+
+8. Interaction behavior
+Document exactly how the UI behaves:
+- active sidebar item behavior
+- active tab behavior
+- hover states
+- button hover/focus states
+- chart hover behavior
+- CTA click behavior
+- notifications/help/profile behavior if implemented
+- copy tenant ID behavior if implemented
+- route changes if tabs/sidebar are wired
+If something is only visual and not functional, say that clearly.
+
+9. Data mapping
+For each visible card/widget, explain:
+- what data it shows
+- whether the data is hardcoded, mock, or API-driven
+- where that data comes from
+- how the UI expects the data to be shaped
+
+10. File-by-file code handoff
+List all files involved in this UI and explain what each file contains.
+If possible, provide:
+- file path
+- purpose
+- key exports
+- key components
+- key styles
+- dependency relationships
+
+11. Replication instructions
+At the end, give a “rebuild this exact UI elsewhere” section containing:
+- required components
+- required layout order
+- required styles
+- required text
+- required interactions
+- required routes or state handling
+This section should be written as if another AI will use it to reconstruct the same dashboard in a different repo.
+
+12. Code output if possible
+If practical, include the actual source code for the main UI pieces:
+- page component
+- sidebar component
+- top bar
+- tabs
+- KPI cards
+- account summary
+- chart card wrappers
+- recent activity list
+- bottom cards
+- main styles
+If the code is too large, then provide the most important files fully and summarize the rest precisely.
+
+Critical instruction:
+Be exact.
+Do not compress.
+Do not simplify away implementation details.
+Do not give a product summary.
+Give me a replication handoff detailed enough that another AI can recreate the same UI almost pixel-for-pixel.
+
+Structure your answer like this:
+1. UI Overview
+2. Layout Map
+3. Exact Visible Copy
+4. Component Breakdown
+5. Styling System
+6. Interaction Behavior
+7. Data Sources / Mock Data
+8. File-by-File Breakdown
+9. Full or Partial Source Code
+10. Rebuild Instructions
+
+The output should be optimized for another coding AI that needs to reproduce the exact same interface.

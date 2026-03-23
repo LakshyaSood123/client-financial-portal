@@ -1,0 +1,98 @@
+You are working on an existing React + TypeScript + Vite KYC/KYB portal dashboard.
+
+I already have a left sidebar navigation UI with these items:
+- Overview
+- Usage
+- Webhooks
+- Billing
+- API Keys
+- Audit Logs
+- KYB Upload
+
+Right now the sidebar looks designed, but I want these nav items to be fully working and correctly wired to the portal.
+
+Goal:
+Turn the sidebar into a real, production-quality navigation system for the portal. Each item must navigate to the correct section/page, visually reflect the active route, and feel consistent with the premium dark dashboard UI.
+
+Requirements:
+1. Make every sidebar item clickable and functional
+2. Wire each item to the correct route
+3. Highlight the active route clearly
+4. Preserve the current visual styling and sidebar layout
+5. Keep the implementation clean and maintainable
+6. Use the existing routing structure if already present
+
+Use these route mappings unless the codebase already has equivalent ones:
+- Overview -> `/portal/me` or `/portal`
+- Usage -> `/portal/stats`
+- Webhooks -> `/portal/webhooks/endpoints`
+- Billing -> `/portal/billing/balance`
+- API Keys -> `/portal/apikeys`
+- Audit Logs -> `/portal/audit-logs`
+- KYB Upload -> `/portal/kyb-upload`
+
+Behavior rules:
+- Clicking an item should navigate without a full page reload
+- The active item should stay highlighted based on the current route
+- The highlight should update automatically when route changes
+- If a section has nested routes, the parent nav item should still appear active
+  Example:
+  - `/portal/webhooks/endpoints`
+  - `/portal/webhooks/endpoints/:endpointId`
+  - `/portal/webhooks/deliveries`
+  - `/portal/webhooks/deliveries/:deliveryId`
+  All of these should keep `Webhooks` active
+
+Active route expectations:
+- `Overview` active on `/portal` and `/portal/me`
+- `Usage` active on `/portal/stats`
+- `Webhooks` active on all webhook-related routes
+- `Billing` active on `/portal/billing/balance` and `/portal/billing/ledger`
+- `API Keys` active on `/portal/apikeys`
+- `Audit Logs` active on `/portal/audit-logs`
+- `KYB Upload` active on `/portal/kyb-upload` and onboarding upload redirects if relevant
+
+Implementation direction:
+- Use `react-router-dom`
+- Prefer `NavLink` or a custom route-aware wrapper if needed
+- Reuse the existing sidebar/nav component if one already exists
+- Do not rebuild the whole sidebar from scratch unless necessary
+- Keep icons aligned with existing design if already present
+- Keep the glow/active styling, but make it route-driven
+
+UI/UX expectations:
+- smooth active-state transitions
+- accessible clickable areas
+- good spacing and alignment
+- responsive behavior if the current layout supports it
+- no fake or dead nav items
+
+Product framing:
+This is a KYC/KYB portal, not a generic dashboard.
+The sidebar should represent real portal features:
+- account overview
+- usage
+- webhooks
+- billing
+- API keys
+- audit logs
+- KYB document upload
+
+If any item currently points nowhere or is only decorative, fix it.
+If routes already exist in the codebase, use them.
+If labels need small corrections for clarity, keep them domain-correct and concise.
+
+What I want you to do:
+- make the sidebar nav fully functional
+- connect every item to the correct portal route
+- ensure active state logic is correct for nested routes
+- preserve the premium dark visual design
+- clean up the implementation if needed
+
+Optional improvements:
+- add tooltips for collapsed/mobile versions if helpful
+- support keyboard focus styling
+- make the current page transition feel smooth if that already fits the codebase
+
+Do not leave the sidebar as static design.
+Make it real navigation for the portal.
