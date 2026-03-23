@@ -53,12 +53,17 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 
 ### `artifacts/kyc-portal` (`@workspace/kyc-portal`)
 
-KYC Portal Financial Operations Dashboard. A premium dark glassmorphic fintech dashboard with:
-- Deep teal/emerald atmospheric background with radial mesh gradients
-- Lime-neon (#a8ff3e) primary accent, teal (#00d4aa) secondary, purple (#9b7ff4) tertiary
-- Fonts: Clash Display (headings), DM Sans (body), JetBrains Mono (data)
-- Components: Collapsible sidebar, sticky topbar, KPI ring cards, Revenue chart (Recharts), Expenses donut, Credit card with 3D tilt, Transactions list, Add Friends, Spending sparkline
-- Libraries: framer-motion (animations), recharts (charts), lucide-react (icons)
+NexusKYC — a premium KYC Portal Financial Operations Dashboard. Crextio-inspired **light mode** design:
+- **Background**: Warm off-white `#f5f3ef` with yellow radial gradient blob (top-right)
+- **Cards**: White `#ffffff`, `border: 1px solid rgba(0,0,0,0.07)`, `box-shadow: 0 2px 12px rgba(0,0,0,0.06)`
+- **Accent**: Yellow `#efc92d` (primary brand), dark `#1a1a1a` (active nav pill, headings)
+- **Semantic colors**: Teal `#00b896` (verified), Red `#f54a4a` (failures), Amber `#f59b20` (warnings), Purple `#8b6ff4` (charts)
+- **Fonts**: Clash Display (headings), DM Sans (body), JetBrains Mono (monospace data)
+- **Layout**: Horizontal sticky top nav (NexusKYC logo | Overview | Verification | Integrations | Billing | API Keys | Audit Logs | Admin | health pill | bell | avatar) — NO sidebar
+- **Tab switching**: `useState` in `Dashboard.tsx` driven by `TopNav` active pill; `AnimatePresence` for transitions
+- **Components**: `TopNav`, KPI ring cards, Jobs bar chart, Webhooks donut, right rail (Account Summary + Recent Activity + Onboarding checklist), all 4 tab pages
+- **Libraries**: framer-motion, recharts, lucide-react, wouter
+- **Admin pages** (`/admin/*`) remain separately styled with their own dark hardcoded scheme — untouched
 - Serves at `/` (root preview path)
 
 ### `artifacts/api-server` (`@workspace/api-server`)

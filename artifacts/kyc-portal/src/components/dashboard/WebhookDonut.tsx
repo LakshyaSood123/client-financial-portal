@@ -4,9 +4,9 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 
 const data = [
-  { name: "Delivered", value: 1248, color: "#00d4aa" },
-  { name: "Failed", value: 23, color: "#ff5a5a" },
-  { name: "Pending", value: 91, color: "#a8ff3e" },
+  { name: "Delivered", value: 1248, color: "#00b896" },
+  { name: "Failed",    value: 23,   color: "#f54a4a" },
+  { name: "Pending",   value: 91,   color: "#efc92d" },
 ];
 
 export function WebhookDonut() {
@@ -19,14 +19,14 @@ export function WebhookDonut() {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="font-display font-bold text-foreground" style={{ fontSize: 18 }}>Webhooks</h3>
-          <p className="text-xs uppercase tracking-wider" style={{ color: "#6b8a82", letterSpacing: "0.06em" }}>
+          <p className="text-xs uppercase tracking-wider" style={{ color: "#8a8a8a", letterSpacing: "0.06em" }}>
             Delivery Status
           </p>
         </div>
         <Link
           href="/webhooks"
-          className="text-xs font-semibold flex items-center gap-0.5 transition-colors hover:text-[#a8ff3e]"
-          style={{ color: "#00d4aa" }}
+          className="text-xs font-semibold flex items-center gap-0.5 transition-colors hover:text-[#1a1a1a]"
+          style={{ color: "#8a8a8a" }}
         >
           View All →
         </Link>
@@ -55,7 +55,7 @@ export function WebhookDonut() {
                 <Cell
                   key={`cell-${idx}`}
                   fill={entry.color}
-                  style={{ filter: `drop-shadow(0 0 5px ${entry.color}70)` }}
+                  style={{ filter: `drop-shadow(0 0 4px ${entry.color}50)` }}
                 />
               ))}
             </Pie>
@@ -66,10 +66,10 @@ export function WebhookDonut() {
             alignItems: "center", justifyContent: "center",
             pointerEvents: "none",
           }}>
-            <span style={{ fontFamily: "'Clash Display', sans-serif", fontWeight: 700, fontSize: 18, color: "#f0f8f5", lineHeight: 1.1 }}>
+            <span style={{ fontFamily: "'Clash Display', sans-serif", fontWeight: 700, fontSize: 18, color: "#1a1a1a", lineHeight: 1.1 }}>
               {total.toLocaleString()}
             </span>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#6b8a82", letterSpacing: "0.06em", textTransform: "uppercase", marginTop: 3 }}>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#8a8a8a", letterSpacing: "0.06em", textTransform: "uppercase", marginTop: 3 }}>
               Total Events
             </span>
           </div>
@@ -88,11 +88,11 @@ export function WebhookDonut() {
               <div style={{
                 width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
                 backgroundColor: item.color,
-                boxShadow: `0 0 6px ${item.color}80`,
+                boxShadow: `0 0 5px ${item.color}60`,
               }} />
               <div>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#6b8a82" }}>{item.name}</p>
-                <p style={{ fontFamily: "'Clash Display', sans-serif", fontSize: 14, fontWeight: 700, color: "#f0f8f5" }}>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#8a8a8a" }}>{item.name}</p>
+                <p style={{ fontFamily: "'Clash Display', sans-serif", fontSize: 14, fontWeight: 700, color: "#1a1a1a" }}>
                   {item.value.toLocaleString()}
                 </p>
               </div>
