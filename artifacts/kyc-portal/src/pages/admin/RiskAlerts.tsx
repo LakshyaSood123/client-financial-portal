@@ -6,12 +6,11 @@ import {
   CheckCircle2, Clock, Zap,
 } from "lucide-react";
 
-const glassCard = {
-  background: "rgba(255,255,255,0.04)",
-  backdropFilter: "blur(16px)",
-  border: "1px solid rgba(255,255,255,0.08)",
-  borderRadius: 20,
-  boxShadow: "0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)",
+const card = {
+  background: "#ffffff",
+  border: "1px solid rgba(0,0,0,0.07)",
+  borderRadius: 16,
+  boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
 } as React.CSSProperties;
 
 const ALERTS = [
@@ -48,9 +47,9 @@ const ALERTS = [
 ];
 
 const SEVERITY_STYLES: Record<string, { color: string; bg: string; border: string; label: string; icon: typeof AlertTriangle }> = {
-  critical: { color: "#ff5a5a", bg: "rgba(255,90,90,0.08)", border: "rgba(255,90,90,0.3)", label: "Critical", icon: AlertTriangle },
-  high: { color: "#ffb547", bg: "rgba(255,181,71,0.08)", border: "rgba(255,181,71,0.3)", label: "High", icon: Zap },
-  medium: { color: "#9b7ff4", bg: "rgba(155,127,244,0.08)", border: "rgba(155,127,244,0.3)", label: "Medium", icon: TrendingUp },
+  critical: { color: "#f54a4a", bg: "rgba(245,74,74,0.05)", border: "rgba(245,74,74,0.2)", label: "Critical", icon: AlertTriangle },
+  high: { color: "#d97706", bg: "rgba(217,119,6,0.05)", border: "rgba(217,119,6,0.2)", label: "High", icon: Zap },
+  medium: { color: "#8b6ff4", bg: "rgba(139,111,244,0.05)", border: "rgba(139,111,244,0.2)", label: "Medium", icon: TrendingUp },
 };
 
 const CATEGORY_ICONS: Record<string, typeof Shield> = {
@@ -60,10 +59,10 @@ const CATEGORY_ICONS: Record<string, typeof Shield> = {
 };
 
 const RISK_METRICS = [
-  { label: "Critical Alerts", value: "1", color: "#ff5a5a", bg: "rgba(255,90,90,0.12)", icon: AlertTriangle },
-  { label: "High Priority", value: "2", color: "#ffb547", bg: "rgba(255,181,71,0.12)", icon: Zap },
-  { label: "Under Review", value: "7", color: "#9b7ff4", bg: "rgba(155,127,244,0.12)", icon: Clock },
-  { label: "Resolved Today", value: "12", color: "#00d4aa", bg: "rgba(0,212,170,0.12)", icon: CheckCircle2 },
+  { label: "Critical Alerts", value: "1", color: "#f54a4a", bg: "rgba(245,74,74,0.1)", icon: AlertTriangle },
+  { label: "High Priority", value: "2", color: "#d97706", bg: "rgba(217,119,6,0.1)", icon: Zap },
+  { label: "Under Review", value: "7", color: "#8b6ff4", bg: "rgba(139,111,244,0.1)", icon: Clock },
+  { label: "Resolved Today", value: "12", color: "#00b896", bg: "rgba(0,184,150,0.1)", icon: CheckCircle2 },
 ];
 
 export default function RiskAlerts() {
@@ -78,10 +77,10 @@ export default function RiskAlerts() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <h1 className="font-display font-bold text-foreground" style={{ fontSize: 34, letterSpacing: "-0.02em" }}>
+          <h1 className="font-display" style={{ fontSize: 48, fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.05, color: "#1a1a1a" }}>
             Risk Alerts
           </h1>
-          <p className="text-sm mt-1" style={{ color: "#6b8a82" }}>
+          <p className="text-sm mt-1.5" style={{ color: "#8a8a8a" }}>
             Active compliance and risk flags requiring attention
           </p>
         </motion.div>
@@ -91,8 +90,8 @@ export default function RiskAlerts() {
           {RISK_METRICS.map((m, i) => (
             <motion.div
               key={m.label}
-              style={glassCard}
-              className="p-5 flex items-center gap-4 hover:-translate-y-1 transition-transform cursor-pointer"
+              style={card}
+              className="p-5 flex items-center gap-4 hover:-translate-y-0.5 transition-transform cursor-pointer"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 + i * 0.07 }}
@@ -104,8 +103,8 @@ export default function RiskAlerts() {
                 <m.icon className="w-5 h-5" style={{ color: m.color }} />
               </div>
               <div>
-                <p className="text-[11px] font-medium uppercase tracking-wider" style={{ color: "#6b8a82" }}>{m.label}</p>
-                <p className="font-display font-bold text-foreground" style={{ fontSize: 28, letterSpacing: "-0.02em", lineHeight: 1.1, color: m.color }}>
+                <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "#8a8a8a" }}>{m.label}</p>
+                <p className="font-display font-bold" style={{ fontSize: 28, letterSpacing: "-0.03em", lineHeight: 1.1, color: m.color }}>
                   {m.value}
                 </p>
               </div>
@@ -123,80 +122,78 @@ export default function RiskAlerts() {
               <motion.div
                 key={alert.id}
                 style={{
-                  ...glassCard,
+                  ...card,
                   border: `1px solid ${sev.border}`,
                   background: sev.bg,
+                  boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
                 }}
                 initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.4 + i * 0.1 }}
               >
                 <div className="p-6">
-                  {/* Header row */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-start gap-4">
                       <div
                         className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
-                        style={{ background: `${sev.color}20` }}
+                        style={{ background: `${sev.color}15` }}
                       >
                         <sev.icon className="w-5 h-5" style={{ color: sev.color }} />
                       </div>
                       <div>
                         <div className="flex items-center gap-3 mb-1">
-                          <h3 className="font-display font-bold text-foreground" style={{ fontSize: 16 }}>
+                          <h3 className="font-display font-bold" style={{ fontSize: 15, color: "#1a1a1a" }}>
                             {alert.title}
                           </h3>
                           <span
                             className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
-                            style={{ background: `${sev.color}20`, color: sev.color }}
+                            style={{ background: `${sev.color}15`, color: sev.color }}
                           >
                             {sev.label}
                           </span>
                           <span
                             className="px-2.5 py-0.5 rounded-full text-[10px] font-medium"
-                            style={{ background: "rgba(255,255,255,0.06)", color: "#6b8a82" }}
+                            style={{ background: "rgba(0,0,0,0.05)", color: "#8a8a8a" }}
                           >
                             {alert.category}
                           </span>
                         </div>
-                        <div className="flex items-center gap-3 text-xs" style={{ color: "#6b8a82" }}>
+                        <div className="flex items-center gap-3 text-xs" style={{ color: "#8a8a8a" }}>
                           <CategoryIcon className="w-3.5 h-3.5" />
-                          <span style={{ color: "#f0f8f5" }}>{alert.client}</span>
+                          <span style={{ color: "#1a1a1a", fontWeight: 600 }}>{alert.client}</span>
                           <span>·</span>
                           <span>{alert.time}</span>
                           <span>·</span>
-                          <span className="font-mono" style={{ color: "#3d5a52" }}>{alert.id}</span>
+                          <span className="font-mono" style={{ color: "#c0c0c0" }}>{alert.id}</span>
                         </div>
                       </div>
                     </div>
                     <button
                       onClick={() => setDismissed(d => new Set([...d, alert.id]))}
-                      className="text-xs px-3 py-1.5 rounded-lg transition-colors hover:bg-white/10"
-                      style={{ color: "#6b8a82" }}
+                      className="text-xs px-3 py-1.5 rounded-lg transition-colors hover:bg-black/5"
+                      style={{ color: "#8a8a8a" }}
                     >
                       Dismiss
                     </button>
                   </div>
 
-                  {/* Description */}
-                  <p className="text-sm leading-relaxed mb-5 ml-14" style={{ color: "#a0bab2" }}>
+                  <p className="text-sm leading-relaxed mb-5 ml-14" style={{ color: "#5a5a5a" }}>
                     {alert.description}
                   </p>
 
-                  {/* Action buttons */}
                   <div className="flex items-center gap-3 ml-14">
                     {alert.actions.map((action, ai) => (
                       <button
                         key={action}
                         className="px-4 py-2 rounded-xl text-xs font-semibold transition-all hover:scale-105"
                         style={ai === 0 ? {
-                          background: `${sev.color}20`,
+                          background: `${sev.color}15`,
                           color: sev.color,
-                          border: `1px solid ${sev.color}30`,
+                          border: `1px solid ${sev.color}25`,
                         } : {
-                          background: "rgba(255,255,255,0.05)",
-                          color: "#6b8a82",
-                          border: "1px solid rgba(255,255,255,0.08)",
+                          background: "#ffffff",
+                          color: "#8a8a8a",
+                          border: "1px solid rgba(0,0,0,0.09)",
                         }}
                       >
                         {action}
@@ -214,9 +211,9 @@ export default function RiskAlerts() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              <CheckCircle2 className="w-12 h-12 mb-4" style={{ color: "#a8ff3e" }} />
-              <h3 className="font-display font-bold text-foreground text-xl mb-2">All clear!</h3>
-              <p className="text-sm" style={{ color: "#6b8a82" }}>All risk alerts have been resolved.</p>
+              <CheckCircle2 className="w-12 h-12 mb-4" style={{ color: "#00b896" }} />
+              <h3 className="font-display font-bold text-xl mb-2" style={{ color: "#1a1a1a" }}>All clear!</h3>
+              <p className="text-sm" style={{ color: "#8a8a8a" }}>All risk alerts have been resolved.</p>
             </motion.div>
           )}
         </div>

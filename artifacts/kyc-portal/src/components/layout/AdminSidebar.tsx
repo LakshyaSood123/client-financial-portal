@@ -12,7 +12,6 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Overview", path: "/admin" },
@@ -30,49 +29,49 @@ export function AdminSidebar() {
 
   return (
     <motion.aside
-      className="fixed left-0 top-0 bottom-0 z-50 flex flex-col pt-6 pb-6"
+      className="fixed left-0 top-0 bottom-0 z-50 flex flex-col pt-5 pb-5"
       style={{
-        background: "rgba(255,255,255,0.03)",
-        backdropFilter: "blur(24px)",
-        borderRight: "1px solid rgba(255,255,255,0.07)",
+        background: "#ffffff",
+        borderRight: "1px solid rgba(0,0,0,0.08)",
+        boxShadow: "2px 0 12px rgba(0,0,0,0.05)",
       }}
       initial={{ width: 72 }}
-      animate={{ width: isHovered ? 240 : 72 }}
-      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+      animate={{ width: isHovered ? 228 : 72 }}
+      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Logo area */}
-      <div className="flex items-center px-5 mb-8 h-10 overflow-hidden shrink-0">
+      <div className="flex items-center px-5 mb-7 h-10 overflow-hidden shrink-0">
         <div className="relative w-8 h-8 shrink-0 flex items-center justify-center">
           <motion.div
-            className="absolute inset-0 rounded-full opacity-80"
-            style={{ border: "2px solid #ff5a5a" }}
+            className="absolute inset-0 rounded-full"
+            style={{ border: "2px solid #efc92d" }}
             animate={{ rotate: 360 }}
             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
           />
           <motion.div
-            className="absolute inset-1 rounded-full opacity-60"
-            style={{ border: "2px solid #ffb547" }}
+            className="absolute inset-1 rounded-full"
+            style={{ border: "2px solid #f54a4a" }}
             animate={{ rotate: -360 }}
             transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
           />
-          <div className="w-2 h-2 rounded-full" style={{ background: '#ff5a5a', boxShadow: '0 0 8px #ff5a5a' }} />
+          <div className="w-2 h-2 rounded-full" style={{ background: "#f54a4a" }} />
         </div>
 
         <AnimatePresence>
           {isHovered && (
             <motion.div
-              className="ml-4 flex flex-col whitespace-nowrap overflow-hidden"
-              initial={{ opacity: 0, x: -10 }}
+              className="ml-3 flex flex-col whitespace-nowrap overflow-hidden"
+              initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              transition={{ duration: 0.2 }}
+              exit={{ opacity: 0, x: -8 }}
+              transition={{ duration: 0.16 }}
             >
-              <span className="font-display font-bold text-base text-foreground leading-tight">
-                Nexus<span style={{ color: '#ff5a5a' }}>KYC</span>
+              <span className="font-display font-bold text-sm leading-tight" style={{ color: "#1a1a1a" }}>
+                Nexus<span style={{ color: "#efc92d" }}>KYC</span>
               </span>
-              <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: '#ffb547' }}>
+              <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: "#f54a4a" }}>
                 Admin Panel
               </span>
             </motion.div>
@@ -81,55 +80,43 @@ export function AdminSidebar() {
       </div>
 
       {/* Nav items */}
-      <nav className="flex-1 px-3 space-y-1 overflow-y-auto overflow-x-hidden no-scrollbar">
+      <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto overflow-x-hidden">
         {NAV_ITEMS.map((item) => {
           const isActive = location === item.path || (item.path !== "/admin" && location.startsWith(item.path));
           return (
             <Link
               key={item.path}
               href={item.path}
-              className={cn(
-                "flex items-center h-12 px-3 rounded-xl transition-all duration-200 relative group shrink-0",
-                isActive
-                  ? "text-[#ff5a5a]"
-                  : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-              )}
-              style={isActive ? { background: "rgba(255,90,90,0.1)" } : {}}
+              className="flex items-center h-11 px-3 rounded-xl transition-all duration-200 relative group shrink-0"
+              style={isActive ? {
+                background: "#1a1a1a",
+                color: "#ffffff",
+              } : {
+                color: "#8a8a8a",
+              }}
+              onMouseEnter={e => {
+                if (!isActive) (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.04)";
+              }}
+              onMouseLeave={e => {
+                if (!isActive) (e.currentTarget as HTMLElement).style.background = "";
+              }}
             >
-              {isActive && (
-                <motion.div
-                  layoutId="active-admin-nav"
-                  className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full"
-                  style={{ background: '#ff5a5a', boxShadow: '0 0 8px #ff5a5a' }}
-                />
-              )}
-
-              <div className="relative shrink-0">
-                <item.icon className={cn("w-5 h-5 transition-colors", isActive ? "text-[#ff5a5a]" : "group-hover:text-[#00d4aa]")} />
-                {item.badge && !isHovered && (
-                  <div
-                    className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white"
-                    style={{ background: '#ff5a5a' }}
-                  >
-                    {item.badge}
-                  </div>
-                )}
-              </div>
+              <item.icon className="w-5 h-5 shrink-0" style={isActive ? { color: "#ffffff" } : {}} />
 
               <AnimatePresence>
                 {isHovered && (
                   <motion.div
-                    className="ml-4 flex items-center justify-between flex-1 min-w-0"
+                    className="ml-3 flex items-center justify-between flex-1 min-w-0"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15 }}
+                    transition={{ duration: 0.14 }}
                   >
-                    <span className="font-medium text-sm whitespace-nowrap">{item.label}</span>
+                    <span className="font-semibold text-sm whitespace-nowrap">{item.label}</span>
                     {item.badge && (
                       <span
                         className="ml-2 px-1.5 py-0.5 rounded-full text-[9px] font-bold text-white"
-                        style={{ background: '#ff5a5a' }}
+                        style={{ background: "#f54a4a" }}
                       >
                         {item.badge}
                       </span>
@@ -138,10 +125,12 @@ export function AdminSidebar() {
                 )}
               </AnimatePresence>
 
-              {!isHovered && (
-                <div className="absolute left-14 px-3 py-1.5 rounded-lg text-sm text-foreground opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl"
-                  style={{ background: '#0a181c', border: '1px solid rgba(255,255,255,0.1)' }}>
-                  {item.label}
+              {item.badge && !isHovered && (
+                <div
+                  className="absolute top-2 right-2 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white"
+                  style={{ background: "#f54a4a" }}
+                >
+                  {item.badge}
                 </div>
               )}
             </Link>
@@ -150,27 +139,44 @@ export function AdminSidebar() {
       </nav>
 
       {/* Bottom */}
-      <div className="px-3 mt-auto pt-4 space-y-1 shrink-0" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-        {/* Back to client view */}
+      <div className="px-3 mt-4 pt-4 space-y-0.5 shrink-0" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
         <Link
           href="/"
-          className="flex items-center h-12 px-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200 group"
+          className="flex items-center h-11 px-3 rounded-xl transition-colors group"
+          style={{ color: "#8a8a8a" }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.04)";
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLElement).style.background = "";
+          }}
         >
           <ChevronLeft className="w-5 h-5 shrink-0" />
           <AnimatePresence>
             {isHovered && (
-              <motion.span className="ml-4 font-medium text-sm whitespace-nowrap" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <motion.span className="ml-3 font-semibold text-sm whitespace-nowrap" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 Client View
               </motion.span>
             )}
           </AnimatePresence>
         </Link>
-        <button className="w-full flex items-center h-12 px-3 rounded-xl text-muted-foreground hover:text-[#ff5a5a] hover:bg-[rgba(255,90,90,0.1)] transition-all duration-200 group">
+        <button
+          className="w-full flex items-center h-11 px-3 rounded-xl transition-colors"
+          style={{ color: "#8a8a8a" }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLElement).style.background = "rgba(245,74,74,0.08)";
+            (e.currentTarget as HTMLElement).style.color = "#f54a4a";
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLElement).style.background = "";
+            (e.currentTarget as HTMLElement).style.color = "#8a8a8a";
+          }}
+        >
           <LogOut className="w-5 h-5 shrink-0" />
           <AnimatePresence>
             {isHovered && (
-              <motion.span className="ml-4 font-medium text-sm whitespace-nowrap" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                Log Out
+              <motion.span className="ml-3 font-semibold text-sm whitespace-nowrap" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                Sign Out
               </motion.span>
             )}
           </AnimatePresence>

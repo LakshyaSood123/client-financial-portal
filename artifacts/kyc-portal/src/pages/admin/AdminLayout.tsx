@@ -8,32 +8,21 @@ interface AdminLayoutProps {
 
 export function AdminLayout({ children }: AdminLayoutProps) {
   return (
-    <div className="min-h-screen text-foreground font-sans relative overflow-x-hidden" style={{ background: "#050c0e" }}>
-      {/* Atmospheric gradients — red/amber tinted for admin */}
+    <div className="min-h-screen font-sans relative overflow-x-hidden" style={{ background: "#f5f3ef" }}>
+      {/* Subtle yellow blob — top right, same as portal */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0" style={{ background: "#050c0e" }} />
-        <div
-          className="absolute"
-          style={{
-            width: "80%", height: "60%",
-            top: "-15%", left: "-10%",
-            background: "radial-gradient(ellipse 80% 60% at 10% 20%, #1a0a0a 0%, transparent 60%)",
-          }}
-        />
-        <div
-          className="absolute"
-          style={{
-            width: "60%", height: "50%",
-            bottom: "-10%", right: "-10%",
-            background: "radial-gradient(ellipse 60% 50% at 85% 70%, #12080a 0%, transparent 55%)",
-          }}
-        />
+        <div className="absolute" style={{
+          width: "45%", height: "65%",
+          top: "-10%", right: "-5%",
+          background: "radial-gradient(ellipse 60% 70% at 100% 0%, #f9e987 0%, #f5d855 30%, transparent 65%)",
+          opacity: 0.4,
+        }} />
       </div>
 
       <AdminSidebar />
       <AdminTopBar />
 
-      <main className="relative z-10" style={{ marginLeft: 72 }}>
+      <main className="relative z-10" style={{ marginLeft: 72, paddingTop: 64 }}>
         {children}
       </main>
     </div>

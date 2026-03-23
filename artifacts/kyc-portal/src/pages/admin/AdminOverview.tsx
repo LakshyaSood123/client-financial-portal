@@ -1,27 +1,25 @@
 import { motion } from "framer-motion";
 import { AdminLayout } from "./AdminLayout";
 import {
-  Users, ShieldCheck, AlertTriangle, TrendingUp,
-  Clock, CheckCircle2, XCircle, Activity,
+  Users, CheckCircle2, XCircle, Activity, Clock,
 } from "lucide-react";
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis,
-  Tooltip, ResponsiveContainer, Cell,
+  Tooltip, ResponsiveContainer,
 } from "recharts";
 
-const glassCard = {
-  background: "rgba(255,255,255,0.04)",
-  backdropFilter: "blur(16px)",
-  border: "1px solid rgba(255,255,255,0.08)",
-  borderRadius: 20,
-  boxShadow: "0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)",
+const card = {
+  background: "#ffffff",
+  border: "1px solid rgba(0,0,0,0.07)",
+  borderRadius: 16,
+  boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
 } as React.CSSProperties;
 
 const STATS = [
-  { label: "Total Clients", value: "2,847", change: "+124 this month", icon: Users, color: "#00d4aa", bg: "rgba(0,212,170,0.12)" },
-  { label: "Pending KYC", value: "14", change: "Needs review", icon: Clock, color: "#ffb547", bg: "rgba(255,181,71,0.12)" },
-  { label: "Approved Today", value: "38", change: "+18% vs yesterday", icon: CheckCircle2, color: "#a8ff3e", bg: "rgba(168,255,62,0.12)" },
-  { label: "Rejected Today", value: "5", change: "2.4% reject rate", icon: XCircle, color: "#ff5a5a", bg: "rgba(255,90,90,0.12)" },
+  { label: "Total Clients", value: "2,847", change: "+124 this month", icon: Users, color: "#00b896", bg: "rgba(0,184,150,0.1)" },
+  { label: "Pending KYC", value: "14", change: "Needs review", icon: Clock, color: "#d97706", bg: "rgba(217,119,6,0.1)" },
+  { label: "Approved Today", value: "38", change: "+18% vs yesterday", icon: CheckCircle2, color: "#16a34a", bg: "rgba(22,163,74,0.1)" },
+  { label: "Rejected Today", value: "5", change: "2.4% reject rate", icon: XCircle, color: "#f54a4a", bg: "rgba(245,74,74,0.1)" },
 ];
 
 const volumeData = [
@@ -47,14 +45,14 @@ const RECENT_ACTIVITY = [
 ];
 
 const STATUS_STYLES: Record<string, { color: string; bg: string; label: string }> = {
-  approved: { color: "#a8ff3e", bg: "rgba(168,255,62,0.12)", label: "Approved" },
-  pending: { color: "#ffb547", bg: "rgba(255,181,71,0.12)", label: "Pending" },
-  rejected: { color: "#ff5a5a", bg: "rgba(255,90,90,0.12)", label: "Rejected" },
+  approved: { color: "#16a34a", bg: "rgba(22,163,74,0.1)", label: "Approved" },
+  pending: { color: "#d97706", bg: "rgba(217,119,6,0.1)", label: "Pending" },
+  rejected: { color: "#f54a4a", bg: "rgba(245,74,74,0.1)", label: "Rejected" },
 };
 const RISK_STYLES: Record<string, { color: string }> = {
-  Low: { color: "#00d4aa" },
-  Medium: { color: "#ffb547" },
-  High: { color: "#ff5a5a" },
+  Low: { color: "#00b896" },
+  Medium: { color: "#d97706" },
+  High: { color: "#f54a4a" },
 };
 
 export default function AdminOverview() {
@@ -67,11 +65,11 @@ export default function AdminOverview() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.5 }}
         >
-          <h1 className="font-display font-bold text-foreground" style={{ fontSize: 34, letterSpacing: "-0.02em" }}>
+          <h1 className="font-display" style={{ fontSize: 48, fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.05, color: "#1a1a1a" }}>
             Admin Overview
           </h1>
-          <p className="text-sm mt-1" style={{ color: "#6b8a82" }}>
-            System-wide KYC performance — today, March 22, 2026
+          <p className="text-sm mt-1.5" style={{ color: "#8a8a8a" }}>
+            System-wide KYC performance — today, March 23, 2026
           </p>
         </motion.div>
 
@@ -80,8 +78,8 @@ export default function AdminOverview() {
           {STATS.map((stat, i) => (
             <motion.div
               key={stat.label}
-              style={glassCard}
-              className="p-5 flex items-center gap-4 cursor-pointer group transition-transform hover:-translate-y-1"
+              style={card}
+              className="p-5 flex items-center gap-4 cursor-pointer hover:-translate-y-0.5 transition-transform"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 + i * 0.07 }}
@@ -93,13 +91,13 @@ export default function AdminOverview() {
                 <stat.icon className="w-6 h-6" style={{ color: stat.color }} />
               </div>
               <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-wider mb-1" style={{ color: "#6b8a82" }}>
+                <p className="text-[11px] font-semibold uppercase tracking-wider mb-1" style={{ color: "#8a8a8a" }}>
                   {stat.label}
                 </p>
-                <p className="font-display font-bold text-foreground" style={{ fontSize: 26, letterSpacing: "-0.02em", lineHeight: 1 }}>
+                <p className="font-display font-bold" style={{ fontSize: 26, letterSpacing: "-0.03em", lineHeight: 1, color: "#1a1a1a" }}>
                   {stat.value}
                 </p>
-                <p className="text-[11px] mt-1" style={{ color: stat.color }}>
+                <p className="text-[11px] mt-1 font-medium" style={{ color: stat.color }}>
                   {stat.change}
                 </p>
               </div>
@@ -111,7 +109,7 @@ export default function AdminOverview() {
         <div className="grid grid-cols-12 gap-6">
           {/* KYC Volume chart */}
           <motion.div
-            style={{ ...glassCard, gridColumn: "span 7" }}
+            style={{ ...card, gridColumn: "span 7" }}
             className="col-span-7 p-6"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -119,54 +117,52 @@ export default function AdminOverview() {
           >
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h3 className="font-display font-bold text-foreground" style={{ fontSize: 18 }}>KYC Volume</h3>
-                <p className="text-xs mt-0.5" style={{ color: "#6b8a82" }}>Weekly approved vs rejected</p>
+                <h3 className="font-display font-bold" style={{ fontSize: 17, color: "#1a1a1a" }}>KYC Volume</h3>
+                <p className="text-xs mt-0.5" style={{ color: "#8a8a8a" }}>Weekly approved vs rejected</p>
               </div>
               <div className="flex items-center gap-4 text-xs">
-                <span className="flex items-center gap-1.5" style={{ color: "#a8ff3e" }}>
-                  <span className="w-2 h-2 rounded-full" style={{ background: "#a8ff3e" }} />Approved
+                <span className="flex items-center gap-1.5" style={{ color: "#16a34a" }}>
+                  <span className="w-2 h-2 rounded-full" style={{ background: "#16a34a" }} />Approved
                 </span>
-                <span className="flex items-center gap-1.5" style={{ color: "#ff5a5a" }}>
-                  <span className="w-2 h-2 rounded-full" style={{ background: "#ff5a5a" }} />Rejected
+                <span className="flex items-center gap-1.5" style={{ color: "#f54a4a" }}>
+                  <span className="w-2 h-2 rounded-full" style={{ background: "#f54a4a" }} />Rejected
                 </span>
               </div>
             </div>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={volumeData} barGap={4} barCategoryGap="35%">
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#6b8a82", fontSize: 12 }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: "#3d5a52", fontSize: 11 }} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#8a8a8a", fontSize: 12, fontFamily: "Satoshi" }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: "#c0c0c0", fontSize: 11, fontFamily: "Satoshi" }} />
                 <Tooltip
-                  cursor={{ fill: "rgba(255,255,255,0.02)" }}
-                  contentStyle={{ background: "rgba(10,24,28,0.95)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12 }}
-                  labelStyle={{ color: "#f0f8f5" }}
+                  cursor={{ fill: "rgba(0,0,0,0.03)" }}
+                  contentStyle={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 12, boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
+                  labelStyle={{ color: "#1a1a1a", fontFamily: "Satoshi" }}
                 />
-                <Bar dataKey="approved" fill="#a8ff3e" radius={[4, 4, 0, 0]} maxBarSize={22}
-                  style={{ filter: "drop-shadow(0 0 6px rgba(168,255,62,0.4))" }} />
-                <Bar dataKey="rejected" fill="#ff5a5a" radius={[4, 4, 0, 0]} maxBarSize={22}
-                  style={{ filter: "drop-shadow(0 0 6px rgba(255,90,90,0.4))" }} />
+                <Bar dataKey="approved" fill="#00b896" radius={[4, 4, 0, 0]} maxBarSize={22} />
+                <Bar dataKey="rejected" fill="#f54a4a" radius={[4, 4, 0, 0]} maxBarSize={22} />
               </BarChart>
             </ResponsiveContainer>
           </motion.div>
 
           {/* Approval trend sparkline */}
           <motion.div
-            style={{ ...glassCard, gridColumn: "span 5" }}
+            style={{ ...card, gridColumn: "span 5" }}
             className="col-span-5 p-6 flex flex-col"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
             <div className="flex items-center gap-2 mb-1">
-              <Activity className="w-4 h-4" style={{ color: "#00d4aa" }} />
-              <h3 className="font-display font-bold text-foreground" style={{ fontSize: 18 }}>Approval Rate</h3>
+              <Activity className="w-4 h-4" style={{ color: "#00b896" }} />
+              <h3 className="font-display font-bold" style={{ fontSize: 17, color: "#1a1a1a" }}>Approval Rate</h3>
             </div>
-            <p className="text-xs mb-4" style={{ color: "#6b8a82" }}>30-day rolling trend</p>
+            <p className="text-xs mb-4" style={{ color: "#8a8a8a" }}>30-day rolling trend</p>
 
             <div className="flex items-end gap-4 mb-4">
-              <span className="font-display font-bold text-foreground" style={{ fontSize: 40, letterSpacing: "-0.03em", lineHeight: 1 }}>
+              <span className="font-display font-bold" style={{ fontSize: 40, letterSpacing: "-0.03em", lineHeight: 1, color: "#1a1a1a" }}>
                 88.4%
               </span>
-              <span className="px-2.5 py-1 rounded-full text-xs font-bold mb-1" style={{ background: "rgba(168,255,62,0.12)", color: "#a8ff3e", border: "1px solid rgba(168,255,62,0.2)" }}>
+              <span className="px-2.5 py-1 rounded-full text-xs font-bold mb-1" style={{ background: "rgba(22,163,74,0.1)", color: "#16a34a", border: "1px solid rgba(22,163,74,0.2)" }}>
                 +2.1%
               </span>
             </div>
@@ -176,11 +172,11 @@ export default function AdminOverview() {
                 <AreaChart data={trendData} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="adminTrend" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#00d4aa" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#00d4aa" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#00b896" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#00b896" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <Area type="monotone" dataKey="val" stroke="#00d4aa" strokeWidth={2} fill="url(#adminTrend)" dot={false} />
+                  <Area type="monotone" dataKey="val" stroke="#00b896" strokeWidth={2} fill="url(#adminTrend)" dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -189,16 +185,20 @@ export default function AdminOverview() {
 
         {/* Recent Activity */}
         <motion.div
-          style={glassCard}
+          style={card}
           className="p-6"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.55 }}
         >
           <div className="flex items-center justify-between mb-5">
-            <h3 className="font-display font-bold text-foreground" style={{ fontSize: 18 }}>Recent KYC Activity</h3>
-            <a href="/admin/kyc-queue" className="text-xs font-semibold flex items-center gap-1 transition-colors"
-              style={{ color: "#00d4aa" }} onClick={e => { e.preventDefault(); window.history.pushState(null, '', '/admin/kyc-queue'); window.dispatchEvent(new PopStateEvent('popstate')); }}>
+            <h3 className="font-display font-bold" style={{ fontSize: 17, color: "#1a1a1a" }}>Recent KYC Activity</h3>
+            <a
+              href="/admin/kyc-queue"
+              className="text-xs font-semibold flex items-center gap-1 transition-colors"
+              style={{ color: "#00b896" }}
+              onClick={e => { e.preventDefault(); window.history.pushState(null, '', '/admin/kyc-queue'); window.dispatchEvent(new PopStateEvent('popstate')); }}
+            >
               View Queue ›
             </a>
           </div>
@@ -212,20 +212,20 @@ export default function AdminOverview() {
                 initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.6 + i * 0.07 }}
-                whileHover={{ background: "rgba(255,255,255,0.04)", borderLeftColor: "#00d4aa" } as React.CSSProperties}
+                whileHover={{ background: "rgba(0,0,0,0.025)", borderLeftColor: "#00b896" } as React.CSSProperties}
               >
                 <div className="flex items-center gap-4">
-                  <span className="font-mono text-xs" style={{ color: "#3d5a52", width: 80 }}>{item.id}</span>
+                  <span className="font-mono text-xs" style={{ color: "#c0c0c0", width: 80 }}>{item.id}</span>
                   <div>
-                    <p className="text-sm font-semibold text-foreground group-hover:text-[#00d4aa] transition-colors">{item.name}</p>
-                    <p className="text-xs" style={{ color: "#6b8a82" }}>{item.type}</p>
+                    <p className="text-sm font-semibold" style={{ color: "#1a1a1a" }}>{item.name}</p>
+                    <p className="text-xs" style={{ color: "#8a8a8a" }}>{item.type}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-6">
-                  <span className="text-xs" style={{ color: RISK_STYLES[item.risk].color }}>
+                  <span className="text-xs font-medium" style={{ color: RISK_STYLES[item.risk].color }}>
                     ● {item.risk} Risk
                   </span>
-                  <span className="text-xs" style={{ color: "#6b8a82" }}>{item.time}</span>
+                  <span className="text-xs" style={{ color: "#8a8a8a" }}>{item.time}</span>
                   <div
                     className="px-3 py-1 rounded-full text-xs font-bold"
                     style={{ background: STATUS_STYLES[item.status].bg, color: STATUS_STYLES[item.status].color }}
