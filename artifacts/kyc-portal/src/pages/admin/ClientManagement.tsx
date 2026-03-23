@@ -14,16 +14,16 @@ const card = {
 } as React.CSSProperties;
 
 const CLIENTS = [
-  { id: "CLT-001", name: "Acme Corp Ltd", type: "Business", email: "compliance@acme.com", country: "USA", kyb: "Verified", risk: "Low", plan: "Enterprise", joined: "Jan 12, 2025", revenue: "$48,200" },
-  { id: "CLT-002", name: "David Chen", type: "Individual", email: "d.chen@email.com", country: "Singapore", kyb: "Verified", risk: "Medium", plan: "Growth", joined: "Feb 3, 2025", revenue: "$3,400" },
-  { id: "CLT-003", name: "Nova Ventures", type: "Business", email: "ops@novaventures.io", country: "UK", kyb: "Rejected", risk: "High", plan: "—", joined: "Feb 28, 2025", revenue: "$0" },
-  { id: "CLT-004", name: "Sarah Williams", type: "Individual", email: "s.williams@mail.co", country: "Australia", kyb: "Verified", risk: "Low", plan: "Starter", joined: "Mar 1, 2025", revenue: "$850" },
-  { id: "CLT-005", name: "GlobalPay Inc", type: "Business", email: "kyc@globalpay.io", country: "UK", kyb: "Pending", risk: "Medium", plan: "—", joined: "Mar 10, 2025", revenue: "$0" },
-  { id: "CLT-006", name: "Vertex Capital", type: "Business", email: "kyc@vertexcap.com", country: "Cayman Islands", kyb: "Pending", risk: "High", plan: "—", joined: "Mar 14, 2025", revenue: "$0" },
-  { id: "CLT-007", name: "Maria Santos", type: "Individual", email: "m.santos@mail.com", country: "Brazil", kyb: "Pending", risk: "Low", plan: "—", joined: "Mar 16, 2025", revenue: "$0" },
-  { id: "CLT-008", name: "TechBridge Solutions", type: "Business", email: "admin@techbridge.co", country: "Germany", kyb: "Verified", risk: "Low", plan: "Enterprise", joined: "Dec 4, 2024", revenue: "$92,100" },
-  { id: "CLT-009", name: "James Okonkwo", type: "Individual", email: "j.okonkwo@pro.com", country: "Nigeria", kyb: "Verified", risk: "Medium", plan: "Growth", joined: "Nov 22, 2024", revenue: "$7,600" },
-  { id: "CLT-010", name: "Meridian Holdings", type: "Business", email: "kyc@meridian.hk", country: "Hong Kong", kyb: "Verified", risk: "Low", plan: "Enterprise", joined: "Oct 8, 2024", revenue: "$115,300" },
+  { id: "CLT-001", name: "Acme Corp Ltd", type: "Business", email: "compliance@acme.com", country: "India", kyb: "Verified", risk: "Low", plan: "Enterprise", joined: "Jan 12, 2025", revenue: "₹48,200" },
+  { id: "CLT-002", name: "David Chen", type: "Individual", email: "d.chen@email.com", country: "India", kyb: "Verified", risk: "Medium", plan: "Growth", joined: "Feb 3, 2025", revenue: "₹3,400" },
+  { id: "CLT-003", name: "Nova Ventures", type: "Business", email: "ops@novaventures.io", country: "India", kyb: "Rejected", risk: "High", plan: "—", joined: "Feb 28, 2025", revenue: "₹0" },
+  { id: "CLT-004", name: "Sarah Williams", type: "Individual", email: "s.williams@mail.co", country: "India", kyb: "Verified", risk: "Low", plan: "Starter", joined: "Mar 1, 2025", revenue: "₹850" },
+  { id: "CLT-005", name: "GlobalPay Inc", type: "Business", email: "kyc@globalpay.io", country: "India", kyb: "Pending", risk: "Medium", plan: "—", joined: "Mar 10, 2025", revenue: "₹0" },
+  { id: "CLT-006", name: "Vertex Capital", type: "Business", email: "kyc@vertexcap.com", country: "India", kyb: "Pending", risk: "High", plan: "—", joined: "Mar 14, 2025", revenue: "₹0" },
+  { id: "CLT-007", name: "Maria Santos", type: "Individual", email: "m.santos@mail.com", country: "India", kyb: "Pending", risk: "Low", plan: "—", joined: "Mar 16, 2025", revenue: "₹0" },
+  { id: "CLT-008", name: "TechBridge Solutions", type: "Business", email: "admin@techbridge.co", country: "India", kyb: "Verified", risk: "Low", plan: "Enterprise", joined: "Dec 4, 2024", revenue: "₹92,100" },
+  { id: "CLT-009", name: "James Okonkwo", type: "Individual", email: "j.okonkwo@pro.com", country: "India", kyb: "Verified", risk: "Medium", plan: "Growth", joined: "Nov 22, 2024", revenue: "₹7,600" },
+  { id: "CLT-010", name: "Meridian Holdings", type: "Business", email: "kyc@meridian.hk", country: "India", kyb: "Verified", risk: "Low", plan: "Enterprise", joined: "Oct 8, 2024", revenue: "₹1,15,300" },
 ];
 
 const KYB_STYLES: Record<string, { color: string; bg: string }> = {
@@ -206,7 +206,7 @@ export default function ClientManagement() {
 
                 <span className="text-xs" style={{ color: client.plan === "—" ? "#c0c0c0" : "#1a1a1a" }}>{client.plan}</span>
 
-                <span className="text-sm font-mono font-bold" style={{ color: client.revenue === "$0" ? "#c0c0c0" : "#1a1a1a" }}>
+                <span className="text-sm font-mono font-bold" style={{ color: client.revenue === "₹0" ? "#c0c0c0" : "#1a1a1a" }}>
                   {client.revenue}
                 </span>
               </motion.div>

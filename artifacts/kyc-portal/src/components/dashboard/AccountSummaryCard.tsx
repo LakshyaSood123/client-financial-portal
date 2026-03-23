@@ -9,7 +9,7 @@ const FIELDS = [
   { label: "Tenant ID",       value: TENANT_ID,            mono: true,  copyable: true },
   { label: "Environment",     value: "Production",          mono: false, copyable: false },
   { label: "Plan",            value: "Growth",              mono: false, copyable: false },
-  { label: "Billing Balance", value: "$0.00 / $250 credit", mono: true,  copyable: false },
+  { label: "Billing Balance", value: "₹0.00 / ₹250 credit", mono: true,  copyable: false },
   { label: "Cycle resets",    value: "Apr 1, 2026",         mono: false, copyable: false },
 ];
 

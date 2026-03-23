@@ -15,8 +15,8 @@ const lightCard = {
 const BOTTOM_CARDS = [
   {
     label: "Billing Balance",
-    value: "$0.00",
-    sub: "$250 credit included · resets Apr 1",
+    value: "₹0.00",
+    sub: "₹250 credit included · resets Apr 1",
     badge: "No overages",
     badgeColor: "#c9a200",
     badgeBg: "rgba(239,201,45,0.12)",

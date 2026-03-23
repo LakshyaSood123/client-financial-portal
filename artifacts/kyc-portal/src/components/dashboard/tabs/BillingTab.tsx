@@ -20,10 +20,10 @@ const USAGE_DATA = [
 ];
 
 const LEDGER = [
-  { description: "Monthly plan — Growth",     type: "credit", amount: "$250.00", date: "Mar 1, 2026",   balance: "$250.00" },
-  { description: "Jobs processed (1,124 × $0.00)", type: "usage", amount: "$0.00",   date: "Mar 1–23",      balance: "$250.00" },
-  { description: "Monthly plan — Growth",     type: "credit", amount: "$250.00", date: "Feb 1, 2026",   balance: "$250.00" },
-  { description: "Jobs processed (867 × $0.00)",   type: "usage", amount: "$0.00",   date: "Feb 1–28",      balance: "$250.00" },
+  { description: "Monthly plan — Growth",      type: "credit", amount: "₹250.00", date: "Mar 1, 2026",   balance: "₹250.00" },
+  { description: "Jobs processed (1,124 × ₹0.00)", type: "usage", amount: "₹0.00",   date: "Mar 1–23",      balance: "₹250.00" },
+  { description: "Monthly plan — Growth",      type: "credit", amount: "₹250.00", date: "Feb 1, 2026",   balance: "₹250.00" },
+  { description: "Jobs processed (867 × ₹0.00)",   type: "usage", amount: "₹0.00",   date: "Feb 1–28",      balance: "₹250.00" },
 ];
 
 const TYPE_STYLES: Record<string, { color: string; bg: string }> = {
@@ -67,9 +67,9 @@ export function BillingTab() {
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: "#8a8a8a" }}>Current Balance</p>
               <p className="font-display font-bold" style={{ fontSize: 36, letterSpacing: "-0.03em", lineHeight: 1, fontFamily: "'JetBrains Mono', monospace", color: "#1a1a1a" }}>
-                $0.00
+                ₹0.00
               </p>
-              <p className="text-xs mt-2" style={{ color: "#8a8a8a" }}>$250 included credit · no overages</p>
+              <p className="text-xs mt-2" style={{ color: "#8a8a8a" }}>₹250 included credit · no overages</p>
             </div>
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(239,201,45,0.12)" }}>
               <BookOpen className="w-5 h-5" style={{ color: "#efc92d" }} />
@@ -95,7 +95,7 @@ export function BillingTab() {
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: "#8a8a8a" }}>Current Plan</p>
               <p className="font-display font-bold" style={{ fontSize: 28, letterSpacing: "-0.02em", color: "#1a1a1a" }}>Growth</p>
-              <p className="text-xs mt-2" style={{ color: "#00b896" }}>$250 / month · included</p>
+              <p className="text-xs mt-2" style={{ color: "#00b896" }}>₹250 / month · included</p>
             </div>
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,184,150,0.12)" }}>
               <Zap className="w-5 h-5" style={{ color: "#00b896" }} />
