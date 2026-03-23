@@ -1,5 +1,6 @@
 import { GlassPanel } from "@/components/GlassPanel";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from "recharts";
+import { Link } from "wouter";
 
 const data = [
   { name: "Oct", value: 312 },
@@ -22,7 +23,10 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
         }}
       >
         <p className="text-xs mb-1" style={{ color: "#6b8a82" }}>{label}</p>
-        <p className="font-display font-bold text-foreground">{payload[0].value.toLocaleString()} <span style={{ color: "#6b8a82", fontWeight: 400, fontSize: 11 }}>jobs</span></p>
+        <p className="font-display font-bold text-foreground">
+          {payload[0].value.toLocaleString()}{" "}
+          <span style={{ color: "#6b8a82", fontWeight: 400, fontSize: 11 }}>jobs</span>
+        </p>
       </div>
     );
   }
@@ -32,24 +36,35 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
 export function UsageChart() {
   return (
     <GlassPanel className="p-6 col-span-12 lg:col-span-8 flex flex-col">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-2">
         <div>
           <h3 className="font-display font-bold text-foreground" style={{ fontSize: "20px" }}>Jobs Processed</h3>
           <p className="text-xs mt-0.5" style={{ color: "#6b8a82" }}>Verification jobs run via API — last 6 months</p>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="text-xs font-semibold text-[#00d4aa] hover:text-[#a8ff3e] transition-colors flex items-center gap-1">
-            View Usage <span className="opacity-60">›</span>
-          </button>
-          <div className="text-xs font-medium text-muted-foreground bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">
-            Oct 2025 – Mar 2026
-          </div>
+        <Link
+          href="/usage"
+          className="text-xs font-semibold transition-colors hover:text-[#a8ff3e] flex items-center gap-1"
+          style={{ color: "#00d4aa" }}
+        >
+          View Usage →
+        </Link>
+      </div>
+
+      <div className="flex items-center gap-5 mb-5">
+        <div>
+          <span className="font-display font-bold text-foreground" style={{ fontSize: 28, letterSpacing: "-0.02em" }}>1,124</span>
+          <span className="text-xs ml-2" style={{ color: "#6b8a82" }}>jobs this month</span>
+        </div>
+        <div className="h-8 w-px" style={{ background: "rgba(255,255,255,0.07)" }} />
+        <div>
+          <span className="font-display font-bold" style={{ fontSize: 18, color: "#a8ff3e" }}>+29%</span>
+          <span className="text-xs ml-2" style={{ color: "#6b8a82" }}>vs last month</span>
         </div>
       </div>
 
-      <div className="flex-1 w-full" style={{ height: 220 }}>
+      <div className="flex-1 w-full" style={{ height: 180 }}>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 16, right: 4, left: -20, bottom: 0 }} barCategoryGap="30%">
+          <BarChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }} barCategoryGap="30%">
             <defs>
               <pattern id="hatch-pattern" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
                 <rect width="8" height="8" fill="rgba(155,127,244,0.12)" />

@@ -1,19 +1,23 @@
 import { motion } from "framer-motion";
 import { AccountSummaryCard } from "./AccountSummaryCard";
-import { ChevronRight, Key, Webhook, Upload, FileText, RefreshCw } from "lucide-react";
-import { AreaChart, Area, ResponsiveContainer } from "recharts";
+import { ChevronRight, Key, Webhook, Upload, FileText, RefreshCw, CheckCircle2, Circle } from "lucide-react";
+import { Link } from "wouter";
 
 const ACTIVITY = [
-  { id: 1, label: "API key rotated", detail: "prod_key_**** → new key", time: "Mar 22", icon: Key, color: "#a8ff3e", bg: "rgba(168,255,62,0.15)" },
-  { id: 2, label: "Webhook test sent", detail: "endpoint: /hooks/kyb", time: "Mar 21", icon: Webhook, color: "#9b7ff4", bg: "rgba(155,127,244,0.15)" },
-  { id: 3, label: "KYB document uploaded", detail: "Certificate of Incorporation", time: "Mar 20", icon: Upload, color: "#00d4aa", bg: "rgba(0,212,170,0.15)" },
-  { id: 4, label: "Audit log exported", detail: "March 2026 · 847 events", time: "Mar 19", icon: FileText, color: "#ffb547", bg: "rgba(255,181,71,0.15)" },
-  { id: 5, label: "Delivery replayed", detail: "evt_8xKp2mNq · success", time: "Mar 18", icon: RefreshCw, color: "#ff5a5a", bg: "rgba(255,90,90,0.15)" },
+  { id: 1, label: "API key rotated", detail: "prod_key_**** → new key", time: "Mar 22", icon: Key, color: "#a8ff3e", bg: "rgba(168,255,62,0.12)" },
+  { id: 2, label: "Webhook test sent", detail: "endpoint: /hooks/kyb", time: "Mar 21", icon: Webhook, color: "#9b7ff4", bg: "rgba(155,127,244,0.12)" },
+  { id: 3, label: "KYB document uploaded", detail: "Certificate of Incorporation", time: "Mar 20", icon: Upload, color: "#00d4aa", bg: "rgba(0,212,170,0.12)" },
+  { id: 4, label: "Audit log exported", detail: "March 2026 · 847 events", time: "Mar 19", icon: FileText, color: "#ffb547", bg: "rgba(255,181,71,0.12)" },
+  { id: 5, label: "Delivery replayed", detail: "evt_8xKp2mNq · success", time: "Mar 18", icon: RefreshCw, color: "#ff5a5a", bg: "rgba(255,90,90,0.12)" },
 ];
 
-const sparklineData = Array.from({ length: 18 }, (_, i) => ({
-  val: 40 + Math.sin(i * 0.7) * 25 + i * 1.5,
-}));
+const ONBOARDING = [
+  { label: "KYB verification completed", done: true },
+  { label: "First API key created", done: true },
+  { label: "Webhook endpoint configured", done: true },
+  { label: "Test webhook delivery confirmed", done: false },
+  { label: "Go live in production", done: false },
+];
 
 const panelStyle: React.CSSProperties = {
   background: "rgba(255,255,255,0.03)",
@@ -21,13 +25,10 @@ const panelStyle: React.CSSProperties = {
   borderLeft: "1px solid rgba(255,255,255,0.07)",
 };
 
-const glassRow: React.CSSProperties = {
-  background: "rgba(255,255,255,0.04)",
-  border: "1px solid rgba(255,255,255,0.08)",
-  borderRadius: 16,
-};
-
 export function RightPanel() {
+  const done = ONBOARDING.filter(s => s.done).length;
+  const total = ONBOARDING.length;
+
   return (
     <motion.div
       className="flex flex-col"
@@ -41,9 +42,6 @@ export function RightPanel() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-display font-bold text-foreground" style={{ fontSize: 18 }}>Account Summary</h2>
-            <button className="text-xs font-semibold flex items-center gap-0.5 transition-colors hover:text-[#a8ff3e]" style={{ color: "#00d4aa" }}>
-              Manage <ChevronRight className="w-3 h-3" />
-            </button>
           </div>
           <AccountSummaryCard />
         </section>
@@ -52,9 +50,13 @@ export function RightPanel() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-display font-bold text-foreground" style={{ fontSize: 18 }}>Recent Activity</h2>
-            <button className="text-xs font-semibold flex items-center gap-0.5 transition-colors hover:text-[#a8ff3e]" style={{ color: "#00d4aa" }}>
+            <Link
+              href="/audit-logs"
+              className="text-xs font-semibold flex items-center gap-0.5 transition-colors hover:text-[#a8ff3e]"
+              style={{ color: "#00d4aa" }}
+            >
               Audit Logs <ChevronRight className="w-3 h-3" />
-            </button>
+            </Link>
           </div>
           <div className="flex flex-col gap-1">
             {ACTIVITY.map((item, i) => (
@@ -64,11 +66,8 @@ export function RightPanel() {
                 style={{ borderLeft: "2px solid transparent" }}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 + i * 0.08 }}
-                whileHover={{
-                  background: "rgba(255,255,255,0.04)",
-                  borderLeftColor: "#00d4aa",
-                } as React.CSSProperties}
+                transition={{ delay: 0.6 + i * 0.07 }}
+                whileHover={{ background: "rgba(255,255,255,0.04)", borderLeftColor: "#00d4aa" } as React.CSSProperties}
               >
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
@@ -88,74 +87,47 @@ export function RightPanel() {
           </div>
         </section>
 
-        {/* Bottom row: Quick action + API sparkline */}
-        <div className="grid grid-cols-2 gap-3">
-          {/* Quick actions */}
-          <motion.div
-            className="p-4 rounded-2xl flex flex-col gap-3 cursor-pointer hover:bg-white/[0.07] transition-colors"
-            style={glassRow}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1 }}
-          >
-            <div>
-              <p className="text-sm font-bold text-foreground">Quick Actions</p>
-              <p className="text-[10px] leading-tight mt-0.5" style={{ color: "#6b8a82" }}>
-                Run a test webhook or rotate your API key
-              </p>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <button
-                className="w-full text-[10px] font-bold py-1.5 rounded-lg text-left px-2 transition-colors hover:bg-white/10"
-                style={{ color: "#9b7ff4", background: "rgba(155,127,244,0.1)" }}
-              >
-                ↗ Test Webhook
-              </button>
-              <button
-                className="w-full text-[10px] font-bold py-1.5 rounded-lg text-left px-2 transition-colors hover:bg-white/10"
-                style={{ color: "#a8ff3e", background: "rgba(168,255,62,0.1)" }}
-              >
-                ⟳ Rotate API Key
-              </button>
-            </div>
-          </motion.div>
+        {/* Onboarding progress */}
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-display font-bold text-foreground" style={{ fontSize: 18 }}>Onboarding</h2>
+            <span className="text-xs font-mono" style={{ color: "#6b8a82" }}>{done}/{total} complete</span>
+          </div>
 
-          {/* API usage sparkline */}
-          <motion.div
-            className="p-4 rounded-2xl flex flex-col justify-between overflow-hidden relative"
-            style={glassRow}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.1 }}
-          >
-            <div className="relative z-10">
-              <p className="text-sm font-bold text-foreground">API Usage</p>
-              <p className="text-[10px] font-mono mt-0.5" style={{ color: "#00d4aa" }}>↑ trending</p>
-            </div>
-            <div className="absolute inset-x-0 bottom-0 h-14 opacity-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={sparklineData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="apiGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#00d4aa" stopOpacity={0.4} />
-                      <stop offset="95%" stopColor="#00d4aa" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <Area
-                    type="monotone"
-                    dataKey="val"
-                    stroke="#00d4aa"
-                    strokeWidth={2}
-                    fill="url(#apiGrad)"
-                    dot={false}
-                    isAnimationActive={true}
-                    animationDuration={2000}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </motion.div>
-        </div>
+          {/* Progress bar */}
+          <div className="h-1 rounded-full mb-4 overflow-hidden" style={{ background: "rgba(255,255,255,0.07)" }}>
+            <motion.div
+              className="h-full rounded-full"
+              style={{ background: "linear-gradient(90deg, #00d4aa, #a8ff3e)" }}
+              initial={{ width: 0 }}
+              animate={{ width: `${(done / total) * 100}%` }}
+              transition={{ delay: 1.2, duration: 0.8, ease: "easeOut" }}
+            />
+          </div>
+
+          <div className="space-y-2.5">
+            {ONBOARDING.map((step, i) => (
+              <motion.div
+                key={i}
+                className="flex items-center gap-3"
+                initial={{ opacity: 0, x: -6 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 1.2 + i * 0.07 }}
+              >
+                {step.done
+                  ? <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: "#00d4aa" }} />
+                  : <Circle className="w-4 h-4 flex-shrink-0" style={{ color: "#3d5a52" }} />
+                }
+                <span
+                  className="text-xs"
+                  style={{ color: step.done ? "#a0bab2" : "#6b8a82", textDecoration: step.done ? "line-through" : undefined }}
+                >
+                  {step.label}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </section>
       </div>
     </motion.div>
   );

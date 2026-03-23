@@ -1,0 +1,106 @@
+You are working on an existing React + TypeScript + Vite KYC/KYB portal dashboard.
+
+I have a top tab bar UI already designed with these tabs:
+- Overview
+- Verification
+- Integrations
+- Billing
+
+Right now these tabs are mostly visual. I want you to make them actually work in a clean, production-quality way.
+
+Goal:
+Turn this tab bar into a real dashboard section switcher that controls the content shown on the page. The interaction should feel polished, responsive, and consistent with the current premium dark dashboard UI.
+
+Requirements:
+1. Make all four tabs clickable and functional
+2. Use React state or route query params, whichever fits the current codebase better
+3. The active tab must be visually highlighted
+4. Switching tabs must update the content area below
+5. Preserve the current visual styling and dark theme
+6. Keep the implementation clean and reusable
+
+Tab behavior:
+- `Overview`
+  Show the default account overview dashboard:
+  - KPI rings
+  - account summary
+  - jobs processed / usage chart
+  - webhooks status
+  - recent activity
+  - summary cards
+
+- `Verification`
+  Show verification-focused content such as:
+  - KYB status
+  - uploaded documents
+  - verification progress
+  - review state
+  - risk flags
+  - recent verification actions
+
+- `Integrations`
+  Show integration-focused content such as:
+  - API keys
+  - webhook endpoints
+  - webhook delivery health
+  - recent webhook actions
+  - integration failures
+  - developer/integration activity
+
+- `Billing`
+  Show billing-focused content such as:
+  - current balance
+  - plan
+  - usage this month
+  - credit/reset cycle
+  - billing ledger summary
+  - recent billing actions
+
+Implementation direction:
+- Reuse the existing tab component if one already exists
+- If there is already a `Tabs` or `PillTabs` component, extend it instead of building a new one from scratch
+- Keep the code modular
+- Avoid hardcoding everything into one giant component
+- If useful, split the tab panels into separate render sections or components
+
+Preferred UX:
+- smooth transitions when switching tabs
+- no full page reload
+- preserve premium dashboard feel
+- responsive on smaller screens
+- maintain accessibility:
+  - proper button or tab semantics
+  - visible active state
+  - keyboard-friendly behavior if practical
+
+If routing/query params are used:
+- the selected tab should persist in the URL
+- example: `?section=overview`, `?section=verification`, etc.
+- the page should load the correct tab from the URL
+
+If local state is used:
+- make the tab logic simple and reliable
+- default to `Overview`
+
+Important product framing:
+This is not a finance app.
+This is a KYC/KYB portal.
+The tab content must reflect real product sections, not placeholder business-dashboard filler.
+
+What I want you to produce:
+- make these tabs fully functional
+- wire them to real content sections
+- keep the current visual design intact
+- improve the code if needed for maintainability
+
+Expected tab IDs:
+- overview
+- verification
+- integrations
+- billing
+
+Optional enhancement:
+If the current page already has widgets that fit these categories, reorganize them under the correct tab instead of creating fake new content.
+
+Do not leave the tabs as static UI.
+Make them actually switch meaningful dashboard content.

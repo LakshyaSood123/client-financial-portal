@@ -1,6 +1,7 @@
 import { GlassPanel } from "@/components/GlassPanel";
 import { PieChart, Pie, Cell } from "recharts";
 import { motion } from "framer-motion";
+import { Link } from "wouter";
 
 const data = [
   { name: "Delivered", value: 1248, color: "#00d4aa" },
@@ -22,9 +23,13 @@ export function WebhookDonut() {
             Delivery Status
           </p>
         </div>
-        <button className="text-xs font-semibold flex items-center gap-0.5 transition-colors" style={{ color: "#00d4aa" }}>
-          View All <span>›</span>
-        </button>
+        <Link
+          href="/webhooks"
+          className="text-xs font-semibold flex items-center gap-0.5 transition-colors hover:text-[#a8ff3e]"
+          style={{ color: "#00d4aa" }}
+        >
+          View All →
+        </Link>
       </div>
 
       <div className="flex items-center gap-3 flex-1">
@@ -55,7 +60,6 @@ export function WebhookDonut() {
               ))}
             </Pie>
           </PieChart>
-          {/* Center label */}
           <div style={{
             position: "absolute", inset: 0,
             display: "flex", flexDirection: "column",
@@ -87,9 +91,7 @@ export function WebhookDonut() {
                 boxShadow: `0 0 6px ${item.color}80`,
               }} />
               <div>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#6b8a82" }}>
-                  {item.name}
-                </p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#6b8a82" }}>{item.name}</p>
                 <p style={{ fontFamily: "'Clash Display', sans-serif", fontSize: 14, fontWeight: 700, color: "#f0f8f5" }}>
                   {item.value.toLocaleString()}
                 </p>

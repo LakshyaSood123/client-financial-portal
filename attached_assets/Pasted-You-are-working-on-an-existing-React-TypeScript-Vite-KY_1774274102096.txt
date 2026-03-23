@@ -1,0 +1,134 @@
+You are working on an existing React + TypeScript + Vite KYC/KYB portal project. I already have a dashboard screen built. Your task is to refine it into a cleaner, more useful product dashboard by identifying what should be kept, what should be changed, what should be removed, and what should replace weak or decorative parts.
+
+Important context:
+This is not a banking app, personal finance app, wallet app, or card app.
+This is a KYC/KYB client portal.
+The dashboard should help users monitor account status, KYB progress, integrations, webhooks, billing, API keys, audit logs, usage, and recent compliance/account activity.
+
+Your job:
+Audit the existing dashboard UI and improve it so every visible section has a real product purpose.
+
+What to preserve:
+- premium dark visual style
+- left sidebar layout
+- strong typography and hierarchy
+- ring KPI cards
+- right-side summary column
+- recent activity feed
+- large analytics cards
+- polished card/grid structure
+- modern enterprise dashboard feel
+
+What is currently useful and should likely stay:
+- main heading like “Account Overview”
+- subtitle related to KYB progress, integration health, billing status, and recent activity
+- tabs like `Overview`, `Verification`, `Integrations`, `Billing`
+- KPI rings for:
+  - KYB Status
+  - Ops Status
+  - Risk Tier
+  - Plan
+- account summary panel with:
+  - tenant name
+  - tenant ID
+  - environment
+  - plan
+  - billing balance
+  - usage progress
+- jobs processed / usage chart
+- webhook delivery status chart
+- recent activity feed
+- lower summary cards such as:
+  - billing balance
+  - API keys
+  - webhook failures
+  - usage or alerts
+
+What is weak, decorative, or should be removed unless connected to real behavior:
+- fake search bar
+- fake “Live” badge
+- duplicate or redundant nav systems
+- purely decorative sidebar icons that do not map to routes
+- generic “Manage” CTAs with no clear destination
+- decorative chart dots with no legend meaning
+- fake trend badges like +12% or -4% unless supported by real data logic
+- any widget that exists only for aesthetics and has no real KYC/KYB purpose
+
+What I want you to do:
+1. Review the current dashboard and classify each visible section as:
+   - Keep
+   - Change
+   - Remove
+   - Replace
+2. Rewrite the dashboard so every card and control has a real portal purpose
+3. Remove weak or fake elements
+4. Replace unclear UI with domain-correct KYC/KYB features
+5. Keep the dashboard premium and polished, but make it more useful than decorative
+
+Required product framing:
+This dashboard should help a tenant/customer understand:
+- whether their account is operational
+- KYB verification state
+- risk tier
+- current plan
+- recent verification or compliance activity
+- webhook health
+- API key/integration state
+- billing/usage position
+- important alerts or failures
+
+Preferred dashboard structure:
+- Header:
+  - `Account Overview`
+  - subtitle explaining the dashboard purpose
+- Top tabs:
+  - `Overview`
+  - `Verification`
+  - `Integrations`
+  - `Billing`
+- Four KPI rings:
+  - `KYB Status`
+  - `Ops Status`
+  - `Risk Tier`
+  - `Plan`
+- Main analytics card:
+  - `Jobs Processed`
+  - or `Usage Trend`
+  - or `Verification Volume`
+- Secondary analytics card:
+  - `Webhooks`
+  - showing delivery status breakdown
+- Right rail:
+  - `Account Summary`
+  - `Recent Activity`
+- Bottom summary cards:
+  - `Billing Balance`
+  - `API Keys`
+  - `Webhook Failures`
+  - `Audit Events`
+  - `Documents Uploaded`
+  - `Usage This Month`
+Pick the most useful ones and avoid clutter.
+
+Behavior rules:
+- If a control is visible, it should either work or be removed
+- If a label is visible, it must be meaningful in the KYC/KYB domain
+- If a chart is visible, it should represent operational metrics, not generic dashboard filler
+- If a CTA exists, it should map to a real destination or real action
+- Reduce visual noise where it does not improve comprehension
+
+Output I want:
+- a section-by-section audit of the current dashboard
+- exact recommendations for what to keep/change/remove/replace
+- updated copy for titles, subtitles, card labels, and CTA labels
+- a cleaner final dashboard structure
+- if editing code, implement the improved version directly in the existing project
+
+If you code:
+- do not rebuild the project from scratch
+- adapt the current dashboard
+- preserve the existing design language
+- remove fake controls if they are not implemented
+- align the UI with real KYC/KYB portal features
+
+The result should feel like a serious, premium KYC portal dashboard, not a decorative concept screen.
