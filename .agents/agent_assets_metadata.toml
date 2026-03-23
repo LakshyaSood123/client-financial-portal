@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "n2ZXRNGYFHOi9hK77sBKW"
+uri = "file://artifacts/kyc-portal/HANDOFF.md"
+type = "text"
+title = "NexusKYC Dashboard — Full UI Replication Handoff"
