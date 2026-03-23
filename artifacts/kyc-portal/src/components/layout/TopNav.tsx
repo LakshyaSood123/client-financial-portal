@@ -118,21 +118,18 @@ export function TopNav({ activeTab, setActiveTab }: TopNavProps) {
         <div style={{ width: 1, height: 24, background: "rgba(0,0,0,0.1)" }} />
 
         {/* Avatar */}
-        <div className="flex items-center gap-3 cursor-pointer group">
-          <div className="text-right">
-            <p className="text-sm font-display font-semibold leading-tight group-hover:text-[#efc92d] transition-colors" style={{ color: "#1a1a1a" }}>
-              Stefan
-            </p>
-            <p className="text-[10px] leading-tight" style={{ color: "#8a8a8a" }}>Acme Corp Ltd</p>
-          </div>
+        <div className="flex items-center gap-2.5 cursor-pointer group">
           <div
             className="w-9 h-9 rounded-full p-[2px] flex-shrink-0"
             style={{ background: "linear-gradient(135deg, #efc92d, #f59b20)" }}
           >
             <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#f5f3ef" }}>
-              <img src="https://i.pravatar.cc/150?img=59" alt="Stefan" className="w-full h-full object-cover" />
+              <img src="https://i.pravatar.cc/150?img=59" alt="Client" className="w-full h-full object-cover" />
             </div>
           </div>
+          <p className="text-sm font-display font-semibold group-hover:text-[#efc92d] transition-colors" style={{ color: "#1a1a1a" }}>
+            Client
+          </p>
         </div>
       </div>
     </motion.header>
