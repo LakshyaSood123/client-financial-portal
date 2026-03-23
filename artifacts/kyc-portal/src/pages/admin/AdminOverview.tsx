@@ -10,9 +10,9 @@ import {
 
 const card = {
   background: "#ffffff",
-  border: "1px solid rgba(0,0,0,0.07)",
+  border: "1px solid rgba(28,43,74,0.07)",
   borderRadius: 16,
-  boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+  boxShadow: "0 2px 16px rgba(28,43,74,0.08)",
 } as React.CSSProperties;
 
 const STATS = [
