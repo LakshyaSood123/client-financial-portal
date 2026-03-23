@@ -13,7 +13,7 @@ const R       = 22;             // border radius
 const tCard: React.CSSProperties = {
   background: CARD,
   borderRadius: R,
-  padding: 20,
+  padding: 16,
 };
 const dCard: React.CSSProperties = {
   background: DARK,
@@ -75,14 +75,14 @@ const fade = (delay: number) => ({
 export default function AdminOverview() {
   return (
     <AdminLayout>
-      <div className="p-8 space-y-5">
+      <div className="px-8 pt-5 pb-8 space-y-4">
 
         {/* ── Header ── */}
         <motion.div {...fade(0.05)}>
-          <h1 className="font-display" style={{ fontSize: 42, fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, color: TEXT }}>
+          <h1 className="font-display" style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, color: TEXT }}>
             Good morning, Admin
           </h1>
-          <p className="text-sm mt-1" style={{ color: MUTED }}>
+          <p className="text-sm mt-0.5" style={{ color: MUTED }}>
             KYC system overview — March 23, 2026
           </p>
         </motion.div>
@@ -135,8 +135,8 @@ export default function AdminOverview() {
                   </span>
                   <span className="text-xs font-bold mb-1" style={{ color: "#4ade80" }}>+2.1%</span>
                 </div>
-                <div className="flex-1" style={{ height: 72 }}>
-                  <ResponsiveContainer width="100%" height={72}>
+                <div className="flex-1" style={{ height: 56 }}>
+                  <ResponsiveContainer width="100%" height={56}>
                     <AreaChart data={trendData} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
                       <defs>
                         <linearGradient id="ovTrend" x1="0" y1="0" x2="0" y2="1">
@@ -166,7 +166,7 @@ export default function AdminOverview() {
                     </span>
                   </div>
                 </div>
-                <ResponsiveContainer width="100%" height={140}>
+                <ResponsiveContainer width="100%" height={120}>
                   <BarChart data={volumeData} barGap={3} barCategoryGap="38%">
                     <XAxis dataKey="name" axisLine={false} tickLine={false}
                       tick={{ fill: MUTED, fontSize: 11, fontFamily: "Satoshi" }} />
