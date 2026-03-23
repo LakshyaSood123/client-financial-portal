@@ -53,8 +53,8 @@ export default function Dashboard() {
               transition={{ delay: 0.15, duration: 0.5 }}
             >
               <h1
-                className="font-display font-bold"
-                style={{ fontSize: 38, letterSpacing: "-0.03em", lineHeight: 1.1, color: "#1a1a1a" }}
+                className="font-display"
+                style={{ fontSize: 54, fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.05, color: "#1a1a1a" }}
               >
                 Account Overview
               </h1>

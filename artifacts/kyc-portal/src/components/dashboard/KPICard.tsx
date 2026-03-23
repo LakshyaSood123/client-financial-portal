@@ -90,8 +90,8 @@ export function KPICard({ title, value, percent, color, trend, delay = 0 }: KPIC
           alignItems: "center", justifyContent: "center",
         }}>
           <span style={{
-            fontFamily: "'Plus Jakarta Sans', sans-serif",
-            fontWeight: 700,
+            fontFamily: "'Satoshi', sans-serif",
+            fontWeight: 800,
             fontSize: value.length > 7 ? "12px" : "18px",
             color: "#1a1a1a",
             letterSpacing: "-0.02em",
@@ -100,9 +100,9 @@ export function KPICard({ title, value, percent, color, trend, delay = 0 }: KPIC
             {value}
           </span>
           <span style={{
-            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontFamily: "'Satoshi', sans-serif",
             fontSize: "9px",
-            fontWeight: 500,
+            fontWeight: 600,
             color: "#8a8a8a",
             letterSpacing: "0.08em",
             textTransform: "uppercase",
