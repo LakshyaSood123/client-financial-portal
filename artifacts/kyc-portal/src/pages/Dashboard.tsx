@@ -26,14 +26,18 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabId>("overview");
 
   return (
-    <div className="min-h-screen font-sans relative overflow-x-hidden" style={{ background: "#f5f3ef" }}>
-      {/* Yellow gradient blob — top right, Crextio-style */}
+    <div className="min-h-screen font-sans relative overflow-x-hidden" style={{ background: "#EEF4F8" }}>
+      {/* Soft blue gradient blob — top right */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute" style={{
-          width: "55%", height: "75%",
-          top: "-15%", right: "-5%",
-          background: "radial-gradient(ellipse 60% 70% at 100% 0%, #f9e987 0%, #f5d855 30%, transparent 65%)",
-          opacity: 0.55,
+          width: "50%", height: "70%",
+          top: "-10%", right: "-5%",
+          background: "radial-gradient(ellipse 60% 70% at 100% 0%, rgba(79,124,255,0.12) 0%, rgba(79,124,255,0.04) 40%, transparent 70%)",
+        }} />
+        <div className="absolute" style={{
+          width: "30%", height: "40%",
+          bottom: "5%", left: "5%",
+          background: "radial-gradient(ellipse 60% 60% at 0% 100%, rgba(34,197,94,0.06) 0%, transparent 70%)",
         }} />
       </div>
 
@@ -54,7 +58,7 @@ export default function Dashboard() {
             >
               <h1
                 className="font-display"
-                style={{ fontSize: 54, fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.05, color: "#1a1a1a" }}
+                style={{ fontSize: 54, fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.05, color: "#111827" }}
               >
                 Account Overview
               </h1>
@@ -62,7 +66,7 @@ export default function Dashboard() {
                 <motion.p
                   key={activeTab}
                   className="text-sm font-sans mt-1"
-                  style={{ color: "#8a8a8a" }}
+                  style={{ color: "#94A3B8" }}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}

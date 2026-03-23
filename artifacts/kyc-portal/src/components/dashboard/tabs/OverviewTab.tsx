@@ -7,9 +7,9 @@ import { Key, AlertTriangle, ScrollText, BookOpen } from "lucide-react";
 
 const lightCard = {
   background: "#ffffff",
-  border: "1px solid rgba(0,0,0,0.07)",
+  border: "1px solid rgba(79,124,255,0.08)",
   borderRadius: 20,
-  boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+  boxShadow: "0 1px 8px rgba(79,124,255,0.05)",
 } as React.CSSProperties;
 
 const BOTTOM_CARDS = [
@@ -18,22 +18,22 @@ const BOTTOM_CARDS = [
     value: "₹0.00",
     sub: "₹250 credit included · resets Apr 1",
     badge: "No overages",
-    badgeColor: "#c9a200",
-    badgeBg: "rgba(239,201,45,0.12)",
+    badgeColor: "#3B6AF3",
+    badgeBg: "rgba(79,124,255,0.1)",
     href: "/billing",
     icon: BookOpen,
-    iconColor: "#efc92d",
+    iconColor: "#4F7CFF",
   },
   {
     label: "API Keys Active",
     value: "3",
     sub: "2 production · 1 sandbox",
     badge: "All valid",
-    badgeColor: "#00b896",
-    badgeBg: "rgba(0,184,150,0.12)",
+    badgeColor: "#16a34a",
+    badgeBg: "rgba(34,197,94,0.1)",
     href: "/api-keys",
     icon: Key,
-    iconColor: "#00b896",
+    iconColor: "#22C55E",
   },
   {
     label: "Webhook Failures",
@@ -41,7 +41,7 @@ const BOTTOM_CARDS = [
     sub: "Last 30 days · 1.8% fail rate",
     badge: "Review needed",
     badgeColor: "#f54a4a",
-    badgeBg: "rgba(245,74,74,0.12)",
+    badgeBg: "rgba(245,74,74,0.1)",
     href: "/webhooks",
     icon: AlertTriangle,
     iconColor: "#f54a4a",
@@ -52,7 +52,7 @@ const BOTTOM_CARDS = [
     sub: "March 2026 · exportable",
     badge: "Up to date",
     badgeColor: "#8b6ff4",
-    badgeBg: "rgba(139,111,244,0.12)",
+    badgeBg: "rgba(139,111,244,0.1)",
     href: "/audit-logs",
     icon: ScrollText,
     iconColor: "#8b6ff4",
@@ -69,8 +69,8 @@ export function OverviewTab() {
     >
       {/* KPI Cards */}
       <div className="grid grid-cols-4 gap-4 mb-6">
-        <KPICard title="KYB Status" value="Verified" percent={100} color="#00b896" delay={0.05} />
-        <KPICard title="Ops Status" value="Active"   percent={90}  color="#efc92d" delay={0.1} />
+        <KPICard title="KYB Status" value="Verified" percent={100} color="#22C55E" delay={0.05} />
+        <KPICard title="Ops Status" value="Active"   percent={90}  color="#4F7CFF" delay={0.1} />
         <KPICard title="Risk Tier"  value="Low"      percent={75}  color="#8b6ff4" delay={0.15} />
         <KPICard title="Plan"       value="Growth"   percent={60}  color="#f59b20" delay={0.2} />
       </div>
@@ -93,11 +93,11 @@ export function OverviewTab() {
             transition={{ delay: 0.25 + i * 0.07 }}
             onMouseEnter={e => {
               (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)";
-              (e.currentTarget as HTMLElement).style.boxShadow = `0 10px 28px rgba(0,0,0,0.1), 0 0 16px ${card.iconColor}18`;
+              (e.currentTarget as HTMLElement).style.boxShadow = `0 10px 28px rgba(79,124,255,0.1), 0 0 16px ${card.iconColor}18`;
             }}
             onMouseLeave={e => {
               (e.currentTarget as HTMLElement).style.transform = "";
-              (e.currentTarget as HTMLElement).style.boxShadow = "0 2px 12px rgba(0,0,0,0.06)";
+              (e.currentTarget as HTMLElement).style.boxShadow = "0 1px 8px rgba(79,124,255,0.05)";
             }}
           >
             <div className="flex items-center justify-between">
@@ -114,19 +114,19 @@ export function OverviewTab() {
             </div>
 
             <div>
-              <p className="text-[10px] font-medium uppercase tracking-[0.08em] mb-1" style={{ color: "#8a8a8a" }}>
+              <p className="text-[10px] font-medium uppercase tracking-[0.08em] mb-1" style={{ color: "#94A3B8" }}>
                 {card.label}
               </p>
               <p
                 className="font-display font-bold"
                 style={{
-                  fontSize: 26, letterSpacing: "-0.02em", lineHeight: 1, color: "#1a1a1a",
+                  fontSize: 26, letterSpacing: "-0.02em", lineHeight: 1, color: "#111827",
                   fontFamily: card.label === "Billing Balance" ? "'JetBrains Mono', monospace" : undefined,
                 }}
               >
                 {card.value}
               </p>
-              <p className="text-[10px] mt-1" style={{ color: "#8a8a8a" }}>{card.sub}</p>
+              <p className="text-[10px] mt-1" style={{ color: "#94A3B8" }}>{card.sub}</p>
             </div>
 
             <div className="px-2.5 py-1 rounded-full text-[10px] font-bold w-fit" style={{ background: card.badgeBg, color: card.badgeColor }}>

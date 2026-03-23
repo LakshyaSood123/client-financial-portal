@@ -7,31 +7,31 @@
   --font-display: 'Satoshi', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  --color-background: #f5f3ef;
-  --color-foreground: #1a1a1a;
+  --color-background: #EEF4F8;
+  --color-foreground: #111827;
 
   --color-card: #ffffff;
-  --color-card-border: rgba(0,0,0,0.07);
+  --color-card-border: rgba(79,124,255,0.08);
 
-  --color-primary: #efc92d;
-  --color-primary-foreground: #1a1a1a;
+  --color-primary: #4F7CFF;
+  --color-primary-foreground: #ffffff;
 
-  --color-secondary: #1a1a1a;
+  --color-secondary: #0F172A;
   --color-secondary-foreground: #ffffff;
 
-  --color-muted: rgba(0,0,0,0.05);
-  --color-muted-foreground: #8a8a8a;
-  --color-muted-soft: #c0bab0;
+  --color-muted: rgba(79,124,255,0.05);
+  --color-muted-foreground: #94A3B8;
+  --color-muted-soft: #94A3B8;
 
-  --color-accent-lime: #efc92d;
-  --color-accent-teal: #00b896;
+  --color-accent-blue: #4F7CFF;
+  --color-accent-green: #22C55E;
   --color-accent-purple: #8b6ff4;
   --color-accent-amber: #f59b20;
   --color-accent-red: #f54a4a;
   --color-accent-cyan: #3de8e8;
 
-  --color-border: rgba(0,0,0,0.07);
-  --color-ring: #efc92d;
+  --color-border: rgba(79,124,255,0.08);
+  --color-ring: #4F7CFF;
 
   --color-chart-1: #00b896;
   --color-chart-2: #efc92d;
@@ -42,8 +42,8 @@
 
 @layer base {
   :root {
-    --background: #f5f3ef;
-    --foreground: #1a1a1a;
+    --background: #EEF4F8;
+    --foreground: #111827;
   }
 
   body {

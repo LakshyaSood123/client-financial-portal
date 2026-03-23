@@ -27,40 +27,40 @@ export function AccountSummaryCard() {
       className="rounded-2xl overflow-hidden relative"
       style={{
         background: "#ffffff",
-        border: "1px solid rgba(0,0,0,0.07)",
-        boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+        border: "1px solid rgba(79,124,255,0.1)",
+        boxShadow: "0 1px 8px rgba(79,124,255,0.06)",
       }}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3, duration: 0.5 }}
     >
-      {/* Yellow accent glow top-right */}
+      {/* Blue accent glow top-right */}
       <div className="absolute top-0 right-0 w-28 h-28 pointer-events-none" style={{
-        background: "radial-gradient(ellipse at 80% 20%, rgba(239,201,45,0.15) 0%, transparent 70%)",
+        background: "radial-gradient(ellipse at 80% 20%, rgba(79,124,255,0.1) 0%, transparent 70%)",
       }} />
 
       {/* Header */}
-      <div className="px-5 pt-5 pb-4" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+      <div className="px-5 pt-5 pb-4" style={{ borderBottom: "1px solid rgba(79,124,255,0.08)" }}>
         <div className="flex items-center gap-2 mb-1">
-          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#00b896", boxShadow: "0 0 6px rgba(0,184,150,0.6)" }} />
-          <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#00b896" }}>Active</span>
+          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#22C55E", boxShadow: "0 0 6px rgba(34,197,94,0.5)" }} />
+          <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#22C55E" }}>Active</span>
         </div>
-        <p className="font-display font-bold" style={{ fontSize: 18, letterSpacing: "-0.01em", color: "#1a1a1a" }}>
+        <p className="font-display font-bold" style={{ fontSize: 18, letterSpacing: "-0.01em", color: "#111827" }}>
           Acme Corp Ltd
         </p>
-        <p className="text-xs mt-0.5" style={{ color: "#8a8a8a" }}>KYB Verified · Growth Plan</p>
+        <p className="text-xs mt-0.5" style={{ color: "#94A3B8" }}>KYB Verified · Growth Plan</p>
       </div>
 
       {/* Fields */}
       <div className="px-5 py-4 space-y-3">
         {FIELDS.map((field) => (
           <div key={field.label} className="flex items-center justify-between">
-            <span className="text-xs" style={{ color: "#8a8a8a" }}>{field.label}</span>
+            <span className="text-xs" style={{ color: "#94A3B8" }}>{field.label}</span>
             <div className="flex items-center gap-1.5">
               <span
                 className="text-xs font-semibold"
                 style={{
-                  color: "#1a1a1a",
+                  color: "#111827",
                   fontFamily: field.mono ? "'JetBrains Mono', monospace" : undefined,
                   fontSize: field.mono ? 11 : 12,
                 }}
@@ -71,7 +71,7 @@ export function AccountSummaryCard() {
                 <button
                   onClick={handleCopy}
                   className="p-0.5 rounded transition-colors"
-                  style={{ color: copied ? "#efc92d" : "#b5b2ab" }}
+                  style={{ color: copied ? "#4F7CFF" : "#94A3B8" }}
                   title="Copy Tenant ID"
                 >
                   {copied ? <CheckCircle2 className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
@@ -85,19 +85,19 @@ export function AccountSummaryCard() {
       {/* Usage bar */}
       <div className="px-5 pb-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "#8a8a8a" }}>Monthly Usage</span>
-          <span className="text-[10px] font-mono" style={{ color: "#00b896" }}>1,124 / 5,000 jobs</span>
+          <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "#94A3B8" }}>Monthly Usage</span>
+          <span className="text-[10px] font-mono" style={{ color: "#4F7CFF" }}>1,124 / 5,000 jobs</span>
         </div>
-        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(0,0,0,0.06)" }}>
+        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(79,124,255,0.1)" }}>
           <motion.div
             className="h-full rounded-full"
-            style={{ background: "linear-gradient(90deg, #00b896, #efc92d)" }}
+            style={{ background: "linear-gradient(90deg, #4F7CFF, #22C55E)" }}
             initial={{ width: 0 }}
             animate={{ width: "22.5%" }}
             transition={{ delay: 0.8, duration: 1, ease: "easeOut" }}
           />
         </div>
-        <p className="text-[10px] mt-1.5" style={{ color: "#b5b2ab" }}>22% of plan limit · resets Apr 1</p>
+        <p className="text-[10px] mt-1.5" style={{ color: "#94A3B8" }}>22% of plan limit · resets Apr 1</p>
       </div>
 
       {/* Footer CTA */}
@@ -105,7 +105,7 @@ export function AccountSummaryCard() {
         <Link
           href="/billing"
           className="flex items-center justify-center w-full h-8 rounded-xl text-xs font-semibold transition-all hover:opacity-90"
-          style={{ background: "rgba(239,201,45,0.12)", color: "#c9a200", border: "1px solid rgba(239,201,45,0.25)" }}
+          style={{ background: "rgba(79,124,255,0.1)", color: "#4F7CFF", border: "1px solid rgba(79,124,255,0.2)" }}
         >
           View Billing & Plan →
         </Link>

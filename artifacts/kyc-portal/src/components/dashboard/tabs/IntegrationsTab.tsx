@@ -6,9 +6,9 @@ import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from "rec
 
 const lightCard = {
   background: "#ffffff",
-  border: "1px solid rgba(0,0,0,0.07)",
+  border: "1px solid rgba(79,124,255,0.08)",
   borderRadius: 20,
-  boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+  boxShadow: "0 1px 8px rgba(79,124,255,0.05)",
 } as React.CSSProperties;
 
 const API_KEYS = [
@@ -24,7 +24,7 @@ const WEBHOOKS = [
 ];
 
 const HEALTH_STYLES: Record<string, { color: string; bg: string; label: string }> = {
-  healthy:  { color: "#00b896", bg: "rgba(0,184,150,0.1)",   label: "Healthy" },
+  healthy:  { color: "#22C55E", bg: "rgba(34,197,94,0.1)",   label: "Healthy" },
   degraded: { color: "#f59b20", bg: "rgba(245,155,32,0.1)",  label: "Degraded" },
   failing:  { color: "#f54a4a", bg: "rgba(245,74,74,0.1)",   label: "Failing" },
 };
@@ -47,7 +47,7 @@ const RECENT_DELIVERIES = [
 ];
 
 const DELIVERY_STATUS: Record<string, { color: string; bg: string }> = {
-  delivered: { color: "#00b896", bg: "rgba(0,184,150,0.1)" },
+  delivered: { color: "#22C55E", bg: "rgba(34,197,94,0.1)" },
   failed:    { color: "#f54a4a", bg: "rgba(245,74,74,0.1)" },
 };
 
@@ -77,13 +77,13 @@ export function IntegrationsTab() {
       <motion.div style={lightCard} className="p-6" custom={0} variants={item} initial="hidden" animate="show">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#1a1a1a" }}>API Keys</h3>
-            <p className="text-xs mt-0.5" style={{ color: "#8a8a8a" }}>3 active keys across production and sandbox</p>
+            <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#111827" }}>API Keys</h3>
+            <p className="text-xs mt-0.5" style={{ color: "#94A3B8" }}>3 active keys across production and sandbox</p>
           </div>
           <Link
             href="/api-keys"
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all hover:opacity-90"
-            style={{ background: "rgba(239,201,45,0.12)", color: "#c9a200", border: "1px solid rgba(239,201,45,0.2)" }}
+            style={{ background: "rgba(79,124,255,0.1)", color: "#4F7CFF", border: "1px solid rgba(79,124,255,0.2)" }}
           >
             <Plus className="w-3 h-3" /> New Key
           </Link>
@@ -94,33 +94,33 @@ export function IntegrationsTab() {
             <div
               key={k.key}
               className="flex items-center gap-4 h-14 px-4 rounded-xl group transition-all"
-              style={{ background: "rgba(0,0,0,0.02)", border: "1px solid rgba(0,0,0,0.04)" }}
+              style={{ background: "rgba(79,124,255,0.03)", border: "1px solid rgba(79,124,255,0.06)" }}
             >
               <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{ background: k.env === "production" ? "rgba(239,201,45,0.12)" : "rgba(139,111,244,0.12)" }}>
-                <Key className="w-4 h-4" style={{ color: k.env === "production" ? "#c9a200" : "#8b6ff4" }} />
+                style={{ background: k.env === "production" ? "rgba(79,124,255,0.1)" : "rgba(139,111,244,0.1)" }}>
+                <Key className="w-4 h-4" style={{ color: k.env === "production" ? "#4F7CFF" : "#8b6ff4" }} />
               </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-bold" style={{ color: "#1a1a1a" }}>{k.name}</p>
+                  <p className="text-sm font-bold" style={{ color: "#111827" }}>{k.name}</p>
                   <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded" style={{
-                    background: k.env === "production" ? "rgba(239,201,45,0.1)" : "rgba(139,111,244,0.1)",
-                    color: k.env === "production" ? "#c9a200" : "#8b6ff4",
+                    background: k.env === "production" ? "rgba(79,124,255,0.08)" : "rgba(139,111,244,0.08)",
+                    color: k.env === "production" ? "#4F7CFF" : "#8b6ff4",
                   }}>{k.env}</span>
                 </div>
-                <p className="text-[10px] font-mono" style={{ color: "#8a8a8a" }}>{k.key}</p>
+                <p className="text-[10px] font-mono" style={{ color: "#94A3B8" }}>{k.key}</p>
               </div>
 
               <div className="text-right hidden lg:block">
-                <p className="text-xs" style={{ color: "#8a8a8a" }}>Last used</p>
-                <p className="text-xs font-semibold" style={{ color: "#1a1a1a" }}>{k.lastUsed}</p>
+                <p className="text-xs" style={{ color: "#94A3B8" }}>Last used</p>
+                <p className="text-xs font-semibold" style={{ color: "#111827" }}>{k.lastUsed}</p>
               </div>
 
               <button
                 onClick={() => handleCopy(k.key)}
-                className="p-2 rounded-lg transition-colors hover:bg-black/5"
-                style={{ color: copiedKey === k.key ? "#efc92d" : "#b5b2ab" }}
+                className="p-2 rounded-lg transition-colors hover:bg-[rgba(79,124,255,0.06)]"
+                style={{ color: copiedKey === k.key ? "#4F7CFF" : "#94A3B8" }}
               >
                 {copiedKey === k.key ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>
@@ -136,10 +136,10 @@ export function IntegrationsTab() {
         <motion.div style={{ ...lightCard, gridColumn: "span 7" }} className="col-span-7 p-6" custom={1} variants={item} initial="hidden" animate="show">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#1a1a1a" }}>Webhook Endpoints</h3>
-              <p className="text-xs mt-0.5" style={{ color: "#8a8a8a" }}>3 configured · 1 degraded</p>
+              <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#111827" }}>Webhook Endpoints</h3>
+              <p className="text-xs mt-0.5" style={{ color: "#94A3B8" }}>3 configured · 1 degraded</p>
             </div>
-            <Link href="/webhooks" className="text-xs font-semibold transition-colors hover:text-[#1a1a1a]" style={{ color: "#8a8a8a" }}>
+            <Link href="/webhooks" className="text-xs font-semibold transition-colors hover:text-[#111827]" style={{ color: "#94A3B8" }}>
               Manage →
             </Link>
           </div>
@@ -148,19 +148,19 @@ export function IntegrationsTab() {
             {WEBHOOKS.map((wh) => {
               const hs = HEALTH_STYLES[wh.health];
               return (
-                <div key={wh.url} className="p-4 rounded-2xl" style={{ background: "rgba(0,0,0,0.02)", border: "1px solid rgba(0,0,0,0.04)" }}>
+                <div key={wh.url} className="p-4 rounded-2xl" style={{ background: "rgba(79,124,255,0.03)", border: "1px solid rgba(79,124,255,0.06)" }}>
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2 min-w-0">
-                      <Webhook className="w-4 h-4 flex-shrink-0" style={{ color: "#b5b2ab" }} />
-                      <p className="text-sm font-mono font-semibold truncate" style={{ color: "#1a1a1a" }}>{wh.url}</p>
+                      <Webhook className="w-4 h-4 flex-shrink-0" style={{ color: "#94A3B8" }} />
+                      <p className="text-sm font-mono font-semibold truncate" style={{ color: "#111827" }}>{wh.url}</p>
                     </div>
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold flex-shrink-0 ml-3" style={{ background: hs.bg, color: hs.color }}>
                       <Circle className="w-1.5 h-1.5 fill-current" />{hs.label}
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 text-[10px]" style={{ color: "#8a8a8a" }}>
+                  <div className="flex items-center gap-4 text-[10px]" style={{ color: "#94A3B8" }}>
                     <span>{wh.deliveries.toLocaleString()} delivered</span>
-                    <span style={{ color: wh.failures > 0 ? "#f54a4a" : "#b5b2ab" }}>{wh.failures} failed</span>
+                    <span style={{ color: wh.failures > 0 ? "#f54a4a" : "#94A3B8" }}>{wh.failures} failed</span>
                     <div className="flex flex-wrap gap-1">
                       {wh.events.map(ev => (
                         <span key={ev} className="px-1.5 py-0.5 rounded font-mono" style={{ background: "rgba(139,111,244,0.08)", color: "#8b6ff4" }}>{ev}</span>
@@ -177,9 +177,9 @@ export function IntegrationsTab() {
         <motion.div style={{ ...lightCard, gridColumn: "span 5" }} className="col-span-5 p-6" custom={2} variants={item} initial="hidden" animate="show">
           <div className="flex items-center gap-2 mb-1">
             <Activity className="w-4 h-4" style={{ color: "#8b6ff4" }} />
-            <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#1a1a1a" }}>Delivery Activity</h3>
+            <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#111827" }}>Delivery Activity</h3>
           </div>
-          <p className="text-xs mb-4" style={{ color: "#8a8a8a" }}>Last 24 hours</p>
+          <p className="text-xs mb-4" style={{ color: "#94A3B8" }}>Last 24 hours</p>
 
           <div style={{ height: 100 }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -190,11 +190,11 @@ export function IntegrationsTab() {
                     <stop offset="95%" stopColor="#8b6ff4" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="h" tick={{ fill: "#b5b2ab", fontSize: 9 }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="h" tick={{ fill: "#94A3B8", fontSize: 9 }} axisLine={false} tickLine={false} />
                 <YAxis hide />
                 <Tooltip
-                  contentStyle={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 8, fontSize: 11, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
-                  labelStyle={{ color: "#8a8a8a" }}
+                  contentStyle={{ background: "#ffffff", border: "1px solid rgba(79,124,255,0.1)", borderRadius: 8, fontSize: 11, boxShadow: "0 4px 12px rgba(79,124,255,0.08)" }}
+                  labelStyle={{ color: "#94A3B8" }}
                 />
                 <Area type="monotone" dataKey="delivered" stroke="#8b6ff4" strokeWidth={2} fill="url(#delGrad)" dot={false} name="Delivered" />
                 <Area type="monotone" dataKey="failed"    stroke="#f54a4a" strokeWidth={1.5} fill="rgba(245,74,74,0.06)" dot={false} name="Failed" />
@@ -203,18 +203,18 @@ export function IntegrationsTab() {
           </div>
 
           <div className="mt-4 space-y-2">
-            <p className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: "#8a8a8a" }}>Recent Events</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: "#94A3B8" }}>Recent Events</p>
             {RECENT_DELIVERIES.map((ev) => (
               <div key={ev.id} className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: DELIVERY_STATUS[ev.status].color }} />
-                  <span className="text-[10px] font-mono truncate" style={{ color: "#8a8a8a" }}>{ev.event}</span>
+                  <span className="text-[10px] font-mono truncate" style={{ color: "#94A3B8" }}>{ev.event}</span>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold" style={{ background: DELIVERY_STATUS[ev.status].bg, color: DELIVERY_STATUS[ev.status].color }}>
                     {ev.status}
                   </span>
-                  <span className="text-[9px]" style={{ color: "#b5b2ab" }}>{ev.time}</span>
+                  <span className="text-[9px]" style={{ color: "#94A3B8" }}>{ev.time}</span>
                 </div>
               </div>
             ))}

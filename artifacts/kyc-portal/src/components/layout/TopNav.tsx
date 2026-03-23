@@ -28,8 +28,8 @@ export function TopNav({ activeTab, setActiveTab }: TopNavProps) {
       className="sticky top-0 z-40 flex items-center justify-between px-8"
       style={{
         height: 64,
-        background: "#f5f3ef",
-        borderBottom: "1px solid rgba(0,0,0,0.07)",
+        background: "#EEF4F8",
+        borderBottom: "1px solid rgba(79,124,255,0.1)",
       }}
       initial={{ y: -64, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
@@ -40,10 +40,10 @@ export function TopNav({ activeTab, setActiveTab }: TopNavProps) {
         {/* Logo pill */}
         <div
           className="px-4 py-1.5 rounded-full cursor-pointer select-none shrink-0"
-          style={{ border: "1.5px solid #1a1a1a" }}
+          style={{ border: "1.5px solid #1E293B" }}
         >
-          <span className="font-display font-bold text-sm" style={{ color: "#1a1a1a", letterSpacing: "-0.01em" }}>
-            Nexus<span style={{ color: "#efc92d" }}>KYC</span>
+          <span className="font-display font-bold text-sm" style={{ color: "#0F172A", letterSpacing: "-0.01em" }}>
+            Nexus<span style={{ color: "#4F7CFF" }}>KYC</span>
           </span>
         </div>
 
@@ -55,14 +55,14 @@ export function TopNav({ activeTab, setActiveTab }: TopNavProps) {
               onClick={() => setActiveTab(tab.id)}
               className={cn(
                 "relative px-4 py-1.5 rounded-full text-sm font-medium transition-colors z-10",
-                activeTab === tab.id ? "text-white" : "text-[#8a8a8a] hover:text-[#1a1a1a]"
+                activeTab === tab.id ? "text-white" : "text-[#94A3B8] hover:text-[#111827]"
               )}
             >
               {activeTab === tab.id && (
                 <motion.div
                   layoutId="active-top-nav"
                   className="absolute inset-0 rounded-full -z-10"
-                  style={{ background: "#1a1a1a" }}
+                  style={{ background: "#4F7CFF" }}
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
@@ -70,13 +70,13 @@ export function TopNav({ activeTab, setActiveTab }: TopNavProps) {
             </button>
           ))}
 
-          <div className="w-px h-4 mx-2" style={{ background: "rgba(0,0,0,0.12)" }} />
+          <div className="w-px h-4 mx-2" style={{ background: "rgba(79,124,255,0.15)" }} />
 
           {LINK_ITEMS.map(item => (
             <Link
               key={item.href}
               href={item.href}
-              className="px-4 py-1.5 rounded-full text-sm font-medium text-[#8a8a8a] hover:text-[#1a1a1a] transition-colors whitespace-nowrap"
+              className="px-4 py-1.5 rounded-full text-sm font-medium text-[#94A3B8] hover:text-[#111827] transition-colors whitespace-nowrap"
             >
               {item.label}
             </Link>
@@ -84,7 +84,7 @@ export function TopNav({ activeTab, setActiveTab }: TopNavProps) {
 
           <Link
             href="/admin"
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium text-[#8a8a8a] hover:text-[#1a1a1a] transition-colors whitespace-nowrap"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium text-[#94A3B8] hover:text-[#111827] transition-colors whitespace-nowrap"
           >
             <Shield className="w-3.5 h-3.5" />
             Admin
@@ -97,35 +97,35 @@ export function TopNav({ activeTab, setActiveTab }: TopNavProps) {
         {/* Health pill */}
         <div
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
-          style={{ background: "rgba(0,184,150,0.1)", border: "1px solid rgba(0,184,150,0.2)", color: "#00b896" }}
+          style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)", color: "#22C55E" }}
         >
-          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#00b896" }} />
+          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#22C55E" }} />
           All systems operational
         </div>
 
         {/* Bell */}
-        <button className="relative p-1.5 rounded-full hover:bg-black/5 transition-colors" style={{ color: "#8a8a8a" }}>
+        <button className="relative p-1.5 rounded-full hover:bg-[rgba(79,124,255,0.08)] transition-colors" style={{ color: "#94A3B8" }}>
           <Bell className="w-5 h-5" />
-          <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: "#f54a4a", border: "1.5px solid #f5f3ef" }} />
+          <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: "#f54a4a", border: "1.5px solid #EEF4F8" }} />
         </button>
 
         {/* Help */}
-        <button className="p-1.5 rounded-full hover:bg-black/5 transition-colors" style={{ color: "#8a8a8a" }}>
+        <button className="p-1.5 rounded-full hover:bg-[rgba(79,124,255,0.08)] transition-colors" style={{ color: "#94A3B8" }}>
           <HelpCircle className="w-5 h-5" />
         </button>
 
         {/* Separator */}
-        <div style={{ width: 1, height: 24, background: "rgba(0,0,0,0.1)" }} />
+        <div style={{ width: 1, height: 24, background: "rgba(79,124,255,0.12)" }} />
 
         {/* Avatar */}
         <div className="flex items-center gap-2.5 cursor-pointer group">
           <div
             className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 font-display font-bold text-sm"
-            style={{ background: "linear-gradient(135deg, #efc92d, #f59b20)", color: "#1a1a1a" }}
+            style={{ background: "linear-gradient(135deg, #4F7CFF, #3B6AF3)", color: "#ffffff" }}
           >
             C
           </div>
-          <p className="text-sm font-display font-semibold group-hover:text-[#efc92d] transition-colors" style={{ color: "#1a1a1a" }}>
+          <p className="text-sm font-display font-semibold group-hover:text-[#4F7CFF] transition-colors" style={{ color: "#111827" }}>
             Client
           </p>
         </div>
