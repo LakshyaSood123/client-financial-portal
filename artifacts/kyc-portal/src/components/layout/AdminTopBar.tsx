@@ -3,13 +3,13 @@ import { motion } from "framer-motion";
 import { useLocation } from "wouter";
 
 const PAGE_TITLES: Record<string, string> = {
-  "/admin": "Overview",
+  "/admin":           "Overview",
   "/admin/kyc-queue": "KYC Review Queue",
-  "/admin/clients": "Client Management",
-  "/admin/risk": "Risk Alerts",
+  "/admin/clients":   "Client Management",
+  "/admin/risk":      "Risk Alerts",
   "/admin/analytics": "Analytics",
-  "/admin/audit": "Audit Logs",
-  "/admin/settings": "Settings",
+  "/admin/audit":     "Audit Logs",
+  "/admin/settings":  "Settings",
 };
 
 export function AdminTopBar() {
@@ -22,19 +22,19 @@ export function AdminTopBar() {
       style={{
         left: 72,
         height: 64,
-        background: "rgba(245,243,239,0.92)",
-        backdropFilter: "blur(20px) saturate(180%)",
-        borderBottom: "1px solid rgba(0,0,0,0.07)",
+        background: "rgba(232,238,247,0.92)",
+        backdropFilter: "blur(20px) saturate(160%)",
+        borderBottom: "1px solid rgba(0,0,0,0.06)",
       }}
       initial={{ y: -64, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.1, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
     >
-      {/* Left: Admin badge + breadcrumb */}
+      {/* Left */}
       <div className="flex items-center gap-3 shrink-0">
         <div
           className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold"
-          style={{ background: "rgba(245,74,74,0.1)", color: "#f54a4a", border: "1px solid rgba(245,74,74,0.2)" }}
+          style={{ background: "#0f1013", color: "#efc92d", border: "1px solid rgba(15,16,19,0.15)" }}
         >
           <Shield className="w-3 h-3" />
           ADMIN
@@ -43,10 +43,10 @@ export function AdminTopBar() {
         <span className="font-semibold" style={{ fontSize: 15, color: "#1a1a1a" }}>{pageTitle}</span>
       </div>
 
-      {/* Center: search */}
+      {/* Center search */}
       <div className="flex-1 flex justify-center px-8">
-        <div className="relative group w-full max-w-[400px]">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors" style={{ color: "#8a8a8a" }} />
+        <div className="relative w-full max-w-[400px]">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#8a8a8a" }} />
           <input
             type="text"
             placeholder="Search clients, applications, events…"
@@ -55,14 +55,15 @@ export function AdminTopBar() {
               background: "#ffffff",
               border: "1px solid rgba(0,0,0,0.09)",
               color: "#1a1a1a",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
             }}
             onFocus={e => {
-              e.target.style.borderColor = "#f54a4a";
-              e.target.style.boxShadow = "0 0 0 3px rgba(245,74,74,0.1)";
+              e.target.style.borderColor = "#0f1013";
+              e.target.style.boxShadow = "0 0 0 3px rgba(15,16,19,0.08)";
             }}
             onBlur={e => {
               e.target.style.borderColor = "rgba(0,0,0,0.09)";
-              e.target.style.boxShadow = "none";
+              e.target.style.boxShadow = "0 1px 4px rgba(0,0,0,0.05)";
             }}
           />
           <div
@@ -78,35 +79,33 @@ export function AdminTopBar() {
       <div className="flex items-center gap-4 shrink-0">
         {/* Pending badge */}
         <div
-          className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold"
-          style={{ background: "rgba(245,155,32,0.12)", border: "1px solid rgba(245,155,32,0.25)", color: "#d97706" }}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer hover:opacity-80 transition-opacity"
+          style={{ background: "#0f1013", color: "#efc92d" }}
         >
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: "#f59b20" }} />
-            <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: "#f59b20" }} />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: "#efc92d" }} />
+            <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: "#efc92d" }} />
           </span>
           14 Pending
         </div>
 
-        {/* Notifications */}
-        <button className="relative p-1.5 transition-colors" style={{ color: "#8a8a8a" }}>
+        {/* Bell */}
+        <button className="relative p-2 rounded-xl transition-colors hover:bg-black/5" style={{ color: "#6b7280" }}>
           <Bell className="w-5 h-5" />
-          <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: "#f54a4a", border: "1.5px solid #f5f3ef" }} />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: "#f54a4a", border: "1.5px solid #e8eef7" }} />
         </button>
 
-        {/* Admin avatar */}
-        <div className="flex items-center gap-3 pl-4 cursor-pointer group" style={{ borderLeft: "1px solid rgba(0,0,0,0.08)" }}>
-          <div className="text-right">
-            <p className="text-sm font-display font-semibold" style={{ color: "#1a1a1a" }}>Admin</p>
-            <p className="text-[10px]" style={{ color: "#8a8a8a" }}>Super Admin</p>
-          </div>
+        {/* Avatar */}
+        <div className="flex items-center gap-2.5 pl-4 cursor-pointer group" style={{ borderLeft: "1px solid rgba(0,0,0,0.08)" }}>
           <div
-            className="w-9 h-9 rounded-full p-[2px]"
-            style={{ background: "linear-gradient(135deg, #efc92d, #f59b20)" }}
+            className="w-9 h-9 rounded-full flex items-center justify-center font-display font-bold text-sm shrink-0"
+            style={{ background: "#0f1013", color: "#efc92d" }}
           >
-            <div className="w-full h-full rounded-full overflow-hidden bg-white">
-              <img src="https://i.pravatar.cc/150?img=12" alt="Admin" className="w-full h-full object-cover" />
-            </div>
+            A
+          </div>
+          <div>
+            <p className="text-sm font-display font-semibold leading-tight" style={{ color: "#1a1a1a" }}>Admin</p>
+            <p className="text-[10px]" style={{ color: "#8a8a8a" }}>Super Admin</p>
           </div>
         </div>
       </div>
