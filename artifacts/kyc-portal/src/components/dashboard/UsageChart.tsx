@@ -75,7 +75,7 @@ export function UsageChart() {
               dataKey="name"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#8a8a8a", fontSize: 12, fontFamily: "DM Sans" }}
+              tick={{ fill: "#8a8a8a", fontSize: 12, fontFamily: "Plus Jakarta Sans" }}
               dy={10}
             />
             <YAxis

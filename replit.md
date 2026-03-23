@@ -58,7 +58,7 @@ NexusKYC — a premium KYC Portal Financial Operations Dashboard. Crextio-inspir
 - **Cards**: White `#ffffff`, `border: 1px solid rgba(0,0,0,0.07)`, `box-shadow: 0 2px 12px rgba(0,0,0,0.06)`
 - **Accent**: Yellow `#efc92d` (primary brand), dark `#1a1a1a` (active nav pill, headings)
 - **Semantic colors**: Teal `#00b896` (verified), Red `#f54a4a` (failures), Amber `#f59b20` (warnings), Purple `#8b6ff4` (charts)
-- **Fonts**: Clash Display (headings), DM Sans (body), JetBrains Mono (monospace data)
+- **Fonts**: Plus Jakarta Sans (headings + body — single family matching Crextio style), JetBrains Mono (monospace data)
 - **Layout**: Horizontal sticky top nav (NexusKYC logo | Overview | Verification | Integrations | Billing | API Keys | Audit Logs | Admin | health pill | bell | avatar) — NO sidebar
 - **Tab switching**: `useState` in `Dashboard.tsx` driven by `TopNav` active pill; `AnimatePresence` for transitions
 - **Components**: `TopNav`, KPI ring cards, Jobs bar chart, Webhooks donut, right rail (Account Summary + Recent Activity + Onboarding checklist), all 4 tab pages

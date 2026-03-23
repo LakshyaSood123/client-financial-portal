@@ -66,10 +66,10 @@ export function WebhookDonut() {
             alignItems: "center", justifyContent: "center",
             pointerEvents: "none",
           }}>
-            <span style={{ fontFamily: "'Clash Display', sans-serif", fontWeight: 700, fontSize: 18, color: "#1a1a1a", lineHeight: 1.1 }}>
+            <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: 18, color: "#1a1a1a", lineHeight: 1.1 }}>
               {total.toLocaleString()}
             </span>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#8a8a8a", letterSpacing: "0.06em", textTransform: "uppercase", marginTop: 3 }}>
+            <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 9, color: "#8a8a8a", letterSpacing: "0.06em", textTransform: "uppercase", marginTop: 3 }}>
               Total Events
             </span>
           </div>
@@ -91,8 +91,8 @@ export function WebhookDonut() {
                 boxShadow: `0 0 5px ${item.color}60`,
               }} />
               <div>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#8a8a8a" }}>{item.name}</p>
-                <p style={{ fontFamily: "'Clash Display', sans-serif", fontSize: 14, fontWeight: 700, color: "#1a1a1a" }}>
+                <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 12, color: "#8a8a8a" }}>{item.name}</p>
+                <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 14, fontWeight: 700, color: "#1a1a1a" }}>
                   {item.value.toLocaleString()}
                 </p>
               </div>
