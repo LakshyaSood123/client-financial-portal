@@ -15,7 +15,11 @@ export function WebhookDonut() {
   const OUTER = 70;
 
   return (
-    <GlassPanel hoverable className="p-5 col-span-12 lg:col-span-4 flex flex-col">
+    <GlassPanel
+      hoverable
+      className="p-5 col-span-12 lg:col-span-4 flex flex-col"
+      style={{ background: "#D9E9F5" }}
+    >
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#111827" }}>Webhooks</h3>
@@ -55,7 +59,7 @@ export function WebhookDonut() {
                 <Cell
                   key={`cell-${idx}`}
                   fill={entry.color}
-                  style={{ filter: `drop-shadow(0 0 4px ${entry.color}50)` }}
+                  style={{ filter: `drop-shadow(0 0 4px ${entry.color}45)` }}
                 />
               ))}
             </Pie>
@@ -88,7 +92,7 @@ export function WebhookDonut() {
               <div style={{
                 width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
                 backgroundColor: item.color,
-                boxShadow: `0 0 5px ${item.color}60`,
+                boxShadow: `0 0 5px ${item.color}55`,
               }} />
               <div>
                 <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, color: "#94A3B8" }}>{item.name}</p>

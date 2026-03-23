@@ -26,23 +26,23 @@ export function AccountSummaryCard() {
     <motion.div
       className="rounded-2xl overflow-hidden relative"
       style={{
-        background: "#ffffff",
-        border: "1px solid rgba(79,124,255,0.1)",
-        boxShadow: "0 1px 8px rgba(79,124,255,0.06)",
+        background: "#EBF2F8",
+        border: "1px solid rgba(13,18,33,0.06)",
+        boxShadow: "0 1px 4px rgba(13,18,33,0.04)",
       }}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3, duration: 0.5 }}
     >
-      {/* Blue accent glow top-right */}
+      {/* Subtle wash */}
       <div className="absolute top-0 right-0 w-28 h-28 pointer-events-none" style={{
-        background: "radial-gradient(ellipse at 80% 20%, rgba(79,124,255,0.1) 0%, transparent 70%)",
+        background: "radial-gradient(ellipse at 80% 20%, rgba(79,124,255,0.08) 0%, transparent 70%)",
       }} />
 
       {/* Header */}
-      <div className="px-5 pt-5 pb-4" style={{ borderBottom: "1px solid rgba(79,124,255,0.08)" }}>
+      <div className="px-5 pt-5 pb-4" style={{ borderBottom: "1px solid rgba(13,18,33,0.06)" }}>
         <div className="flex items-center gap-2 mb-1">
-          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#22C55E", boxShadow: "0 0 6px rgba(34,197,94,0.5)" }} />
+          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#22C55E", boxShadow: "0 0 6px rgba(34,197,94,0.4)" }} />
           <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#22C55E" }}>Active</span>
         </div>
         <p className="font-display font-bold" style={{ fontSize: 18, letterSpacing: "-0.01em", color: "#111827" }}>
@@ -88,7 +88,7 @@ export function AccountSummaryCard() {
           <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "#94A3B8" }}>Monthly Usage</span>
           <span className="text-[10px] font-mono" style={{ color: "#4F7CFF" }}>1,124 / 5,000 jobs</span>
         </div>
-        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(79,124,255,0.1)" }}>
+        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(13,18,33,0.08)" }}>
           <motion.div
             className="h-full rounded-full"
             style={{ background: "linear-gradient(90deg, #4F7CFF, #22C55E)" }}
@@ -105,7 +105,7 @@ export function AccountSummaryCard() {
         <Link
           href="/billing"
           className="flex items-center justify-center w-full h-8 rounded-xl text-xs font-semibold transition-all hover:opacity-90"
-          style={{ background: "rgba(79,124,255,0.1)", color: "#4F7CFF", border: "1px solid rgba(79,124,255,0.2)" }}
+          style={{ background: "#D9E9F5", color: "#4F7CFF", border: "1px solid rgba(79,124,255,0.15)" }}
         >
           View Billing & Plan →
         </Link>

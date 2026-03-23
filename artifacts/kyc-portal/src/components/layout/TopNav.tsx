@@ -28,8 +28,8 @@ export function TopNav({ activeTab, setActiveTab }: TopNavProps) {
       className="sticky top-0 z-40 flex items-center justify-between px-8"
       style={{
         height: 64,
-        background: "#EEF4F8",
-        borderBottom: "1px solid rgba(79,124,255,0.1)",
+        background: "#F7F9FB",
+        borderBottom: "1px solid rgba(13,18,33,0.06)",
       }}
       initial={{ y: -64, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}

@@ -27,8 +27,8 @@ export function RightPanel() {
     <motion.div
       className="flex flex-col"
       style={{
-        background: "#ffffff",
-        borderLeft: "1px solid rgba(79,124,255,0.1)",
+        background: "#EBF2F8",
+        borderLeft: "1px solid rgba(13,18,33,0.06)",
         minHeight: "100%",
       }}
       initial={{ opacity: 0, x: 20 }}
@@ -61,13 +61,13 @@ export function RightPanel() {
             {ACTIVITY.map((item, i) => (
               <motion.div
                 key={item.id}
-                className="flex items-center gap-3 h-14 px-3 rounded-xl cursor-pointer group transition-all duration-150"
+                className="flex items-center gap-3 h-14 px-3 rounded-xl cursor-pointer transition-all duration-150"
                 style={{ borderLeft: "2px solid transparent" }}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 + i * 0.07 }}
                 onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.background = "rgba(79,124,255,0.04)";
+                  (e.currentTarget as HTMLElement).style.background = "rgba(13,18,33,0.04)";
                   (e.currentTarget as HTMLElement).style.borderLeftColor = "#4F7CFF";
                 }}
                 onMouseLeave={e => {
@@ -93,18 +93,25 @@ export function RightPanel() {
           </div>
         </section>
 
-        {/* Onboarding progress */}
-        <section>
+        {/* Onboarding progress — mint/support surface */}
+        <section
+          className="rounded-2xl p-4"
+          style={{
+            background: "#DBF0E9",
+            border: "1px solid rgba(13,18,33,0.06)",
+            boxShadow: "0 1px 4px rgba(13,18,33,0.04)",
+          }}
+        >
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-display font-bold" style={{ fontSize: 18, color: "#111827" }}>Onboarding</h2>
+            <h2 className="font-display font-bold" style={{ fontSize: 16, color: "#111827" }}>Onboarding</h2>
             <span className="text-xs font-mono" style={{ color: "#94A3B8" }}>{done}/{total} complete</span>
           </div>
 
           {/* Progress bar */}
-          <div className="h-1.5 rounded-full mb-4 overflow-hidden" style={{ background: "rgba(79,124,255,0.1)" }}>
+          <div className="h-1.5 rounded-full mb-4 overflow-hidden" style={{ background: "rgba(13,18,33,0.08)" }}>
             <motion.div
               className="h-full rounded-full"
-              style={{ background: "linear-gradient(90deg, #4F7CFF, #22C55E)" }}
+              style={{ background: "linear-gradient(90deg, #22C55E, #4F7CFF)" }}
               initial={{ width: 0 }}
               animate={{ width: `${(done / total) * 100}%` }}
               transition={{ delay: 1.2, duration: 0.8, ease: "easeOut" }}
@@ -122,7 +129,7 @@ export function RightPanel() {
               >
                 {step.done
                   ? <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: "#22C55E" }} />
-                  : <Circle className="w-4 h-4 flex-shrink-0" style={{ color: "#DCE8F1" }} />
+                  : <Circle className="w-4 h-4 flex-shrink-0" style={{ color: "rgba(13,18,33,0.2)" }} />
                 }
                 <span
                   className="text-xs"

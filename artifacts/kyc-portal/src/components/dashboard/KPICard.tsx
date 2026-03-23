@@ -29,26 +29,26 @@ export function KPICard({ title, value, percent, color, trend, delay = 0 }: KPIC
     <div
       className="relative flex flex-col items-center justify-center cursor-pointer"
       style={{
-        background: "#ffffff",
-        border: "1px solid rgba(79,124,255,0.08)",
+        background: "#EBF2F8",
+        border: "1px solid rgba(13,18,33,0.06)",
         borderRadius: 20,
-        boxShadow: "0 1px 8px rgba(79,124,255,0.06)",
+        boxShadow: "0 1px 4px rgba(13,18,33,0.04)",
         height: 168,
         transition: "transform 0.3s ease, box-shadow 0.3s ease",
       }}
       onMouseEnter={e => {
         (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)";
-        (e.currentTarget as HTMLDivElement).style.boxShadow = `0 12px 32px rgba(79,124,255,0.1), 0 0 20px ${color}20`;
+        (e.currentTarget as HTMLDivElement).style.boxShadow = `0 10px 28px rgba(13,18,33,0.08), 0 0 20px ${color}18`;
       }}
       onMouseLeave={e => {
         (e.currentTarget as HTMLDivElement).style.transform = "";
-        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 1px 8px rgba(79,124,255,0.06)";
+        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 1px 4px rgba(13,18,33,0.04)";
       }}
     >
       {/* Subtle color glow */}
       <div style={{
         position: "absolute", inset: 0, borderRadius: 20,
-        opacity: 0.05,
+        opacity: 0.08,
         background: `radial-gradient(circle at center, ${color}, transparent 70%)`,
         pointerEvents: "none",
       }} />
@@ -59,13 +59,13 @@ export function KPICard({ title, value, percent, color, trend, delay = 0 }: KPIC
           width={size}
           height={size}
           viewBox={`0 0 ${size} ${size}`}
-          style={{ transform: "rotate(-90deg)", filter: `drop-shadow(0 0 6px ${color}40)` }}
+          style={{ transform: "rotate(-90deg)", filter: `drop-shadow(0 0 5px ${color}35)` }}
         >
           {/* Track */}
           <circle
             cx={size / 2} cy={size / 2} r={radius}
             fill="none"
-            stroke="rgba(79,124,255,0.08)"
+            stroke="rgba(13,18,33,0.07)"
             strokeWidth={strokeWidth}
           />
           {/* Fill */}
@@ -120,7 +120,7 @@ export function KPICard({ title, value, percent, color, trend, delay = 0 }: KPIC
           fontSize: "10px", fontWeight: 700,
           padding: "2px 8px",
           borderRadius: 999,
-          background: trend >= 0 ? "rgba(34,197,94,0.1)" : "rgba(245,74,74,0.1)",
+          background: trend >= 0 ? "rgba(34,197,94,0.12)" : "rgba(245,74,74,0.1)",
           color: trend >= 0 ? "#22C55E" : "#f54a4a",
           border: `1px solid ${trend >= 0 ? "rgba(34,197,94,0.2)" : "rgba(245,74,74,0.2)"}`,
         }}>

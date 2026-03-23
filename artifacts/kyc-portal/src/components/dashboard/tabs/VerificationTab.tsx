@@ -2,12 +2,17 @@ import { motion } from "framer-motion";
 import { CheckCircle2, Clock, AlertTriangle, FileText, Upload, ShieldCheck, XCircle } from "lucide-react";
 import { Link } from "wouter";
 
-const lightCard = {
-  background: "#ffffff",
-  border: "1px solid rgba(79,124,255,0.08)",
+// ── Client surface tokens ──────────────────────────────────────
+const NEUTRAL  = "#EBF2F8";
+const ANALYTIC = "#D9E9F5";
+const SUPPORT  = "#DBF0E9";
+
+const mkCard = (bg: string): React.CSSProperties => ({
+  background: bg,
+  border: "1px solid rgba(13,18,33,0.06)",
   borderRadius: 20,
-  boxShadow: "0 1px 8px rgba(79,124,255,0.05)",
-} as React.CSSProperties;
+  boxShadow: "0 1px 4px rgba(13,18,33,0.04)",
+});
 
 const DOCUMENTS = [
   { name: "Certificate of Incorporation",       status: "verified", date: "Mar 15, 2026", size: "2.4 MB" },
@@ -32,11 +37,11 @@ const TIMELINE = [
 ];
 
 const RISK_FACTORS = [
-  { label: "Jurisdiction",  value: "United Kingdom",       status: "clear" },
-  { label: "PEP Screening", value: "No matches",           status: "clear" },
-  { label: "Sanctions Check", value: "No matches",         status: "clear" },
-  { label: "Adverse Media", value: "No flags",             status: "clear" },
-  { label: "UBO Complexity", value: "2 beneficial owners", status: "review" },
+  { label: "Jurisdiction",    value: "United Kingdom",       status: "clear" },
+  { label: "PEP Screening",   value: "No matches",           status: "clear" },
+  { label: "Sanctions Check", value: "No matches",           status: "clear" },
+  { label: "Adverse Media",   value: "No flags",             status: "clear" },
+  { label: "UBO Complexity",  value: "2 beneficial owners",  status: "review" },
 ];
 
 const item = {
@@ -56,9 +61,9 @@ export function VerificationTab() {
       {/* Status hero + risk summary row */}
       <div className="grid grid-cols-12 gap-5">
 
-        {/* KYB status card */}
+        {/* KYB status card — neutral */}
         <motion.div
-          style={{ ...lightCard, gridColumn: "span 5" }}
+          style={{ ...mkCard(NEUTRAL), gridColumn: "span 5" }}
           className="col-span-5 p-6"
           custom={0} variants={item} initial="hidden" animate="show"
         >
@@ -67,7 +72,7 @@ export function VerificationTab() {
               <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: "#94A3B8" }}>KYB Status</p>
               <div className="flex items-center gap-3">
                 <h2 className="font-display font-bold" style={{ fontSize: 32, letterSpacing: "-0.02em", color: "#111827" }}>Verified</h2>
-                <div className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: "rgba(34,197,94,0.1)", color: "#22C55E", border: "1px solid rgba(34,197,94,0.2)" }}>
+                <div className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: "rgba(34,197,94,0.12)", color: "#22C55E", border: "1px solid rgba(34,197,94,0.2)" }}>
                   ✓ Approved
                 </div>
               </div>
@@ -75,7 +80,7 @@ export function VerificationTab() {
             </div>
             <div
               className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.15)" }}
+              style={{ background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.15)" }}
             >
               <ShieldCheck className="w-7 h-7" style={{ color: "#22C55E" }} />
             </div>
@@ -87,7 +92,7 @@ export function VerificationTab() {
               { label: "Risk Tier",   value: "Low" },
               { label: "Jurisdiction", value: "UK" },
             ].map(f => (
-              <div key={f.label} className="p-3 rounded-xl" style={{ background: "rgba(79,124,255,0.04)" }}>
+              <div key={f.label} className="p-3 rounded-xl" style={{ background: "rgba(13,18,33,0.04)" }}>
                 <p className="text-[10px] uppercase tracking-wider mb-1" style={{ color: "#94A3B8" }}>{f.label}</p>
                 <p className="text-sm font-bold" style={{ color: "#111827" }}>{f.value}</p>
               </div>
@@ -95,19 +100,19 @@ export function VerificationTab() {
           </div>
         </motion.div>
 
-        {/* Risk factors */}
+        {/* Risk factors — analytic surface */}
         <motion.div
-          style={{ ...lightCard, gridColumn: "span 7" }}
+          style={{ ...mkCard(ANALYTIC), gridColumn: "span 7" }}
           className="col-span-7 p-6"
           custom={1} variants={item} initial="hidden" animate="show"
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#111827" }}>Risk Assessment</h3>
-            <span className="text-xs px-3 py-1 rounded-full font-bold" style={{ background: "rgba(34,197,94,0.1)", color: "#22C55E" }}>Low Risk</span>
+            <span className="text-xs px-3 py-1 rounded-full font-bold" style={{ background: "rgba(34,197,94,0.12)", color: "#22C55E" }}>Low Risk</span>
           </div>
           <div className="space-y-2">
             {RISK_FACTORS.map((rf) => (
-              <div key={rf.label} className="flex items-center justify-between h-10 px-3 rounded-xl" style={{ background: "rgba(79,124,255,0.03)" }}>
+              <div key={rf.label} className="flex items-center justify-between h-10 px-3 rounded-xl" style={{ background: "rgba(13,18,33,0.04)" }}>
                 <span className="text-sm" style={{ color: "#94A3B8" }}>{rf.label}</span>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium" style={{ color: "#111827" }}>{rf.value}</span>
@@ -125,9 +130,9 @@ export function VerificationTab() {
       {/* Documents + Timeline */}
       <div className="grid grid-cols-12 gap-5">
 
-        {/* Documents */}
+        {/* Documents — neutral */}
         <motion.div
-          style={{ ...lightCard, gridColumn: "span 7" }}
+          style={{ ...mkCard(NEUTRAL), gridColumn: "span 7" }}
           className="col-span-7 p-6"
           custom={2} variants={item} initial="hidden" animate="show"
         >
@@ -143,25 +148,25 @@ export function VerificationTab() {
               return (
                 <div
                   key={doc.name}
-                  className="flex items-center gap-3 h-14 px-3 rounded-xl group transition-all"
+                  className="flex items-center gap-3 h-14 px-3 rounded-xl transition-all"
                   style={{ borderLeft: "2px solid transparent" }}
                   onMouseEnter={e => {
                     (e.currentTarget as HTMLElement).style.borderLeftColor = "#4F7CFF";
-                    (e.currentTarget as HTMLElement).style.background = "rgba(79,124,255,0.03)";
+                    (e.currentTarget as HTMLElement).style.background = "rgba(13,18,33,0.04)";
                   }}
                   onMouseLeave={e => {
                     (e.currentTarget as HTMLElement).style.borderLeftColor = "transparent";
                     (e.currentTarget as HTMLElement).style.background = "";
                   }}
                 >
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${s.color}15` }}>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${s.color}14` }}>
                     <FileText className="w-4 h-4" style={{ color: s.color }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate group-hover:text-[#4F7CFF] transition-colors" style={{ color: "#111827" }}>{doc.name}</p>
+                    <p className="text-sm font-semibold truncate" style={{ color: "#111827" }}>{doc.name}</p>
                     <p className="text-[10px]" style={{ color: "#94A3B8" }}>{doc.date} · {doc.size}</p>
                   </div>
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold flex-shrink-0" style={{ background: `${s.color}15`, color: s.color }}>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold flex-shrink-0" style={{ background: `${s.color}14`, color: s.color }}>
                     <s.icon className="w-3 h-3" />
                     {s.label}
                   </div>
@@ -171,21 +176,21 @@ export function VerificationTab() {
           </div>
         </motion.div>
 
-        {/* Verification timeline */}
+        {/* Verification timeline — support/mint surface */}
         <motion.div
-          style={{ ...lightCard, gridColumn: "span 5" }}
+          style={{ ...mkCard(SUPPORT), gridColumn: "span 5" }}
           className="col-span-5 p-6"
           custom={3} variants={item} initial="hidden" animate="show"
         >
           <h3 className="font-display font-bold mb-5" style={{ fontSize: 18, color: "#111827" }}>Verification Timeline</h3>
           <div className="relative">
-            <div className="absolute left-4 top-0 bottom-0 w-px" style={{ background: "rgba(79,124,255,0.1)" }} />
+            <div className="absolute left-4 top-0 bottom-0 w-px" style={{ background: "rgba(13,18,33,0.1)" }} />
             <div className="space-y-5">
               {TIMELINE.map((ev, i) => (
                 <div key={i} className="flex items-start gap-4 pl-9 relative">
                   <div
                     className="absolute left-0 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ background: `${ev.color}15`, border: `1.5px solid ${ev.color}35` }}
+                    style={{ background: `${ev.color}14`, border: `1.5px solid ${ev.color}30` }}
                   >
                     <ev.icon className="w-3.5 h-3.5" style={{ color: ev.color }} />
                   </div>

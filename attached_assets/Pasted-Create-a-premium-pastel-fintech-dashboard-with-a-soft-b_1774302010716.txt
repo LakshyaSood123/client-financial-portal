@@ -1,0 +1,52 @@
+Create a premium pastel fintech dashboard with a soft blue and mint color system.
+
+Layout:
+- One large rounded master container on a very light neutral background
+- Thin top navigation bar with logo, nav links, search bar, utility icons, and avatar
+- Main dashboard below arranged in a modular card grid
+- Large hero finance card on the left for total balance, actions, and bank cards
+- Smaller spending chart card in the upper middle
+- Tall transactions list card on the upper right
+- Small advice/CTA card below the spending card
+- Large expenses chart card spanning the bottom-left
+- Medium credit score summary card on the bottom-right
+
+Visual style:
+- Soft pastel consumer fintech aesthetic
+- Use a pale powder-blue main container
+- Use multiple tinted cards in the same pastel family instead of identical white cards
+- Mix icy gray-blue cards, baby blue cards, and mint-sage cards
+- Very large rounded corners on all cards and containers
+- Extremely subtle or near-invisible shadows
+- Minimal or invisible borders
+- Flat-premium look, calm and elegant
+- Do not use harsh contrast, deep shadows, or overly saturated colors
+
+Color direction:
+- outer background: soft warm off-white
+- dashboard shell: pale powder blue
+- main neutral cards: icy light gray-blue
+- analytics cards: pastel blue
+- supporting cards: mint / sage pastel
+- small dark anchor elements in charcoal only where needed
+- text: dark charcoal for primary, muted gray for secondary
+- use blue and mint as soft accents
+
+Box treatment:
+- Rounded rectangles with gentle tonal separation
+- Cards should feel embedded through tint variation, not strong elevation
+- Each card group can have a slightly different pastel tint depending on purpose
+- Keep the look airy, premium, and balanced
+
+Typography:
+- clean modern sans-serif
+- large bold balance figure
+- medium bold section titles
+- muted supporting labels
+- friendly fintech app feeling
+
+Overall mood:
+- premium digital banking dashboard
+- soft pastel financial UI
+- calm, trustworthy, modern, and polished
+- consumer-friendly rather than admin-heavy

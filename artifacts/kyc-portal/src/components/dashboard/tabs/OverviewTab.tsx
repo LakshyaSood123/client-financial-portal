@@ -5,12 +5,17 @@ import { WebhookDonut } from "@/components/dashboard/WebhookDonut";
 import { Link } from "wouter";
 import { Key, AlertTriangle, ScrollText, BookOpen } from "lucide-react";
 
-const lightCard = {
-  background: "#ffffff",
-  border: "1px solid rgba(79,124,255,0.08)",
+// ── Client surface tokens ──────────────────────────────────────
+const NEUTRAL  = "#EBF2F8";   // icy gray-blue
+const ANALYTIC = "#D9E9F5";   // pastel blue
+const SUPPORT  = "#DBF0E9";   // mint/sage
+
+const mkCard = (bg: string): React.CSSProperties => ({
+  background: bg,
+  border: "1px solid rgba(13,18,33,0.06)",
   borderRadius: 20,
-  boxShadow: "0 1px 8px rgba(79,124,255,0.05)",
-} as React.CSSProperties;
+  boxShadow: "0 1px 4px rgba(13,18,33,0.04)",
+});
 
 const BOTTOM_CARDS = [
   {
@@ -30,7 +35,7 @@ const BOTTOM_CARDS = [
     sub: "2 production · 1 sandbox",
     badge: "All valid",
     badgeColor: "#16a34a",
-    badgeBg: "rgba(34,197,94,0.1)",
+    badgeBg: "rgba(34,197,94,0.12)",
     href: "/api-keys",
     icon: Key,
     iconColor: "#22C55E",
@@ -67,7 +72,7 @@ export function OverviewTab() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
     >
-      {/* KPI Cards */}
+      {/* KPI Cards — neutral surface */}
       <div className="grid grid-cols-4 gap-4 mb-6">
         <KPICard title="KYB Status" value="Verified" percent={100} color="#22C55E" delay={0.05} />
         <KPICard title="Ops Status" value="Active"   percent={90}  color="#4F7CFF" delay={0.1} />
@@ -75,29 +80,29 @@ export function OverviewTab() {
         <KPICard title="Plan"       value="Growth"   percent={60}  color="#f59b20" delay={0.2} />
       </div>
 
-      {/* Usage Chart + Webhook Donut */}
+      {/* Usage Chart (analytic) + Webhook Donut (analytic) */}
       <div className="grid grid-cols-12 gap-5 mb-5">
         <UsageChart />
         <WebhookDonut />
       </div>
 
-      {/* Bottom summary cards */}
+      {/* Bottom summary cards — support/mint surface */}
       <div className="grid grid-cols-4 gap-4">
         {BOTTOM_CARDS.map((card, i) => (
           <motion.div
             key={card.label}
             className="p-5 flex flex-col gap-3 cursor-pointer"
-            style={{ ...lightCard, transition: "transform 0.25s ease, box-shadow 0.25s ease" }}
+            style={{ ...mkCard(SUPPORT), transition: "transform 0.25s ease, box-shadow 0.25s ease" }}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 + i * 0.07 }}
             onMouseEnter={e => {
               (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)";
-              (e.currentTarget as HTMLElement).style.boxShadow = `0 10px 28px rgba(79,124,255,0.1), 0 0 16px ${card.iconColor}18`;
+              (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 24px rgba(13,18,33,0.08)`;
             }}
             onMouseLeave={e => {
               (e.currentTarget as HTMLElement).style.transform = "";
-              (e.currentTarget as HTMLElement).style.boxShadow = "0 1px 8px rgba(79,124,255,0.05)";
+              (e.currentTarget as HTMLElement).style.boxShadow = "0 1px 4px rgba(13,18,33,0.04)";
             }}
           >
             <div className="flex items-center justify-between">

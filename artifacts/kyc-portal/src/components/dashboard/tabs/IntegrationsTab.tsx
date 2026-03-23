@@ -4,29 +4,33 @@ import { Link } from "wouter";
 import { useState } from "react";
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 
-const lightCard = {
-  background: "#ffffff",
-  border: "1px solid rgba(79,124,255,0.08)",
+// ── Client surface tokens ──────────────────────────────────────
+const NEUTRAL  = "#EBF2F8";
+const ANALYTIC = "#D9E9F5";
+
+const mkCard = (bg: string): React.CSSProperties => ({
+  background: bg,
+  border: "1px solid rgba(13,18,33,0.06)",
   borderRadius: 20,
-  boxShadow: "0 1px 8px rgba(79,124,255,0.05)",
-} as React.CSSProperties;
+  boxShadow: "0 1px 4px rgba(13,18,33,0.04)",
+});
 
 const API_KEYS = [
-  { name: "Production Key",  key: "pk_live_4x8aK9mN••••••••", env: "production", created: "Jan 12, 2026", lastUsed: "2 min ago",     status: "active" },
-  { name: "Sandbox Key",     key: "pk_test_7pRjQ2xW••••••••", env: "sandbox",    created: "Jan 12, 2026", lastUsed: "Mar 18, 2026",  status: "active" },
-  { name: "CI / Test Runner",key: "pk_test_9mZvL3kB••••••••", env: "sandbox",    created: "Feb 3, 2026",  lastUsed: "Mar 22, 2026",  status: "active" },
+  { name: "Production Key",   key: "pk_live_4x8aK9mN••••••••", env: "production", created: "Jan 12, 2026", lastUsed: "2 min ago",     status: "active" },
+  { name: "Sandbox Key",      key: "pk_test_7pRjQ2xW••••••••", env: "sandbox",    created: "Jan 12, 2026", lastUsed: "Mar 18, 2026",  status: "active" },
+  { name: "CI / Test Runner", key: "pk_test_9mZvL3kB••••••••", env: "sandbox",    created: "Feb 3, 2026",  lastUsed: "Mar 22, 2026",  status: "active" },
 ];
 
 const WEBHOOKS = [
-  { url: "https://api.acme.co/hooks/kyb-events", events: ["kyb.verified", "kyb.rejected"],    health: "healthy",  deliveries: 1248, failures: 3 },
-  { url: "https://api.acme.co/hooks/billing",    events: ["billing.invoice.created"],          health: "degraded", deliveries: 412,  failures: 20 },
-  { url: "https://staging.acme.co/hooks/test",   events: ["*"],                                health: "healthy",  deliveries: 89,   failures: 0 },
+  { url: "https://api.acme.co/hooks/kyb-events", events: ["kyb.verified", "kyb.rejected"],  health: "healthy",  deliveries: 1248, failures: 3 },
+  { url: "https://api.acme.co/hooks/billing",    events: ["billing.invoice.created"],        health: "degraded", deliveries: 412,  failures: 20 },
+  { url: "https://staging.acme.co/hooks/test",   events: ["*"],                              health: "healthy",  deliveries: 89,   failures: 0 },
 ];
 
 const HEALTH_STYLES: Record<string, { color: string; bg: string; label: string }> = {
-  healthy:  { color: "#22C55E", bg: "rgba(34,197,94,0.1)",   label: "Healthy" },
-  degraded: { color: "#f59b20", bg: "rgba(245,155,32,0.1)",  label: "Degraded" },
-  failing:  { color: "#f54a4a", bg: "rgba(245,74,74,0.1)",   label: "Failing" },
+  healthy:  { color: "#22C55E", bg: "rgba(34,197,94,0.1)",  label: "Healthy" },
+  degraded: { color: "#f59b20", bg: "rgba(245,155,32,0.1)", label: "Degraded" },
+  failing:  { color: "#f54a4a", bg: "rgba(245,74,74,0.1)",  label: "Failing" },
 };
 
 const deliveryData = [
@@ -40,10 +44,10 @@ const deliveryData = [
 ];
 
 const RECENT_DELIVERIES = [
-  { id: "evt_8xKp2mNq", endpoint: "/hooks/kyb-events", event: "kyb.verified",            status: "delivered", time: "2 min ago" },
-  { id: "evt_7wJm1kLp", endpoint: "/hooks/billing",    event: "billing.invoice.created",  status: "failed",    time: "14 min ago" },
-  { id: "evt_6vHl0jKo", endpoint: "/hooks/kyb-events", event: "kyb.document.uploaded",   status: "delivered", time: "1 hour ago" },
-  { id: "evt_5uGk9iJn", endpoint: "/hooks/test",       event: "kyb.verified",            status: "delivered", time: "2 hours ago" },
+  { id: "evt_8xKp2mNq", endpoint: "/hooks/kyb-events", event: "kyb.verified",           status: "delivered", time: "2 min ago" },
+  { id: "evt_7wJm1kLp", endpoint: "/hooks/billing",    event: "billing.invoice.created", status: "failed",    time: "14 min ago" },
+  { id: "evt_6vHl0jKo", endpoint: "/hooks/kyb-events", event: "kyb.document.uploaded",  status: "delivered", time: "1 hour ago" },
+  { id: "evt_5uGk9iJn", endpoint: "/hooks/test",       event: "kyb.verified",           status: "delivered", time: "2 hours ago" },
 ];
 
 const DELIVERY_STATUS: Record<string, { color: string; bg: string }> = {
@@ -73,8 +77,8 @@ export function IntegrationsTab() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
     >
-      {/* API Keys */}
-      <motion.div style={lightCard} className="p-6" custom={0} variants={item} initial="hidden" animate="show">
+      {/* API Keys — neutral surface */}
+      <motion.div style={mkCard(NEUTRAL)} className="p-6" custom={0} variants={item} initial="hidden" animate="show">
         <div className="flex items-center justify-between mb-5">
           <div>
             <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#111827" }}>API Keys</h3>
@@ -83,7 +87,7 @@ export function IntegrationsTab() {
           <Link
             href="/api-keys"
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all hover:opacity-90"
-            style={{ background: "rgba(79,124,255,0.1)", color: "#4F7CFF", border: "1px solid rgba(79,124,255,0.2)" }}
+            style={{ background: "rgba(79,124,255,0.1)", color: "#4F7CFF", border: "1px solid rgba(79,124,255,0.18)" }}
           >
             <Plus className="w-3 h-3" /> New Key
           </Link>
@@ -94,7 +98,7 @@ export function IntegrationsTab() {
             <div
               key={k.key}
               className="flex items-center gap-4 h-14 px-4 rounded-xl group transition-all"
-              style={{ background: "rgba(79,124,255,0.03)", border: "1px solid rgba(79,124,255,0.06)" }}
+              style={{ background: "rgba(13,18,33,0.04)", border: "1px solid rgba(13,18,33,0.05)" }}
             >
               <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                 style={{ background: k.env === "production" ? "rgba(79,124,255,0.1)" : "rgba(139,111,244,0.1)" }}>
@@ -105,7 +109,7 @@ export function IntegrationsTab() {
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-bold" style={{ color: "#111827" }}>{k.name}</p>
                   <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded" style={{
-                    background: k.env === "production" ? "rgba(79,124,255,0.08)" : "rgba(139,111,244,0.08)",
+                    background: k.env === "production" ? "rgba(79,124,255,0.1)" : "rgba(139,111,244,0.1)",
                     color: k.env === "production" ? "#4F7CFF" : "#8b6ff4",
                   }}>{k.env}</span>
                 </div>
@@ -119,7 +123,7 @@ export function IntegrationsTab() {
 
               <button
                 onClick={() => handleCopy(k.key)}
-                className="p-2 rounded-lg transition-colors hover:bg-[rgba(79,124,255,0.06)]"
+                className="p-2 rounded-lg transition-colors hover:bg-black/5"
                 style={{ color: copiedKey === k.key ? "#4F7CFF" : "#94A3B8" }}
               >
                 {copiedKey === k.key ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -132,8 +136,8 @@ export function IntegrationsTab() {
       {/* Webhook endpoints + delivery health */}
       <div className="grid grid-cols-12 gap-5">
 
-        {/* Endpoints */}
-        <motion.div style={{ ...lightCard, gridColumn: "span 7" }} className="col-span-7 p-6" custom={1} variants={item} initial="hidden" animate="show">
+        {/* Endpoints — neutral */}
+        <motion.div style={{ ...mkCard(NEUTRAL), gridColumn: "span 7" }} className="col-span-7 p-6" custom={1} variants={item} initial="hidden" animate="show">
           <div className="flex items-center justify-between mb-5">
             <div>
               <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#111827" }}>Webhook Endpoints</h3>
@@ -148,7 +152,7 @@ export function IntegrationsTab() {
             {WEBHOOKS.map((wh) => {
               const hs = HEALTH_STYLES[wh.health];
               return (
-                <div key={wh.url} className="p-4 rounded-2xl" style={{ background: "rgba(79,124,255,0.03)", border: "1px solid rgba(79,124,255,0.06)" }}>
+                <div key={wh.url} className="p-4 rounded-2xl" style={{ background: "rgba(13,18,33,0.04)", border: "1px solid rgba(13,18,33,0.05)" }}>
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2 min-w-0">
                       <Webhook className="w-4 h-4 flex-shrink-0" style={{ color: "#94A3B8" }} />
@@ -163,7 +167,7 @@ export function IntegrationsTab() {
                     <span style={{ color: wh.failures > 0 ? "#f54a4a" : "#94A3B8" }}>{wh.failures} failed</span>
                     <div className="flex flex-wrap gap-1">
                       {wh.events.map(ev => (
-                        <span key={ev} className="px-1.5 py-0.5 rounded font-mono" style={{ background: "rgba(139,111,244,0.08)", color: "#8b6ff4" }}>{ev}</span>
+                        <span key={ev} className="px-1.5 py-0.5 rounded font-mono" style={{ background: "rgba(139,111,244,0.1)", color: "#8b6ff4" }}>{ev}</span>
                       ))}
                     </div>
                   </div>
@@ -173,8 +177,8 @@ export function IntegrationsTab() {
           </div>
         </motion.div>
 
-        {/* Delivery health chart + recent */}
-        <motion.div style={{ ...lightCard, gridColumn: "span 5" }} className="col-span-5 p-6" custom={2} variants={item} initial="hidden" animate="show">
+        {/* Delivery health chart — analytic surface */}
+        <motion.div style={{ ...mkCard(ANALYTIC), gridColumn: "span 5" }} className="col-span-5 p-6" custom={2} variants={item} initial="hidden" animate="show">
           <div className="flex items-center gap-2 mb-1">
             <Activity className="w-4 h-4" style={{ color: "#8b6ff4" }} />
             <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#111827" }}>Delivery Activity</h3>
@@ -193,7 +197,7 @@ export function IntegrationsTab() {
                 <XAxis dataKey="h" tick={{ fill: "#94A3B8", fontSize: 9 }} axisLine={false} tickLine={false} />
                 <YAxis hide />
                 <Tooltip
-                  contentStyle={{ background: "#ffffff", border: "1px solid rgba(79,124,255,0.1)", borderRadius: 8, fontSize: 11, boxShadow: "0 4px 12px rgba(79,124,255,0.08)" }}
+                  contentStyle={{ background: NEUTRAL, border: "1px solid rgba(13,18,33,0.08)", borderRadius: 8, fontSize: 11 }}
                   labelStyle={{ color: "#94A3B8" }}
                 />
                 <Area type="monotone" dataKey="delivered" stroke="#8b6ff4" strokeWidth={2} fill="url(#delGrad)" dot={false} name="Delivered" />
@@ -220,7 +224,8 @@ export function IntegrationsTab() {
             ))}
           </div>
 
-          <button className="w-full mt-4 flex items-center justify-center gap-1.5 h-8 rounded-xl text-xs font-semibold transition-all hover:opacity-90" style={{ background: "rgba(139,111,244,0.1)", color: "#8b6ff4", border: "1px solid rgba(139,111,244,0.2)" }}>
+          <button className="w-full mt-4 flex items-center justify-center gap-1.5 h-8 rounded-xl text-xs font-semibold transition-all hover:opacity-90"
+            style={{ background: "rgba(139,111,244,0.1)", color: "#8b6ff4", border: "1px solid rgba(139,111,244,0.18)" }}>
             <RefreshCw className="w-3 h-3" /> Replay Failed Events
           </button>
         </motion.div>

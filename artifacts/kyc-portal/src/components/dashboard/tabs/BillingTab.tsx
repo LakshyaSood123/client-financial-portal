@@ -3,12 +3,16 @@ import { TrendingUp, Calendar, Download, BookOpen, Zap } from "lucide-react";
 import { Link } from "wouter";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
-const lightCard = {
-  background: "#ffffff",
-  border: "1px solid rgba(79,124,255,0.08)",
+// ── Client surface tokens ──────────────────────────────────────
+const NEUTRAL  = "#EBF2F8";
+const ANALYTIC = "#D9E9F5";
+
+const mkCard = (bg: string): React.CSSProperties => ({
+  background: bg,
+  border: "1px solid rgba(13,18,33,0.06)",
   borderRadius: 20,
-  boxShadow: "0 1px 8px rgba(79,124,255,0.05)",
-} as React.CSSProperties;
+  boxShadow: "0 1px 4px rgba(13,18,33,0.04)",
+});
 
 const USAGE_DATA = [
   { month: "Oct", jobs: 312 },
@@ -28,7 +32,7 @@ const LEDGER = [
 
 const TYPE_STYLES: Record<string, { color: string; bg: string }> = {
   credit: { color: "#4F7CFF", bg: "rgba(79,124,255,0.08)" },
-  usage:  { color: "#94A3B8", bg: "rgba(79,124,255,0.03)" },
+  usage:  { color: "#94A3B8", bg: "rgba(13,18,33,0.03)" },
   charge: { color: "#f54a4a", bg: "rgba(245,74,74,0.1)" },
 };
 
@@ -61,8 +65,8 @@ export function BillingTab() {
       {/* Top row: Balance + Plan + Cycle */}
       <div className="grid grid-cols-3 gap-5">
 
-        {/* Current balance */}
-        <motion.div style={lightCard} className="p-6" custom={0} variants={item} initial="hidden" animate="show">
+        {/* Current balance — neutral */}
+        <motion.div style={mkCard(NEUTRAL)} className="p-6" custom={0} variants={item} initial="hidden" animate="show">
           <div className="flex items-start justify-between mb-4">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: "#94A3B8" }}>Current Balance</p>
@@ -85,9 +89,9 @@ export function BillingTab() {
           </div>
         </motion.div>
 
-        {/* Plan — soft blue highlight card */}
+        {/* Plan — analytic pastel-blue highlight */}
         <motion.div
-          style={{ ...lightCard, background: "linear-gradient(135deg, #EAF3FF 0%, #DCE7FF 100%)", border: "1px solid rgba(79,124,255,0.15)" }}
+          style={{ ...mkCard(ANALYTIC), border: "1px solid rgba(79,124,255,0.15)" }}
           className="p-6"
           custom={1} variants={item} initial="hidden" animate="show"
         >
@@ -97,7 +101,7 @@ export function BillingTab() {
               <p className="font-display font-bold" style={{ fontSize: 28, letterSpacing: "-0.02em", color: "#111827" }}>Growth</p>
               <p className="text-xs mt-2" style={{ color: "#4F7CFF" }}>₹250 / month · included</p>
             </div>
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(79,124,255,0.15)" }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(79,124,255,0.12)" }}>
               <Zap className="w-5 h-5" style={{ color: "#4F7CFF" }} />
             </div>
           </div>
@@ -110,8 +114,8 @@ export function BillingTab() {
           </div>
         </motion.div>
 
-        {/* Usage this cycle */}
-        <motion.div style={lightCard} className="p-6" custom={2} variants={item} initial="hidden" animate="show">
+        {/* Usage this cycle — analytic */}
+        <motion.div style={mkCard(ANALYTIC)} className="p-6" custom={2} variants={item} initial="hidden" animate="show">
           <div className="flex items-start justify-between mb-4">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: "#94A3B8" }}>Usage This Cycle</p>
@@ -130,7 +134,7 @@ export function BillingTab() {
               <span>{usedPct.toFixed(1)}% of limit used</span>
               <span style={{ color: "#8b6ff4" }}>{(planJobs - usedJobs).toLocaleString()} remaining</span>
             </div>
-            <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(79,124,255,0.08)" }}>
+            <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(13,18,33,0.08)" }}>
               <motion.div
                 className="h-full rounded-full"
                 style={{ background: "linear-gradient(90deg, #4F7CFF, #22C55E)" }}
@@ -146,8 +150,8 @@ export function BillingTab() {
       {/* Usage chart + Ledger */}
       <div className="grid grid-cols-12 gap-5">
 
-        {/* Usage chart */}
-        <motion.div style={{ ...lightCard, gridColumn: "span 5" }} className="col-span-5 p-6" custom={3} variants={item} initial="hidden" animate="show">
+        {/* Usage chart — analytic */}
+        <motion.div style={{ ...mkCard(ANALYTIC), gridColumn: "span 5" }} className="col-span-5 p-6" custom={3} variants={item} initial="hidden" animate="show">
           <h3 className="font-display font-bold mb-1" style={{ fontSize: 18, color: "#111827" }}>Monthly Job Usage</h3>
           <p className="text-xs mb-5" style={{ color: "#94A3B8" }}>Last 6 months</p>
           <ResponsiveContainer width="100%" height={180}>
@@ -155,7 +159,7 @@ export function BillingTab() {
               <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: "#94A3B8", fontSize: 11 }} />
               <YAxis axisLine={false} tickLine={false} tick={{ fill: "#94A3B8", fontSize: 10 }} tickFormatter={v => v >= 1000 ? `${v / 1000}K` : String(v)} />
               <Tooltip
-                contentStyle={{ background: "#ffffff", border: "1px solid rgba(79,124,255,0.1)", borderRadius: 10, boxShadow: "0 4px 12px rgba(79,124,255,0.08)" }}
+                contentStyle={{ background: NEUTRAL, border: "1px solid rgba(13,18,33,0.08)", borderRadius: 10 }}
                 labelStyle={{ color: "#94A3B8", fontSize: 11 }}
                 formatter={(v: number) => [`${v.toLocaleString()} jobs`, "Jobs"]}
               />
@@ -163,8 +167,8 @@ export function BillingTab() {
                 {USAGE_DATA.map((entry, i) => (
                   <Cell
                     key={i}
-                    fill={entry.month === "Mar" ? "#4F7CFF" : "rgba(79,124,255,0.15)"}
-                    style={entry.month === "Mar" ? { filter: "drop-shadow(0 0 6px rgba(79,124,255,0.4))" } : undefined}
+                    fill={entry.month === "Mar" ? "#4F7CFF" : "rgba(79,124,255,0.18)"}
+                    style={entry.month === "Mar" ? { filter: "drop-shadow(0 0 6px rgba(79,124,255,0.35))" } : undefined}
                   />
                 ))}
               </Bar>
@@ -172,15 +176,15 @@ export function BillingTab() {
           </ResponsiveContainer>
         </motion.div>
 
-        {/* Billing ledger */}
-        <motion.div style={{ ...lightCard, gridColumn: "span 7" }} className="col-span-7 p-6" custom={4} variants={item} initial="hidden" animate="show">
+        {/* Billing ledger — neutral */}
+        <motion.div style={{ ...mkCard(NEUTRAL), gridColumn: "span 7" }} className="col-span-7 p-6" custom={4} variants={item} initial="hidden" animate="show">
           <div className="flex items-center justify-between mb-5">
             <div>
               <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#111827" }}>Billing Ledger</h3>
               <p className="text-xs mt-0.5" style={{ color: "#94A3B8" }}>Credits and usage charges</p>
             </div>
             <button className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all hover:opacity-90"
-              style={{ background: "rgba(79,124,255,0.06)", color: "#94A3B8", border: "1px solid rgba(79,124,255,0.1)" }}>
+              style={{ background: "rgba(13,18,33,0.05)", color: "#94A3B8", border: "1px solid rgba(13,18,33,0.07)" }}>
               <Download className="w-3.5 h-3.5" /> Export CSV
             </button>
           </div>
@@ -197,9 +201,9 @@ export function BillingTab() {
               <div
                 key={i}
                 className="grid grid-cols-4 items-center px-3 h-12 rounded-xl text-sm transition-all"
-                style={{ background: i === 0 ? "rgba(79,124,255,0.03)" : "transparent" }}
-                onMouseEnter={e => (e.currentTarget.style.background = "rgba(79,124,255,0.04)")}
-                onMouseLeave={e => (e.currentTarget.style.background = i === 0 ? "rgba(79,124,255,0.03)" : "transparent")}
+                style={{ background: i === 0 ? "rgba(13,18,33,0.04)" : "transparent" }}
+                onMouseEnter={e => (e.currentTarget.style.background = "rgba(13,18,33,0.04)")}
+                onMouseLeave={e => (e.currentTarget.style.background = i === 0 ? "rgba(13,18,33,0.04)" : "transparent")}
               >
                 <div className="col-span-2 flex items-center gap-3 min-w-0">
                   <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: TYPE_STYLES[row.type].color }} />
@@ -214,7 +218,7 @@ export function BillingTab() {
             ))}
           </div>
 
-          <div className="mt-4 pt-4 flex items-center justify-between text-xs" style={{ borderTop: "1px solid rgba(79,124,255,0.08)", color: "#94A3B8" }}>
+          <div className="mt-4 pt-4 flex items-center justify-between text-xs" style={{ borderTop: "1px solid rgba(13,18,33,0.07)", color: "#94A3B8" }}>
             <span>Showing last 4 entries</span>
             <Link href="/billing" className="font-semibold hover:text-[#4F7CFF] transition-colors" style={{ color: "#94A3B8" }}>
               Full billing history →

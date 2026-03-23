@@ -17,9 +17,9 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
       <div
         className="px-4 py-2.5 text-sm rounded-xl"
         style={{
-          background: "#ffffff",
-          border: "1px solid rgba(79,124,255,0.1)",
-          boxShadow: "0 8px 24px rgba(79,124,255,0.1)",
+          background: "#EBF2F8",
+          border: "1px solid rgba(13,18,33,0.08)",
+          boxShadow: "0 6px 20px rgba(13,18,33,0.08)",
         }}
       >
         <p className="text-xs mb-1" style={{ color: "#94A3B8" }}>{label}</p>
@@ -35,7 +35,10 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
 
 export function UsageChart() {
   return (
-    <GlassPanel className="p-6 col-span-12 lg:col-span-8 flex flex-col">
+    <GlassPanel
+      className="p-6 col-span-12 lg:col-span-8 flex flex-col"
+      style={{ background: "#D9E9F5" }}
+    >
       <div className="flex items-center justify-between mb-2">
         <div>
           <h3 className="font-display font-bold" style={{ fontSize: "20px", color: "#111827" }}>Jobs Processed</h3>
@@ -55,7 +58,7 @@ export function UsageChart() {
           <span className="font-display font-bold" style={{ fontSize: 28, letterSpacing: "-0.02em", color: "#111827" }}>1,124</span>
           <span className="text-xs ml-2" style={{ color: "#94A3B8" }}>jobs this month</span>
         </div>
-        <div className="h-8 w-px" style={{ background: "rgba(79,124,255,0.1)" }} />
+        <div className="h-8 w-px" style={{ background: "rgba(13,18,33,0.1)" }} />
         <div>
           <span className="font-display font-bold" style={{ fontSize: 18, color: "#4F7CFF" }}>+29%</span>
           <span className="text-xs ml-2" style={{ color: "#94A3B8" }}>vs last month</span>
@@ -67,8 +70,8 @@ export function UsageChart() {
           <BarChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }} barCategoryGap="30%">
             <defs>
               <pattern id="hatch-pattern" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
-                <rect width="8" height="8" fill="rgba(79,124,255,0.05)" />
-                <line x1="0" y1="0" x2="0" y2="8" stroke="#4F7CFF" strokeWidth="2.5" opacity="0.2" />
+                <rect width="8" height="8" fill="rgba(79,124,255,0.06)" />
+                <line x1="0" y1="0" x2="0" y2="8" stroke="#4F7CFF" strokeWidth="2.5" opacity="0.18" />
               </pattern>
             </defs>
             <XAxis
@@ -84,13 +87,13 @@ export function UsageChart() {
               tick={{ fill: "#94A3B8", fontSize: 11, fontFamily: "JetBrains Mono" }}
               tickFormatter={(val) => val >= 1000 ? `${(val / 1000).toFixed(1)}K` : String(val)}
             />
-            <Tooltip cursor={{ fill: "rgba(79,124,255,0.04)" }} content={<CustomTooltip />} />
+            <Tooltip cursor={{ fill: "rgba(13,18,33,0.03)" }} content={<CustomTooltip />} />
             <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={48}>
               {data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
                   fill={entry.name === "Mar" ? "#4F7CFF" : "url(#hatch-pattern)"}
-                  style={entry.name === "Mar" ? { filter: "drop-shadow(0 0 8px rgba(79,124,255,0.35))" } : undefined}
+                  style={entry.name === "Mar" ? { filter: "drop-shadow(0 0 8px rgba(79,124,255,0.3))" } : undefined}
                 />
               ))}
             </Bar>
