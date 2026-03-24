@@ -99,12 +99,11 @@ export function PortalShell({ children, title, subtitle, showRail = true }: Port
             style={{
               position: "fixed",
               bottom: 28,
-              // Centre pill in main content column (sidebar=220px, rail=320px when shown)
               left: showRail
                 ? `calc(220px + (100vw - 220px - 320px) / 2)`
                 : `calc(220px + (100vw - 220px) / 2)`,
+              transform: "translateX(-50%)",
               zIndex: 9999,
-              pointerEvents: "none",
             }}
           >
             <button
@@ -123,9 +122,7 @@ export function PortalShell({ children, title, subtitle, showRail = true }: Port
                 fontSize: 12.5,
                 fontWeight: 600,
                 fontFamily: "'Satoshi', sans-serif",
-                pointerEvents: "auto",
                 whiteSpace: "nowrap",
-                transform: "translateX(-50%)",
               }}
             >
               <motion.span
