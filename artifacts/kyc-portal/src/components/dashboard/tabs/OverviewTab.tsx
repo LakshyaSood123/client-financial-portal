@@ -6,6 +6,7 @@ import {
   Key, BookOpen, AlertTriangle, ScrollText,
   CheckCircle2, AlertCircle, XCircle, ArrowRight,
   ShieldCheck, Activity, Globe, TrendingDown, CreditCard, Webhook,
+  Clock,
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -24,26 +25,38 @@ const mkCard = (bg: string): React.CSSProperties => ({
 // ── Account Status config ──────────────────────────────────────
 type AccountState = "ACTIVE" | "SUSPENDED" | "BLOCKED";
 
-const ACCOUNT_STATUS: AccountState = "ACTIVE"; // swap to test other states
+const ACCOUNT_STATUS: AccountState = "ACTIVE";
 
 const STATUS_CONFIG: Record<AccountState, {
   label: string; sub: string; badge: string;
   dot: string; valueColor: string; bg: string; ringBg: string;
 }> = {
   ACTIVE: {
-    label: "Active", sub: "Portal access healthy",
-    badge: "Live", dot: "#22C55E",
-    valueColor: "#16a34a", bg: "rgba(34,197,94,0.07)", ringBg: "rgba(34,197,94,0.15)",
+    label: "Active",
+    sub: "Portal access healthy · no restrictions",
+    badge: "Live",
+    dot: "#22C55E",
+    valueColor: "#16a34a",
+    bg: "rgba(34,197,94,0.07)",
+    ringBg: "rgba(34,197,94,0.15)",
   },
   SUSPENDED: {
-    label: "Suspended", sub: "Restricted until review",
-    badge: "Action required", dot: "#F59E0B",
-    valueColor: "#d97706", bg: "rgba(245,158,11,0.07)", ringBg: "rgba(245,158,11,0.15)",
+    label: "Suspended",
+    sub: "Restricted until operational review",
+    badge: "Action required",
+    dot: "#F59E0B",
+    valueColor: "#d97706",
+    bg: "rgba(245,158,11,0.07)",
+    ringBg: "rgba(245,158,11,0.15)",
   },
   BLOCKED: {
-    label: "Blocked", sub: "Contact support to restore access",
-    badge: "Action required", dot: "#f54a4a",
-    valueColor: "#dc2626", bg: "rgba(245,74,74,0.07)", ringBg: "rgba(245,74,74,0.15)",
+    label: "Blocked",
+    sub: "Access limited pending compliance resolution",
+    badge: "Restricted",
+    dot: "#f54a4a",
+    valueColor: "#dc2626",
+    bg: "rgba(245,74,74,0.07)",
+    ringBg: "rgba(245,74,74,0.15)",
   },
 };
 
@@ -79,13 +92,14 @@ const BOTTOM_CARDS = [
 
 // ── Operational Readiness rows ─────────────────────────────────
 type RowStatus = "ok" | "warn" | "error";
+
 const OP_ROWS: { icon: typeof ShieldCheck; label: string; value: string; status: RowStatus }[] = [
-  { icon: ShieldCheck,  label: "KYB Verification",   value: "Verified",              status: "ok"   },
-  { icon: Activity,     label: "Portal Status",       value: "Active",                status: "ok"   },
-  { icon: Globe,        label: "Environment Access",  value: "Sandbox + Production",  status: "ok"   },
-  { icon: TrendingDown, label: "Risk Tier",           value: "Low",                   status: "ok"   },
-  { icon: CreditCard,   label: "Billing Health",      value: "Healthy",               status: "ok"   },
-  { icon: Webhook,      label: "Webhook Verification",value: "Test pending",          status: "warn" },
+  { icon: ShieldCheck,  label: "KYB Verification",    value: "Verified",             status: "ok"   },
+  { icon: Activity,     label: "Portal Status",        value: "Active",               status: "ok"   },
+  { icon: Globe,        label: "Environment Access",   value: "Sandbox + Production", status: "ok"   },
+  { icon: TrendingDown, label: "Risk Tier",            value: "Low",                  status: "ok"   },
+  { icon: CreditCard,   label: "Billing Status",       value: "Healthy",              status: "ok"   },
+  { icon: Webhook,      label: "Webhook Verification", value: "Test pending",         status: "warn" },
 ];
 
 const ROW_STATUS_STYLE: Record<RowStatus, { icon: typeof CheckCircle2; color: string; bg: string }> = {
@@ -94,7 +108,8 @@ const ROW_STATUS_STYLE: Record<RowStatus, { icon: typeof CheckCircle2; color: st
   error: { icon: XCircle,      color: "#f54a4a", bg: "rgba(245,74,74,0.10)"  },
 };
 
-const okCount = OP_ROWS.filter(r => r.status === "ok").length;
+// Backend is not wired — use placeholder treatment
+const BACKEND_WIRED = false;
 
 export function OverviewTab() {
   return (
@@ -126,54 +141,44 @@ export function OverviewTab() {
             gap: 12,
           }}
         >
-          {/* Header */}
           <div>
             <p style={{
               fontSize: 10, fontWeight: 700, letterSpacing: "0.08em",
-              textTransform: "uppercase", color: "#A09080",
-              marginBottom: 14, fontFamily: "'Satoshi', sans-serif",
+              textTransform: "uppercase", color: "#A09080", marginBottom: 14,
+              fontFamily: "'Satoshi', sans-serif",
             }}>
               Account Status
             </p>
 
-            {/* Animated status dot + value */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+            {/* Pulsing dot + value */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
               <div style={{ position: "relative", width: 12, height: 12, flexShrink: 0 }}>
                 <span style={{
                   position: "absolute", inset: 0, borderRadius: "50%",
                   background: s.dot, opacity: 0.3,
                   animation: "ping 1.8s cubic-bezier(0,0,0.2,1) infinite",
                 }} />
-                <span style={{
-                  position: "absolute", inset: "2px", borderRadius: "50%",
-                  background: s.dot,
-                }} />
+                <span style={{ position: "absolute", inset: "2px", borderRadius: "50%", background: s.dot }} />
               </div>
               <span style={{
-                fontSize: 26, fontWeight: 800, letterSpacing: "-0.025em",
-                lineHeight: 1, color: s.valueColor,
-                fontFamily: "'Satoshi', sans-serif",
+                fontSize: 26, fontWeight: 800, letterSpacing: "-0.025em", lineHeight: 1,
+                color: s.valueColor, fontFamily: "'Satoshi', sans-serif",
               }}>
                 {s.label}
               </span>
             </div>
 
-            <p style={{ fontSize: 11.5, color: "#A09080", fontFamily: "'Satoshi', sans-serif" }}>
+            <p style={{ fontSize: 11.5, color: "#A09080", lineHeight: 1.45, fontFamily: "'Satoshi', sans-serif" }}>
               {s.sub}
             </p>
           </div>
 
           {/* Badge */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{
-              display: "inline-flex", alignItems: "center", gap: 5,
-              background: s.ringBg, borderRadius: 20, padding: "4px 10px",
-            }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: s.dot, flexShrink: 0, display: "block" }} />
-              <span style={{ fontSize: 11, fontWeight: 700, color: s.dot, fontFamily: "'Satoshi', sans-serif" }}>
-                {s.badge}
-              </span>
-            </div>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: s.ringBg, borderRadius: 20, padding: "4px 10px", width: "fit-content" }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: s.dot, flexShrink: 0, display: "block" }} />
+            <span style={{ fontSize: 11, fontWeight: 700, color: s.dot, fontFamily: "'Satoshi', sans-serif" }}>
+              {s.badge}
+            </span>
           </div>
         </motion.div>
       </div>
@@ -184,7 +189,7 @@ export function OverviewTab() {
         <WebhookDonut />
       </div>
 
-      {/* ── Row 3: Bottom summary cards (blush) ─────────────────── */}
+      {/* ── Row 3: Bottom summary cards ──────────────────────────── */}
       <div className="grid grid-cols-4 gap-4 mb-5">
         {BOTTOM_CARDS.map((card, i) => (
           <motion.div
@@ -235,56 +240,58 @@ export function OverviewTab() {
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.38 }}
-        style={{
-          ...mkCard(WARM),
-          padding: "24px 28px",
-          display: "flex",
-          gap: 40,
-          alignItems: "flex-start",
-        }}
+        style={{ ...mkCard(WARM), padding: "24px 28px" }}
       >
-        {/* Left: title + description */}
-        <div style={{ flexShrink: 0, width: 210 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+        {/* Header row */}
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 20, gap: 20 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
             <div style={{
-              width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+              width: 32, height: 32, borderRadius: 9, flexShrink: 0,
               background: "linear-gradient(135deg, #F97316, #F59E0B)",
-              display: "flex", alignItems: "center", justifyContent: "center",
+              display: "flex", alignItems: "center", justifyContent: "center", marginTop: 1,
             }}>
-              <Activity style={{ width: 13, height: 13, color: "#fff" }} />
+              <Activity style={{ width: 14, height: 14, color: "#fff" }} />
             </div>
-            <span style={{
-              fontSize: 14, fontWeight: 800, color: "#1C1917",
-              letterSpacing: "-0.01em", fontFamily: "'Satoshi', sans-serif",
-            }}>
-              Operational Readiness
-            </span>
+            <div>
+              <h3 style={{ fontSize: 14, fontWeight: 800, color: "#1C1917", letterSpacing: "-0.01em", margin: "0 0 3px", fontFamily: "'Satoshi', sans-serif" }}>
+                Operational Readiness
+              </h3>
+              <p style={{ fontSize: 12.5, color: "#A09080", margin: 0, fontFamily: "'Satoshi', sans-serif" }}>
+                What currently enables or limits live production usage for this tenant.
+              </p>
+            </div>
           </div>
-          <p style={{ fontSize: 12.5, color: "#A09080", lineHeight: 1.55, fontFamily: "'Satoshi', sans-serif", margin: "0 0 20px" }}>
-            What currently allows or blocks live production usage
-          </p>
 
-          {/* Progress bar */}
-          <div>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-              <span style={{ fontSize: 11, color: "#A09080", fontFamily: "'Satoshi', sans-serif" }}>Setup progress</span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "#22C55E", fontFamily: "'Satoshi', sans-serif" }}>
-                {okCount}/{OP_ROWS.length}
+          {/* Backend-pending badge or CTA */}
+          {!BACKEND_WIRED ? (
+            <div style={{
+              display: "flex", alignItems: "center", gap: 6, flexShrink: 0,
+              background: "rgba(120,90,50,0.07)", borderRadius: 99, padding: "5px 12px",
+              border: "1px solid rgba(120,90,50,0.12)",
+            }}>
+              <Clock style={{ width: 11, height: 11, color: "#A09080" }} />
+              <span style={{ fontSize: 11, fontWeight: 600, color: "#A09080", fontFamily: "'Satoshi', sans-serif", whiteSpace: "nowrap" }}>
+                Backend pending
               </span>
             </div>
-            <div style={{ height: 5, borderRadius: 99, background: "rgba(120,90,50,0.1)", overflow: "hidden" }}>
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${(okCount / OP_ROWS.length) * 100}%` }}
-                transition={{ delay: 0.55, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                style={{ height: "100%", borderRadius: 99, background: "linear-gradient(90deg, #22C55E, #4ade80)" }}
-              />
-            </div>
-          </div>
+          ) : (
+            <Link href="/portal/verifications" style={{ textDecoration: "none" }}>
+              <button style={{
+                display: "flex", alignItems: "center", gap: 7, padding: "8px 16px",
+                borderRadius: 10, border: "none", cursor: "pointer",
+                background: "linear-gradient(135deg, #F97316, #F59E0B)",
+                color: "#fff", fontFamily: "'Satoshi', sans-serif", fontWeight: 700, fontSize: 12.5,
+                whiteSpace: "nowrap", flexShrink: 0,
+              }}>
+                Review Account Status
+                <ArrowRight style={{ width: 13, height: 13 }} />
+              </button>
+            </Link>
+          )}
         </div>
 
-        {/* Right: status rows — 2 columns of 3 */}
-        <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 32px" }}>
+        {/* Status rows — 2 columns of 3 */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 24px", marginBottom: 20 }}>
           {OP_ROWS.map((row, i) => {
             const rs = ROW_STATUS_STYLE[row.status];
             return (
@@ -292,47 +299,70 @@ export function OverviewTab() {
                 key={row.label}
                 initial={{ opacity: 0, x: 8 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.42 + i * 0.06 }}
+                transition={{ delay: 0.44 + i * 0.06 }}
                 style={{
                   display: "flex", alignItems: "center", gap: 10,
-                  padding: "9px 12px", borderRadius: 12, background: CREAM,
+                  padding: "10px 12px", borderRadius: 12,
+                  background: BACKEND_WIRED ? CREAM : "rgba(120,90,50,0.035)",
                   border: "1px solid rgba(120,90,50,0.07)",
                 }}
               >
                 <div style={{
                   width: 28, height: 28, borderRadius: 8, flexShrink: 0,
-                  background: rs.bg,
+                  background: BACKEND_WIRED ? rs.bg : "rgba(120,90,50,0.07)",
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
-                  <row.icon style={{ width: 14, height: 14, color: rs.color, flexShrink: 0 }} />
+                  <row.icon style={{
+                    width: 13, height: 13, flexShrink: 0,
+                    color: BACKEND_WIRED ? rs.color : "#C4B5A5",
+                  }} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 11.5, color: "#A09080", fontFamily: "'Satoshi', sans-serif", marginBottom: 1 }}>
+                  <div style={{ fontSize: 11, color: "#A09080", fontFamily: "'Satoshi', sans-serif", marginBottom: 1 }}>
                     {row.label}
                   </div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#1C1917", fontFamily: "'Satoshi', sans-serif" }}>
-                    {row.value}
+                  <div style={{ fontSize: 13, fontWeight: 700, color: BACKEND_WIRED ? "#1C1917" : "#C4B5A5", fontFamily: "'Satoshi', sans-serif" }}>
+                    {BACKEND_WIRED ? row.value : "—"}
                   </div>
                 </div>
-                <rs.icon style={{ width: 14, height: 14, color: rs.color, flexShrink: 0 }} />
+                {/* Status indicator or pending badge */}
+                {BACKEND_WIRED ? (
+                  <rs.icon style={{ width: 14, height: 14, color: rs.color, flexShrink: 0 }} />
+                ) : (
+                  <span style={{
+                    fontSize: 10, fontWeight: 600, color: "#C4B5A5",
+                    background: "rgba(120,90,50,0.07)", borderRadius: 99, padding: "2px 8px",
+                    whiteSpace: "nowrap", fontFamily: "'Satoshi', sans-serif",
+                  }}>
+                    Pending
+                  </span>
+                )}
               </motion.div>
             );
           })}
         </div>
 
-        {/* CTA */}
-        <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", justifyContent: "space-between", alignSelf: "stretch", paddingTop: 2 }}>
-          <div />
-          <Link href="/portal/webhooks" style={{ textDecoration: "none" }}>
+        {/* Footer: note + CTA */}
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20,
+          paddingTop: 16, borderTop: "1px solid rgba(120,90,50,0.09)",
+        }}>
+          <p style={{ fontSize: 11.5, color: "#C4B5A5", margin: 0, fontFamily: "'Satoshi', sans-serif", lineHeight: 1.5 }}>
+            Production access depends on account status, KYB approval, billing health, and environment permissions.
+          </p>
+          <Link href="/portal/verifications" style={{ textDecoration: "none", flexShrink: 0 }}>
             <button style={{
-              display: "flex", alignItems: "center", gap: 8,
-              padding: "10px 18px", borderRadius: 12, border: "none", cursor: "pointer",
-              background: "linear-gradient(135deg, #F97316, #F59E0B)",
-              color: "#fff", fontFamily: "'Satoshi', sans-serif", fontWeight: 700, fontSize: 13,
+              display: "flex", alignItems: "center", gap: 7, padding: "9px 18px",
+              borderRadius: 11, border: "none", cursor: "pointer",
+              background: BACKEND_WIRED
+                ? "linear-gradient(135deg, #F97316, #F59E0B)"
+                : "rgba(120,90,50,0.08)",
+              color: BACKEND_WIRED ? "#fff" : "#A09080",
+              fontFamily: "'Satoshi', sans-serif", fontWeight: 700, fontSize: 12.5,
               whiteSpace: "nowrap",
             }}>
-              Resolve Remaining Setup
-              <ArrowRight style={{ width: 14, height: 14 }} />
+              Review Account Status
+              <ArrowRight style={{ width: 13, height: 13 }} />
             </button>
           </Link>
         </div>
