@@ -1,0 +1,259 @@
+You are updating an existing React + TypeScript + Vite frontend in a monorepo. Do not rebuild it from scratch. Preserve the strong parts of the current UI, but make the frontend match the `/docs` folder, which is the authoritative requirements map.
+
+Context and constraints you must follow:
+- The authoritative docs are in `/docs`.
+- Treat the docs with this priority:
+  1. Hard decisions / ADRs:
+     - 0001-frontend-framework.md
+     - 0002-auth-flow-cognito-pkce.md
+     - 0003-origin-verify-header-handling.md
+     - 0004-admin-bff-and-x-admin-token.md
+     - 0005-iam-groups-and-roles.md
+  2. Main contracts and architecture:
+     - complete-frontend.md
+     - frontend-api-contract.md
+     - frontend-dashboard-endpoints-spec.md
+     - frontend-env-and-bootstrap.md
+     - frontend-auth-and-session-decisions.md
+     - frontend-admin-access-model.md
+     - frontend-rbac-matrix.md
+     - frontend-sequence-diagrams.md
+  3. Compliance and operational requirements:
+     - complete-compliance.md
+     - compliance-sop-pack.md
+     - compliance-build-backlog.md
+  4. Product decisions / future scope:
+     - decision-brief-portal-jobs-ui.md
+     - portal-jobs-ui-spec.md
+     - decision-brief-third-portal.md
+  5. Supporting notes:
+     - frontend-build-backlog.md
+     - frontend-ui-dashboard-tiles.md
+     - todo-resolution-report.md
+     - working-notes.md
+
+Non-negotiable architecture and security rules:
+- Default architecture is Vite SPA compatible with S3 + CloudFront.
+- Do not introduce SSR/Next.js assumptions unless clearly isolated and justified; current default remains Vite SPA.
+- Portal auth must be Cognito Hosted UI + Authorization Code + PKCE.
+- Do not invent a fake custom username/password auth flow as the intended architecture.
+- Current security model is header-token-based, not cookie-session-based.
+- Do not assume cookies for auth.
+- `x-origin-verify` must never be exposed in browser code.
+- Local development must use a dev proxy / server-side injection approach for `x-origin-verify`.
+- Admin routes that require `x-admin-token` must never expose that token in browser code.
+- Admin browser UI must talk to an Admin BFF or secure internal layer only.
+- Portal and admin are separate trust boundaries.
+- FE can use claims/groups to control visibility, but backend remains authoritative.
+- Blocked/suspended tenants must be restricted appropriately.
+- Legal hold, retention, auditability, masking, redaction, and one-time secret handling are real product requirements.
+- Do not assume missing endpoints already exist.
+- Portal Jobs UI is not confirmed MVP unless explicitly feature-flagged and clearly marked decision-dependent.
+- Third portal is not in confirmed scope.
+- Do not present sanctions/PEP/adverse-media, case management, or manual review as live backend capabilities unless docs say they exist.
+
+Current frontend state you are transforming:
+- Active app is `artifacts/kyc-portal/src`.
+- Current `App.tsx` exposes portal-like routes at `/`, `/usage`, `/webhooks`, `/billing`, `/api-keys`, `/audit-logs`, `/kyb-upload`, and admin routes under `/admin`.
+- The current portal uses `Dashboard.tsx`, which is a tabbed mock shell and does not actually map route -> page correctly.
+- `Dashboard.tsx` always initializes `activeTab = "overview"`, so routes like `/billing`, `/api-keys`, `/audit-logs`, `/webhooks`, and `/kyb-upload` do not render their own dedicated page state.
+- Admin pages exist visually (`AdminOverview`, `KYCQueue`, `ClientManagement`, `RiskAlerts`) but are static/local-state mocks.
+- There is no real auth, no route guards, no config bootstrap, no secure API usage, and no real portal/admin data layer.
+- The generated API client in `lib/api-client-react` only covers `/api/healthz`; do not pretend it already represents the portal/admin contract.
+
+Your implementation goals:
+1. Preserve the premium UI quality of the current codebase.
+2. Incrementally transform the current app into a docs-aligned frontend.
+3. Keep portal and admin visually distinct.
+4. Add truthful backend-dependent and decision-dependent annotations instead of fake live features.
+5. Do not expose secrets or violate the documented trust boundaries.
+
+What to keep and reuse:
+- Keep the overall premium dashboard quality, motion, card density, and chart polish.
+- Reuse strong portal visual components from:
+  - `src/components/dashboard/tabs/OverviewTab.tsx`
+  - `src/components/dashboard/tabs/VerificationTab.tsx`
+  - `src/components/dashboard/tabs/IntegrationsTab.tsx`
+  - `src/components/dashboard/tabs/BillingTab.tsx`
+  - `src/components/dashboard/RightPanel.tsx`
+  - `src/components/dashboard/AccountSummaryCard.tsx`
+- Reuse and refine the admin visual language from:
+  - `src/pages/admin/AdminOverview.tsx`
+  - `src/pages/admin/KYCQueue.tsx`
+  - `src/pages/admin/ClientManagement.tsx`
+  - `src/pages/admin/RiskAlerts.tsx`
+  - `src/components/layout/AdminSidebar.tsx`
+  - `src/components/layout/AdminTopBar.tsx`
+
+What to change structurally:
+- Replace the current route model with docs-aligned page structure.
+- Introduce portal routes under `/portal/*` and explicit auth/onboarding routes.
+- Add redirects from legacy flat routes only if helpful for continuity.
+- Separate portal and admin into distinct route groups and auth/service boundaries inside the same repo.
+- It is acceptable to keep one Vite app, but the architecture must clearly separate:
+  - portal auth/session/provider modules
+  - admin auth/access/BFF provider modules
+  - portal API layer
+  - admin BFF API layer
+- Remove or retire unused/legacy layout code if it is no longer part of the active shell, especially old `TopBar.tsx` / `TopNav.tsx` patterns if they are not the chosen final direction.
+
+Required route and screen hierarchy to implement:
+- `/login`
+  - Hosted UI entry page / session bootstrap page.
+  - If Cognito domain/config is missing, show a secure setup state instead of a fake login form.
+  - Optional callback route if you structure PKCE callback in-app.
+- `/onboarding`
+  - Tenant creation flow backed by the docs contract.
+- `/onboarding/kyb-upload`
+  - Dedicated upload UI using the portal onboarding upload URL contract.
+- `/portal`
+  - Portal account status / landing shell driven by `/portal/me`.
+  - If `ops_status` is `BLOCKED` or `SUSPENDED`, show restricted UX and suppress unsafe navigation/actions.
+- `/portal/stats`
+  - Real stats page backed by documented existing endpoint `GET /portal/stats`.
+- `/portal/billing`
+  - Consolidated billing area with balance card, ledger table, and plan summary driven by docs-backed portal endpoints.
+- `/portal/apikeys`
+  - Real API key self-service page.
+  - Must support one-time secret reveal pattern for creation.
+  - Later views must show only masked/prefix metadata.
+- `/portal/audit-logs`
+  - Audit logs page with table and loading/empty/error states.
+- `/portal/webhooks`
+  - Webhooks management page using existing documented portal endpoints.
+  - Include endpoints list, recent deliveries, test/replay actions if wired, and secret rotation one-time reveal handling.
+- `/admin`
+  - Internal admin home.
+  - Must visually communicate “internal-only” and “requires Admin BFF”.
+- `/admin/tenants`
+  - Tenants page.
+  - If tenant list endpoint is not available, show a clearly labeled backend dependency placeholder, not fake production data.
+- `/admin/kyc`
+  - KYC review / workflow page.
+  - Existing queue UI can be reused, but any approval/rejection actions must be real or explicitly non-persistent placeholders.
+- `/admin/risk`
+  - Risk page.
+  - Do not present PEP/sanctions/adverse-media as confirmed live functionality unless the data source exists.
+  - If only proposed, label the section accordingly.
+- `/admin/compliance-holds`
+  - Page for legal holds / retention holds.
+- `/admin/billing`
+  - Billing ops page.
+- `/admin/apikeys`
+  - Admin API key operations page with one-time secret handling.
+- `/admin/control-plane-events`
+  - Control-plane events page.
+- `/admin/webhooks`
+  - Internal webhook management page.
+- Do not add portal jobs pages by default unless implemented behind an explicit feature flag and clearly labeled as decision-dependent.
+- Do not add a third portal.
+
+Required data and integration behavior:
+- Create a clean FE service layer for portal and admin interactions.
+- Do not wire the browser directly to raw admin-token endpoints.
+- Portal API layer can use header-based auth and a base URL from runtime config.
+- Admin API layer must assume BFF-only communication.
+- If actual backend endpoints are not available in the current environment, create typed adapters/interfaces and show documented placeholders in the UI.
+- Do not fabricate backend success states.
+
+State handling requirements:
+- Add proper loading, empty, error, and restricted states on every data-backed page.
+- Add `Backend not available yet`, `Proposed`, or `Decision needed` notices where the docs say scope is partial or unsettled.
+- Portal blocked/suspended UX must be prominent and must limit access.
+- Admin pages must include an internal-only warning banner and BFF dependency notice if admin backend is unavailable.
+
+Secret handling requirements:
+- API keys:
+  - On create/rotate, show secret once in a modal or dedicated panel.
+  - Include copy button and acknowledgement text: save now, it will not be shown again.
+  - After dismissal, only show id/name/prefix/status/created_at/last_used.
+- Webhook signing secrets:
+  - Same one-time reveal pattern on create/rotate.
+  - Never show full secret later.
+- Mask sensitive identifiers and artifact references where appropriate.
+- Never show raw artifact URLs by default.
+- Do not let “copy” buttons copy masked placeholder strings as if they were real secrets.
+
+Compliance and sensitivity UX requirements:
+- Add portal restricted state for blocked/suspended tenants.
+- Add redaction/masking conventions for subject IDs, artifact identifiers, and sensitive internal references.
+- Add legal-hold and retention notes where relevant.
+- If compliance features are only proposed, label them as roadmap/backend-dependent instead of showing fake live dashboards.
+- Add auditability-friendly UI for admin actions: confirmation modals, reason capture fields where docs imply risk override / sensitive actions.
+- Add internal-only warnings on admin pages for sensitive operational actions.
+
+Dashboard correctness requirements:
+- Only show live dashboard widgets for evidence-backed endpoints.
+- Portal stats: okay to fully implement from existing docs contract.
+- Portal billing/webhooks/API keys/audit: okay to fully implement if the backend contract is available in the environment.
+- Portal jobs list/detail: do not ship as default MVP unless feature-flagged and explicitly marked decision-dependent.
+- Admin ops metrics, tenant list, risk history, retention metrics, webhook aggregates:
+  - treat as backend-dependent
+  - design the page shells now
+  - use premium cards/tables/filters
+  - show annotated placeholders if endpoints are missing
+  - do not fake “real” values
+
+Visual system requirements:
+- Keep the premium look.
+- Preserve the current strong motion and dashboard polish.
+- Consolidate design tokens into a clearer shared token layer.
+- Keep portal and admin visually distinct.
+- Portal can keep the warmer premium client-facing tone.
+- Admin can keep the cooler/internal analytic tone.
+- Improve consistency of card shells, table rows, filters, badges, panel headers, and empty/error states.
+- Reduce scattered inline duplication where practical, but do not do a gratuitous rewrite.
+- Prefer incremental cleanup over huge refactors.
+
+Implementation details to address explicitly:
+- Use actual route-based page composition instead of tab state pretending to be navigation.
+- Add auth/session context and secure config bootstrap modules.
+- Add route guards for portal and admin shells.
+- Add runtime config handling for API base URL, Cognito IDs/domain, and admin BFF base URL.
+- Add page-level notices for backend dependency and decision dependency.
+- Add clear 404 handling and auth-required handling.
+- Replace static mock “approve/reject/export/replay” behavior with either:
+  - real endpoint wiring, or
+  - disabled/annotated placeholder controls
+
+Likely files/folders to modify:
+- `artifacts/kyc-portal/src/App.tsx`
+- `artifacts/kyc-portal/src/main.tsx`
+- `artifacts/kyc-portal/src/index.css`
+- `artifacts/kyc-portal/src/pages/Dashboard.tsx`
+- `artifacts/kyc-portal/src/pages/admin/*`
+- `artifacts/kyc-portal/src/components/layout/*`
+- `artifacts/kyc-portal/src/components/dashboard/*`
+- Add new folders:
+  - `artifacts/kyc-portal/src/pages/portal/`
+  - `artifacts/kyc-portal/src/auth/`
+  - `artifacts/kyc-portal/src/config/`
+  - `artifacts/kyc-portal/src/api/portal/`
+  - `artifacts/kyc-portal/src/api/admin/`
+  - `artifacts/kyc-portal/src/components/shared/`
+- Do not blindly expand `lib/api-spec/openapi.yaml` unless you are also deliberately formalizing the docs-backed contract. If you need a frontend data layer before that, create local typed service modules instead.
+
+Testing and validation expectations:
+- Verify route -> page mapping is correct.
+- Verify blocked/suspended portal state locks down the UI.
+- Verify secret reveal flows are one-time in the UI.
+- Verify admin routes cannot pretend to function without BFF/config.
+- Verify portal/admin screens distinguish:
+  - confirmed MVP
+  - backend-dependent
+  - decision-needed
+- Verify there is no browser code exposing `x-origin-verify` or `x-admin-token`.
+- Verify no fake custom login form is introduced.
+- Verify placeholder notices are visually polished and product-grade, not raw TODO text.
+
+Documentation follow-up required as part of the implementation workflow:
+- Update `docs/complete-frontend.md` to remove stale statements that no frontend repo exists.
+- Update `docs/frontend-ui-dashboard-tiles.md` so it matches real file paths and route structure.
+- Update `docs/frontend-build-backlog.md` and `docs/todo-resolution-report.md` to reflect what is now implemented vs still backend-dependent.
+- If you introduce a stable runtime config layer or feature flags for decision-dependent features, document them in `docs/frontend-env-and-bootstrap.md`.
+
+Deliverable expectation:
+- Implement the frontend incrementally in the current codebase.
+- Preserve the best existing UI work.
+- Do not invent backend capability.
+- Make the result architecturally honest, security-safe, premium-looking, and ready for future backend hookup.
