@@ -26,8 +26,19 @@ const ACTV  = "rgba(255,255,255,0.10)";
 const HOVER = "rgba(255,255,255,0.05)";
 
 export function AdminSidebar() {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState<boolean>(() => {
+    try { return localStorage.getItem("admin-sidebar-expanded") === "true"; }
+    catch { return false; }
+  });
   const [location] = useLocation();
+
+  const toggle = () => {
+    setExpanded(e => {
+      const next = !e;
+      try { localStorage.setItem("admin-sidebar-expanded", String(next)); } catch {}
+      return next;
+    });
+  };
 
   const isActive = (path: string) =>
     path === "/admin"
@@ -67,7 +78,7 @@ export function AdminSidebar() {
 
       {/* Expand toggle */}
       <button
-        onClick={() => setExpanded(e => !e)}
+        onClick={toggle}
         className="absolute -right-3 top-10 w-6 h-6 rounded-full flex items-center justify-center"
         style={{ background: "#1e2634", border: "1px solid rgba(255,255,255,0.12)" }}
       >

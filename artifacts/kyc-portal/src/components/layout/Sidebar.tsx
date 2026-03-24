@@ -27,7 +27,15 @@ const EXPANDED_W  = 220;
 
 export function Sidebar() {
   const [location] = useLocation();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState<boolean>(() => {
+    try { return localStorage.getItem("portal-sidebar-collapsed") === "true"; }
+    catch { return false; }
+  });
+
+  const persist = (val: boolean) => {
+    setCollapsed(val);
+    try { localStorage.setItem("portal-sidebar-collapsed", String(val)); } catch {}
+  };
 
   const isActive = (path: string) =>
     path === "/portal"
@@ -93,7 +101,7 @@ export function Sidebar() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setCollapsed(true)}
+              onClick={() => persist(true)}
               style={{
                 border: "none", background: "transparent", cursor: "pointer",
                 color: "#C4B5A5", padding: 4, borderRadius: 6, flexShrink: 0,
@@ -114,7 +122,7 @@ export function Sidebar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setCollapsed(false)}
+            onClick={() => persist(false)}
             style={{
               position: "absolute", top: 28, right: -1,
               width: 20, height: 20, borderRadius: "50%",
