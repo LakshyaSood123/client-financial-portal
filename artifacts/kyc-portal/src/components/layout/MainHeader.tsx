@@ -27,7 +27,7 @@ export function MainHeader() {
           fontFamily: "'Satoshi', sans-serif",
           margin: 0,
         }}>
-          Hello Again, OZ Agency.
+          Account Overview
         </h1>
         <p style={{
           fontSize: 13,
@@ -35,7 +35,7 @@ export function MainHeader() {
           marginTop: 4,
           fontFamily: "'Satoshi', sans-serif",
         }}>
-          A New Window Of Opportunity Opens Today—Explore Your Momentum.
+          KYB progress, integration health, billing status, and recent activity
         </p>
       </div>
 
