@@ -4,6 +4,37 @@
 
 pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
 
+## KYC Portal Architecture (as of March 2026)
+
+### Route Structure
+- `/login` — Cognito PKCE scaffold (shows config-required state when env vars absent)
+- `/onboarding` + `/onboarding/kyb-upload` — Tenant onboarding flow
+- `/portal` → `/portal/stats` → `/portal/verifications` → `/portal/apikeys` → `/portal/webhooks` → `/portal/billing` → `/portal/audit-logs`
+- `/admin` → `/admin/tenants` → `/admin/kyc` → `/admin/risk` → `/admin/compliance-holds` → `/admin/billing` → `/admin/apikeys` → `/admin/control-plane-events` → `/admin/webhooks`
+- Legacy flat routes redirect to the new paths
+
+### Frontend Layer Structure
+```
+src/config/runtime.ts           — Runtime config (Cognito, API base URLs)
+src/auth/session.ts             — PKCE helpers, token storage
+src/auth/AuthContext.tsx        — Auth context + useAuth() hook
+src/components/shared/          — Reusable honest-UX components:
+  BackendPlaceholder.tsx        — "Backend Integration Pending" notice
+  InternalOnlyBanner.tsx        — Admin internal-only warning
+  OneTimeSecretReveal.tsx       — One-time secret modal + MaskedSecret
+  MaskedValue.tsx               — Masked sensitive identifiers
+src/pages/portal/PortalShell.tsx — Portal layout (Sidebar + Header + RightPanel)
+src/pages/portal/               — Route-based portal pages
+src/pages/admin/                — Route-based admin pages
+```
+
+### Key UX Patterns
+- All mock/illustrative data sections show a `BackendPlaceholder` notice
+- API key and webhook secret creation/rotation uses `OneTimeSecretReveal` modal
+- All admin pages show `InternalOnlyBanner` (injected in AdminLayout)
+- Login page never shows fake username/password form
+- Blocked/suspended tenants visible in admin tenant list with status badges
+
 ## Stack
 
 - **Monorepo tool**: pnpm workspaces

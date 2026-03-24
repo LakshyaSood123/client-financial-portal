@@ -1,0 +1,168 @@
+You are updating an existing React + TypeScript + Vite frontend in a monorepo.
+
+You do NOT have access to the project’s `/docs` folder. The requirements below are the authoritative product and architecture constraints. Do not ask for docs. Do not assume missing backend support exists.
+
+Project context:
+- Active frontend app is `artifacts/kyc-portal/src`
+- Current app is a polished mock UI with portal-like routes and admin-like routes in one SPA
+- Current UI quality is good and should be preserved where possible
+- Current implementation is mostly static/local-state driven
+- There is no real auth flow yet
+- There is no real portal/admin API integration yet
+- Generated API client in `lib/api-client-react` is not the true portal/admin contract and currently only covers health
+
+Non-negotiable architecture and security rules:
+- Default frontend architecture is Vite SPA compatible with S3 + CloudFront
+- Do not introduce SSR or Next.js assumptions
+- Portal auth must follow Cognito Hosted UI + Authorization Code + PKCE
+- Do not create a fake username/password login flow as the intended architecture
+- Current auth/session direction is header-token-based, not cookie-session-based
+- Do not build cookie-auth assumptions
+- `x-origin-verify` must never be exposed in browser code
+- Local development must rely on a dev proxy / server-side injection model for `x-origin-verify`
+- Admin routes that require `x-admin-token` must never expose that token in browser code
+- Admin browser UI must use an Admin BFF / secure internal layer
+- Portal and admin are distinct trust boundaries
+- FE visibility can use claims/groups, but backend remains authoritative
+- Blocked/suspended tenants must have restricted UX
+- One-time secret handling matters for API keys and webhook signing secrets
+- Do not invent backend support that is not confirmed
+- Portal Jobs UI is not guaranteed MVP
+- Third portal is not confirmed scope
+- Manual review, sanctions/PEP/adverse-media, case management, and many admin metrics are not confirmed as live backend-supported features
+
+Confirmed frontend/product scope:
+Portal should support:
+- login
+- onboarding
+- KYB upload
+- portal home/account status
+- stats dashboard
+- billing balance + ledger
+- API keys self-service
+- audit logs
+- webhooks management
+- restricted tenant state
+
+Admin/internal console should support:
+- overview
+- tenants
+- KYC review
+- risk
+- compliance holds
+- billing ops
+- admin API keys
+- control-plane events
+- admin webhooks
+
+Important backend/scope nuance:
+- Portal stats is a confirmed existing backend-backed area
+- Portal billing, portal API keys, portal audit logs, and portal webhooks are confirmed contract areas
+- Admin actions exist conceptually, but many admin list/metrics/dashboard endpoints are partial or missing
+- Portal Jobs UI is decision-dependent, not confirmed MVP
+- Third portal is out of scope
+- Compliance workflows like sanctions/PEP/adverse-media and case management must not be represented as fully live unless the codebase already has backend support
+
+Your implementation strategy:
+- Do not rebuild the app from scratch
+- Preserve the best existing UI work
+- Incrementally transform the current codebase into a docs-aligned structure
+- Prefer route restructuring, reusable layouts, proper state handling, and honest placeholders over fake full-stack behavior
+
+What to implement now:
+1. Fix route architecture
+- Replace the current fake route-to-tab behavior
+- Introduce real route groups:
+  - `/login`
+  - `/onboarding`
+  - `/onboarding/kyb-upload`
+  - `/portal`
+  - `/portal/stats`
+  - `/portal/billing`
+  - `/portal/apikeys`
+  - `/portal/audit-logs`
+  - `/portal/webhooks`
+  - `/admin`
+  - `/admin/tenants`
+  - `/admin/kyc`
+  - `/admin/risk`
+  - `/admin/compliance-holds`
+  - `/admin/billing`
+  - `/admin/apikeys`
+  - `/admin/control-plane-events`
+  - `/admin/webhooks`
+- You may keep compatibility redirects from legacy routes if helpful
+
+2. Add proper page states
+- Every page must support loading / empty / error states
+- Add polished “backend not available yet” placeholders where backend support is partial or missing
+- Add “decision needed / not in confirmed MVP” notices where scope is not settled
+- Do not show fake data as if it is live production data unless it is clearly labeled mock/placeholder
+
+3. Add auth scaffolding, not fake auth
+- Create a Cognito PKCE session/auth module scaffold
+- Add login/bootstrap page
+- Add route guards for portal and admin shells
+- If required config/env is missing, show a premium “configuration required” state
+- Do not add a fake email/password form
+
+4. Separate portal vs admin trust posture
+- Portal shell should feel client-facing
+- Admin shell should feel internal-only
+- Add an internal-only warning banner on admin pages
+- Admin pages must visually indicate that secure BFF wiring is required for sensitive actions
+
+5. Add secure UX patterns
+- API keys create/rotate flows must use one-time secret reveal UX
+- Webhook signing secret create/rotate flows must use one-time secret reveal UX
+- Later views must only show masked/prefix values
+- Add masked sensitive value components for tenant IDs, secrets, subject IDs, and internal refs where appropriate
+
+6. Add restricted tenant UX
+- Build a restricted portal state for blocked/suspended tenants
+- Restrict navigation and show clear operational status messaging
+
+7. Preserve and refactor existing good UI
+- Reuse strong visual structures from current portal and admin pages
+- Keep premium dashboards, motion, and card quality
+- Consolidate design tokens where sensible
+- Avoid unnecessary rewrites
+
+What not to do:
+- Do not expose `x-origin-verify`
+- Do not expose `x-admin-token`
+- Do not pretend admin actions are fully functional without BFF/backend support
+- Do not ship portal jobs UI as confirmed MVP
+- Do not add a third portal
+- Do not present sanctions/PEP/adverse-media or case management as fully implemented if they are not backed
+- Do not turn this into a generic SaaS dashboard unrelated to the existing product
+
+Likely files to update:
+- `artifacts/kyc-portal/src/App.tsx`
+- `artifacts/kyc-portal/src/main.tsx`
+- `artifacts/kyc-portal/src/index.css`
+- `artifacts/kyc-portal/src/pages/Dashboard.tsx`
+- `artifacts/kyc-portal/src/pages/admin/*`
+- `artifacts/kyc-portal/src/components/layout/*`
+- `artifacts/kyc-portal/src/components/dashboard/*`
+
+Likely folders to add:
+- `artifacts/kyc-portal/src/pages/portal/`
+- `artifacts/kyc-portal/src/auth/`
+- `artifacts/kyc-portal/src/config/`
+- `artifacts/kyc-portal/src/api/portal/`
+- `artifacts/kyc-portal/src/api/admin/`
+- `artifacts/kyc-portal/src/components/shared/`
+
+Implementation priority:
+- First: route structure and shell separation
+- Second: page states and placeholder honesty
+- Third: auth/config scaffolding
+- Fourth: secure UX patterns and backend-ready service layer interfaces
+
+Deliverable:
+- Update the current codebase incrementally
+- Keep the premium UI
+- Make the frontend structurally correct
+- Make backend-dependent areas clearly annotated
+- Do not invent unsupported backend features

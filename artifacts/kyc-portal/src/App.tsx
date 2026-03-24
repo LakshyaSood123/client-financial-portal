@@ -1,12 +1,31 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Dashboard from "@/pages/Dashboard";
-import AdminOverview from "@/pages/admin/AdminOverview";
-import KYCQueue from "@/pages/admin/KYCQueue";
-import ClientManagement from "@/pages/admin/ClientManagement";
-import RiskAlerts from "@/pages/admin/RiskAlerts";
+
+// Auth
+import LoginPage     from "@/pages/LoginPage";
+import OnboardingPage from "@/pages/OnboardingPage";
+
+// Portal pages
+import PortalStats        from "@/pages/portal/PortalStats";
+import PortalVerifications from "@/pages/portal/PortalVerifications";
+import PortalApiKeys      from "@/pages/portal/PortalApiKeys";
+import PortalWebhooks     from "@/pages/portal/PortalWebhooks";
+import PortalBilling      from "@/pages/portal/PortalBilling";
+import PortalAuditLogs    from "@/pages/portal/PortalAuditLogs";
+
+// Admin pages
+import AdminOverview  from "@/pages/admin/AdminOverview";
+import AdminTenants   from "@/pages/admin/AdminTenants";
+import KYCQueue       from "@/pages/admin/KYCQueue";
+import RiskAlerts     from "@/pages/admin/RiskAlerts";
+import AdminCompliance from "@/pages/admin/AdminCompliance";
+import AdminBilling   from "@/pages/admin/AdminBilling";
+import AdminApiKeys   from "@/pages/admin/AdminApiKeys";
+import AdminEvents    from "@/pages/admin/AdminEvents";
+import AdminWebhooks  from "@/pages/admin/AdminWebhooks";
+
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -14,23 +33,41 @@ const queryClient = new QueryClient();
 function Router() {
   return (
     <Switch>
-      {/* Client routes */}
-      <Route path="/" component={Dashboard} />
-      <Route path="/usage" component={Dashboard} />
-      <Route path="/webhooks" component={Dashboard} />
-      <Route path="/billing" component={Dashboard} />
-      <Route path="/api-keys" component={Dashboard} />
-      <Route path="/audit-logs" component={Dashboard} />
-      <Route path="/kyb-upload" component={Dashboard} />
+      {/* ── Auth / onboarding ─────────────────────────────────── */}
+      <Route path="/login"               component={LoginPage} />
+      <Route path="/onboarding"          component={OnboardingPage} />
+      <Route path="/onboarding/kyb-upload" component={OnboardingPage} />
 
-      {/* Admin routes */}
-      <Route path="/admin" component={AdminOverview} />
-      <Route path="/admin/kyc-queue" component={KYCQueue} />
-      <Route path="/admin/clients" component={ClientManagement} />
-      <Route path="/admin/risk" component={RiskAlerts} />
-      <Route path="/admin/analytics" component={AdminOverview} />
-      <Route path="/admin/audit" component={AdminOverview} />
-      <Route path="/admin/settings" component={AdminOverview} />
+      {/* ── Portal routes ─────────────────────────────────────── */}
+      <Route path="/portal"              component={PortalStats} />
+      <Route path="/portal/stats"        component={PortalStats} />
+      <Route path="/portal/verifications" component={PortalVerifications} />
+      <Route path="/portal/apikeys"      component={PortalApiKeys} />
+      <Route path="/portal/webhooks"     component={PortalWebhooks} />
+      <Route path="/portal/billing"      component={PortalBilling} />
+      <Route path="/portal/audit-logs"   component={PortalAuditLogs} />
+
+      {/* ── Admin routes ──────────────────────────────────────── */}
+      <Route path="/admin"                       component={AdminOverview} />
+      <Route path="/admin/tenants"               component={AdminTenants} />
+      <Route path="/admin/kyc"                   component={KYCQueue} />
+      <Route path="/admin/risk"                  component={RiskAlerts} />
+      <Route path="/admin/compliance-holds"      component={AdminCompliance} />
+      <Route path="/admin/billing"               component={AdminBilling} />
+      <Route path="/admin/apikeys"               component={AdminApiKeys} />
+      <Route path="/admin/control-plane-events"  component={AdminEvents} />
+      <Route path="/admin/webhooks"              component={AdminWebhooks} />
+
+      {/* ── Legacy redirects ──────────────────────────────────── */}
+      <Route path="/"                  component={() => <Redirect to="/portal" />} />
+      <Route path="/usage"             component={() => <Redirect to="/portal/stats" />} />
+      <Route path="/webhooks"          component={() => <Redirect to="/portal/webhooks" />} />
+      <Route path="/billing"           component={() => <Redirect to="/portal/billing" />} />
+      <Route path="/api-keys"          component={() => <Redirect to="/portal/apikeys" />} />
+      <Route path="/audit-logs"        component={() => <Redirect to="/portal/audit-logs" />} />
+      <Route path="/kyb-upload"        component={() => <Redirect to="/onboarding/kyb-upload" />} />
+      <Route path="/admin/kyc-queue"   component={() => <Redirect to="/admin/kyc" />} />
+      <Route path="/admin/clients"     component={() => <Redirect to="/admin/tenants" />} />
 
       <Route component={NotFound} />
     </Switch>

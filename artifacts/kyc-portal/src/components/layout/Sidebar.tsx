@@ -1,33 +1,33 @@
 import { motion } from "framer-motion";
+import { useLocation, Link } from "wouter";
 import {
-  LayoutDashboard, Users, ShieldCheck, Webhook,
-  CreditCard, BarChart2, TrendingUp, ClipboardList,
-  Settings, HelpCircle, LogOut, ChevronLeft,
+  LayoutDashboard, ShieldCheck, Key, Webhook,
+  CreditCard, ScrollText, Settings, HelpCircle, LogOut, ChevronLeft,
 } from "lucide-react";
 
 const NAV_ITEMS = [
-  { id: "overview",     label: "Overview",      icon: LayoutDashboard },
-  { id: "clients",      label: "Clients",       icon: Users },
-  { id: "verification", label: "Verifications", icon: ShieldCheck },
-  { id: "integrations", label: "Integrations",  icon: Webhook },
-  { id: "billing",      label: "Billing",       icon: CreditCard },
-  { id: "reports",      label: "Reports",       icon: BarChart2 },
-  { id: "analytics",    label: "Analytics",     icon: TrendingUp },
-  { id: "tasks",        label: "Tasks",         icon: ClipboardList },
+  { path: "/portal",            label: "Overview",      icon: LayoutDashboard },
+  { path: "/portal/verifications", label: "Verifications", icon: ShieldCheck },
+  { path: "/portal/apikeys",    label: "API Keys",      icon: Key },
+  { path: "/portal/webhooks",   label: "Webhooks",      icon: Webhook },
+  { path: "/portal/billing",    label: "Billing",       icon: CreditCard },
+  { path: "/portal/audit-logs", label: "Audit Logs",    icon: ScrollText },
 ];
 
 const UTIL_ITEMS = [
-  { label: "Settings",    icon: Settings },
+  { label: "Settings",    icon: Settings  },
   { label: "Help Center", icon: HelpCircle },
-  { label: "Logout",      icon: LogOut },
+  { label: "Sign Out",    icon: LogOut    },
 ];
 
-interface SidebarProps {
-  activeTab: string;
-  setActiveTab: (id: string) => void;
-}
+export function Sidebar() {
+  const [location] = useLocation();
 
-export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
+  const isActive = (path: string) =>
+    path === "/portal"
+      ? location === "/portal" || location === "/"
+      : location.startsWith(path);
+
   return (
     <motion.div
       style={{
@@ -45,7 +45,7 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
     >
       {/* Logo row */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+        <Link href="/portal" style={{ display: "flex", alignItems: "center", gap: 9, textDecoration: "none" }}>
           <div style={{
             width: 30, height: 30, borderRadius: 8, flexShrink: 0,
             background: "linear-gradient(135deg, #F97316, #F59E0B)",
@@ -56,11 +56,8 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
           <span style={{ fontWeight: 800, fontSize: 15, color: "#1C1917", letterSpacing: "-0.01em" }}>
             Nexus<span style={{ color: "#F97316" }}>KYC</span>
           </span>
-        </div>
-        <button style={{
-          border: "none", background: "transparent", cursor: "pointer",
-          color: "#C4B5A5", padding: 4, borderRadius: 6,
-        }}>
+        </Link>
+        <button style={{ border: "none", background: "transparent", cursor: "pointer", color: "#C4B5A5", padding: 4, borderRadius: 6 }}>
           <ChevronLeft style={{ width: 15, height: 15 }} />
         </button>
       </div>
@@ -77,9 +74,9 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
       {/* Nav items */}
       <nav style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
         {NAV_ITEMS.map((item) => {
-          const active = activeTab === item.id;
+          const active = isActive(item.path);
           return (
-            <div key={item.id} style={{ position: "relative" }}>
+            <div key={item.path} style={{ position: "relative" }}>
               {active && (
                 <motion.div
                   layoutId="sidebar-active-bg"
@@ -90,50 +87,42 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
                   transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 />
               )}
-              <button
-                onClick={() => setActiveTab(item.id)}
-                style={{
-                  position: "relative", zIndex: 1,
-                  display: "flex", alignItems: "center", gap: 10,
-                  padding: "9px 12px", borderRadius: 12,
-                  width: "100%", border: "none", cursor: "pointer",
-                  background: "transparent",
-                  color: active ? "#ffffff" : "#A09080",
-                  textAlign: "left",
-                  fontFamily: "'Satoshi', sans-serif",
-                  transition: "color 0.15s ease",
-                }}
-                onMouseEnter={e => {
-                  if (!active) {
-                    (e.currentTarget as HTMLElement).style.background = "rgba(120,90,50,0.08)";
-                    (e.currentTarget as HTMLElement).style.color = "#1C1917";
-                  }
-                }}
-                onMouseLeave={e => {
-                  if (!active) {
-                    (e.currentTarget as HTMLElement).style.background = "transparent";
-                    (e.currentTarget as HTMLElement).style.color = "#A09080";
-                  }
-                }}
-              >
-                <item.icon style={{ width: 16, height: 16, flexShrink: 0 }} />
-                <span style={{ fontSize: 13.5, fontWeight: active ? 700 : 500 }}>
-                  {item.label}
-                </span>
-              </button>
+              <Link href={item.path} style={{ textDecoration: "none" }}>
+                <div
+                  style={{
+                    position: "relative", zIndex: 1,
+                    display: "flex", alignItems: "center", gap: 10,
+                    padding: "9px 12px", borderRadius: 12,
+                    color: active ? "#ffffff" : "#A09080",
+                    cursor: "pointer",
+                    transition: "color 0.15s ease",
+                  }}
+                  onMouseEnter={e => {
+                    if (!active) {
+                      (e.currentTarget as HTMLElement).style.background = "rgba(120,90,50,0.08)";
+                      (e.currentTarget as HTMLElement).style.color = "#1C1917";
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!active) {
+                      (e.currentTarget as HTMLElement).style.background = "transparent";
+                      (e.currentTarget as HTMLElement).style.color = "#A09080";
+                    }
+                  }}
+                >
+                  <item.icon style={{ width: 16, height: 16, flexShrink: 0 }} />
+                  <span style={{ fontSize: 13.5, fontWeight: active ? 700 : 500, fontFamily: "'Satoshi', sans-serif" }}>
+                    {item.label}
+                  </span>
+                </div>
+              </Link>
             </div>
           );
         })}
       </nav>
 
       {/* Utility section */}
-      <div style={{
-        borderTop: "1px solid rgba(120,90,50,0.1)",
-        paddingTop: 12,
-        display: "flex",
-        flexDirection: "column",
-        gap: 1,
-      }}>
+      <div style={{ borderTop: "1px solid rgba(120,90,50,0.1)", paddingTop: 12, display: "flex", flexDirection: "column", gap: 1 }}>
         {UTIL_ITEMS.map((item) => (
           <button
             key={item.label}
@@ -142,8 +131,7 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
               padding: "9px 12px", borderRadius: 12,
               border: "none", background: "transparent",
               color: "#A09080", cursor: "pointer", textAlign: "left",
-              width: "100%",
-              fontFamily: "'Satoshi', sans-serif",
+              width: "100%", fontFamily: "'Satoshi', sans-serif",
               transition: "all 0.15s ease",
             }}
             onMouseEnter={e => {

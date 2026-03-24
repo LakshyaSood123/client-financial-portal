@@ -2,17 +2,21 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Users, ShieldCheck, AlertTriangle,
-  BarChart2, ScrollText, Settings, LogOut, ChevronRight,
+  Lock, CreditCard, Key, Activity, Webhook,
+  LogOut, ChevronRight,
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
 const NAV_ITEMS = [
-  { icon: LayoutDashboard, label: "Overview",    path: "/admin" },
-  { icon: ShieldCheck,     label: "KYC Queue",   path: "/admin/kyc-queue", badge: 14 },
-  { icon: Users,           label: "Clients",     path: "/admin/clients" },
-  { icon: AlertTriangle,   label: "Risk Alerts", path: "/admin/risk", badge: 3 },
-  { icon: BarChart2,       label: "Analytics",   path: "/admin/analytics" },
-  { icon: ScrollText,      label: "Audit Logs",  path: "/admin/audit" },
+  { icon: LayoutDashboard, label: "Overview",        path: "/admin"                     },
+  { icon: Users,           label: "Tenants",         path: "/admin/tenants"             },
+  { icon: ShieldCheck,     label: "KYC Review",      path: "/admin/kyc",       badge: 14 },
+  { icon: AlertTriangle,   label: "Risk",            path: "/admin/risk",      badge: 3  },
+  { icon: Lock,            label: "Compliance Holds",path: "/admin/compliance-holds"    },
+  { icon: CreditCard,      label: "Billing",         path: "/admin/billing"             },
+  { icon: Key,             label: "API Keys",        path: "/admin/apikeys"             },
+  { icon: Activity,        label: "Events",          path: "/admin/control-plane-events"},
+  { icon: Webhook,         label: "Webhooks",        path: "/admin/webhooks"            },
 ];
 
 const DARK  = "#0e1219";
@@ -24,6 +28,11 @@ const HOVER = "rgba(255,255,255,0.05)";
 export function AdminSidebar() {
   const [expanded, setExpanded] = useState(false);
   const [location] = useLocation();
+
+  const isActive = (path: string) =>
+    path === "/admin"
+      ? location === "/admin"
+      : location.startsWith(path);
 
   return (
     <motion.aside
@@ -48,108 +57,102 @@ export function AdminSidebar() {
               initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }}
               transition={{ duration: 0.16 }}
             >
-              <p className="font-display font-bold text-sm leading-tight text-white">NexusKYC</p>
-              <p className="text-[9px] font-bold uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.28)" }}>Admin Panel</p>
+              <span className="font-bold text-white text-sm">Nexus</span>
+              <span style={{ color: "#F97316" }} className="font-bold text-sm">KYC</span>
+              <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.4)" }}>Admin</span>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Toggle */}
+      {/* Expand toggle */}
       <button
-        onClick={() => setExpanded(v => !v)}
-        className="absolute -right-3.5 top-[62px] w-7 h-7 rounded-full flex items-center justify-center z-10 transition-all hover:scale-110"
-        style={{ background: "#d6e3f0", boxShadow: "0 2px 10px rgba(14,18,25,0.20)", border: "1.5px solid rgba(14,18,25,0.10)" }}
+        onClick={() => setExpanded(e => !e)}
+        className="absolute -right-3 top-10 w-6 h-6 rounded-full flex items-center justify-center"
+        style={{ background: "#1e2634", border: "1px solid rgba(255,255,255,0.12)" }}
       >
-        <motion.div animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.25 }}>
-          <ChevronRight className="w-3.5 h-3.5" style={{ color: DARK }} />
+        <motion.div animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
+          <ChevronRight style={{ width: 12, height: 12, color: DIM }} />
         </motion.div>
       </button>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 pt-2 space-y-0.5 overflow-y-auto overflow-x-hidden">
-        {NAV_ITEMS.map((item) => {
-          const isActive = location === item.path || (item.path !== "/admin" && location.startsWith(item.path));
+      <nav className="flex-1 px-3 py-2 flex flex-col gap-1 overflow-hidden">
+        {NAV_ITEMS.map(item => {
+          const active = isActive(item.path);
           return (
-            <Link
-              key={item.path}
-              href={item.path}
-              className="flex items-center h-11 px-3 rounded-xl transition-all duration-150 relative group shrink-0"
-              style={{ background: isActive ? ACTV : "transparent" }}
-              onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = HOVER; }}
-              onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
-            >
-              {isActive && (
-                <span className="absolute left-0 top-2.5 bottom-2.5 w-[3px] rounded-r-full bg-white opacity-70" />
-              )}
-              <item.icon
-                className="w-5 h-5 shrink-0"
-                style={{ color: isActive ? ON : DIM, strokeWidth: isActive ? 2 : 1.5 }}
-              />
-              <AnimatePresence>
-                {expanded && (
-                  <motion.div
-                    className="ml-3 flex items-center justify-between flex-1 min-w-0"
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    transition={{ duration: 0.14 }}
-                  >
-                    <span className="font-semibold text-sm whitespace-nowrap" style={{ color: isActive ? ON : DIM }}>
+            <Link key={item.path} href={item.path} style={{ textDecoration: "none" }}>
+              <motion.div
+                className="flex items-center gap-3 rounded-xl cursor-pointer relative overflow-hidden"
+                style={{
+                  padding: expanded ? "10px 12px" : "10px",
+                  justifyContent: expanded ? "flex-start" : "center",
+                  background: active ? ACTV : "transparent",
+                }}
+                whileHover={{ background: active ? ACTV : HOVER }}
+              >
+                <item.icon style={{ width: 18, height: 18, color: active ? ON : DIM, flexShrink: 0 }} />
+                <AnimatePresence>
+                  {expanded && (
+                    <motion.span
+                      initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }}
+                      transition={{ duration: 0.14 }}
+                      style={{ color: active ? ON : DIM, fontSize: 13.5, fontWeight: active ? 700 : 500, whiteSpace: "nowrap" }}
+                    >
                       {item.label}
-                    </span>
-                    {item.badge && (
-                      <span className="ml-2 px-1.5 py-0.5 rounded-full text-[9px] font-bold"
-                        style={{ background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.6)" }}>
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+                {item.badge && (
+                  <AnimatePresence>
+                    {expanded && (
+                      <motion.span
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="ml-auto text-xs font-bold rounded-full px-2 py-0.5"
+                        style={{ background: "rgba(249,115,22,0.25)", color: "#F97316", fontSize: 11 }}
+                      >
                         {item.badge}
-                      </span>
+                      </motion.span>
                     )}
-                  </motion.div>
+                    {!expanded && (
+                      <motion.span
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
+                        style={{ background: "#F97316" }}
+                      />
+                    )}
+                  </AnimatePresence>
                 )}
-              </AnimatePresence>
-              {item.badge && !expanded && (
-                <span className="absolute top-2 right-2 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold"
-                  style={{ background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.6)" }}>
-                  {item.badge}
-                </span>
-              )}
+              </motion.div>
             </Link>
           );
         })}
       </nav>
 
-      <div className="mx-5 mb-3" style={{ height: 1, background: "rgba(255,255,255,0.06)" }} />
-
-      {/* Bottom */}
-      <div className="px-3 pb-5 space-y-0.5 shrink-0">
-        <Link href="/"
-          className="flex items-center h-11 px-3 rounded-xl transition-all duration-150"
-          style={{ color: DIM }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = HOVER; (e.currentTarget as HTMLElement).style.color = ON; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = DIM; }}
+      {/* Logout */}
+      <div className="px-3 pb-4 shrink-0">
+        <motion.button
+          className="flex items-center gap-3 rounded-xl w-full"
+          style={{
+            padding: expanded ? "10px 12px" : "10px",
+            justifyContent: expanded ? "flex-start" : "center",
+            background: "transparent", border: "none", cursor: "pointer",
+          }}
+          whileHover={{ background: HOVER }}
         >
-          <Settings className="w-5 h-5 shrink-0" style={{ strokeWidth: 1.5 }} />
+          <LogOut style={{ width: 18, height: 18, color: DIM, flexShrink: 0 }} />
           <AnimatePresence>
             {expanded && (
-              <motion.span className="ml-3 text-sm font-semibold whitespace-nowrap" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                Settings
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </Link>
-        <button
-          className="w-full flex items-center h-11 px-3 rounded-xl transition-all duration-150"
-          style={{ color: DIM }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(239,100,100,0.12)"; (e.currentTarget as HTMLElement).style.color = "#f87171"; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = DIM; }}
-        >
-          <LogOut className="w-5 h-5 shrink-0" style={{ strokeWidth: 1.5 }} />
-          <AnimatePresence>
-            {expanded && (
-              <motion.span className="ml-3 text-sm font-semibold whitespace-nowrap" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <motion.span
+                initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }}
+                transition={{ duration: 0.14 }}
+                style={{ color: DIM, fontSize: 13.5, fontWeight: 500, whiteSpace: "nowrap" }}
+              >
                 Sign Out
               </motion.span>
             )}
           </AnimatePresence>
-        </button>
+        </motion.button>
       </div>
     </motion.aside>
   );
