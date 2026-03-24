@@ -17,23 +17,16 @@ export function PortalShell({ children, title, subtitle, showRail = true }: Port
 
   return (
     <div style={{
-      background: "#E9E7E2",
+      background: "#FAF8F4",
       minHeight: "100vh",
-      padding: "20px",
       display: "flex",
-      justifyContent: "center",
-      alignItems: "flex-start",
       fontFamily: "'Satoshi', sans-serif",
     }}>
       <div style={{
         width: "100%",
-        maxWidth: 1380,
         background: "#FAF8F4",
-        borderRadius: 24,
-        overflow: "hidden",
         display: "flex",
-        minHeight: "calc(100vh - 40px)",
-        boxShadow: "0 4px 32px rgba(90,65,30,0.08)",
+        minHeight: "100vh",
       }}>
         <Sidebar />
 
