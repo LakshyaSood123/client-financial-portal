@@ -1,0 +1,85 @@
+Create a premium warm-toned SaaS dashboard with a clean client-facing business workspace aesthetic. The design must use a soft ivory, cream, pale beige, and blush-neutral surface system with amber/orange accent highlights. The layout is extremely important: build the page inside one large rounded master container centered on a very light neutral gray outer background. Inside that container, create a fixed left sidebar taking about 18–20% width and a main content area taking the remaining 80–82%.
+
+LEFT SIDEBAR LAYOUT:
+- Full-height vertical sidebar with a pale blush-beige tint, slightly different from the main content background
+- Top section contains logo/brand on the upper-left and a small collapse/back icon near the upper-right
+- Below that place a small “MENU” label
+- Under the label create a vertical navigation stack with evenly spaced menu items: Overview, Clients, Leads, Proposals, Contracts, Payments, Analytics, Tasks
+- Make “Overview” the active item using a warm orange-to-yellow gradient rounded pill background with white icon/text
+- Keep all inactive items minimal with muted gray icons and warm-gray text
+- Near the bottom of the sidebar create a separate utility section with Settings, Help Center, and Logout
+- Sidebar should feel airy, with lots of vertical spacing and almost no heavy dividers
+
+MAIN CONTENT LAYOUT:
+At the top of the main content area, create a horizontal header row:
+- Left side: large heading “Hello Again, OZ Agency.”
+- Small subtitle directly underneath the heading
+- Right side of header row: long pill-shaped search bar, then notification icon, settings icon, and circular avatar
+- Keep this header spacious and lightly framed, with no heavy containers
+
+Below the header, create a row of 4 equal KPI cards spanning the width:
+- Each card should have the same width and height
+- Card contents: title top-left, circular amber/orange icon top-right, large metric value in the center-left, and a small green or red delta value near the bottom-right
+- Use consistent padding, same corner radius, same warm-ivory card surface
+- Keep even spacing between all 4 cards
+
+Below the KPI row, create a 2-column analytics section:
+LEFT COLUMN:
+- A large wide card called “Quarterly Income Report”
+- This should take about 65–70% of the row width
+- Inside it, place a heading at top-left, subtitle/helper text below, small metadata like “Last update,” then a chart area filling most of the card
+- The chart should be a soft orange filled area graph with a warm orange line and a secondary yellow line
+- Include a floating tooltip box over one data point
+- Add small circular utility buttons in the top-right corner of the card
+- Keep chart axes and grid lines extremely soft and minimal
+
+RIGHT COLUMN:
+- A vertical card called “Profit Insights”
+- This should take about 30–35% of the row width
+- Inside it, stack 3 insight rows vertically
+- Each row contains a circular orange/yellow icon on the left, a large value in the middle, a smaller descriptive label underneath or beside it, and a chevron on the far right
+- Separate rows with very soft dividers or spacing, not harsh lines
+
+Below the analytics row, create one full-width bottom card:
+- Large card titled “Project Performance Overview”
+- This is a table card spanning almost the full remaining content width
+- At the top of the card, place the title on the left and small controls on the right (date/update chip and quarter dropdown)
+- Table columns: Project, Revenue, Profit, Status
+- Use very soft row separators, light header styling, and muted neutral tones
+- Status pills should be rounded and color-coded softly: green for Completed, yellow for Ongoing, gray for Pending
+- Keep the table modern, minimal, and easy to scan
+
+SURFACE AND BOX TREATMENT:
+- Use warm ivory / cream cards instead of white
+- Sidebar should be slightly pinker/blush compared to main content
+- Main shell should be warm off-white
+- Cards should be separated mainly by tint and spacing, not by strong shadow
+- Use extremely subtle borders and minimal elevation
+- Large rounded corners across all major containers
+- Search bar, pills, and icon holders should all use rounded geometry
+- Keep shadows almost invisible, premium, and flat
+
+COLOR DIRECTION:
+- Outer background: very light neutral gray
+- Main shell: warm ivory
+- Sidebar: pale blush-beige
+- Cards: cream / soft ivory / pale beige
+- Active nav + icons: warm orange / amber / golden yellow
+- Positive indicators: green
+- Negative indicators: muted orange-red
+- Text: soft charcoal for primary, warm gray for secondary
+
+TYPOGRAPHY AND MOOD:
+- Use a clean modern sans-serif
+- Large bold greeting
+- Bold KPI numbers
+- Medium-weight section titles
+- Muted supporting labels
+- Overall mood should feel premium, calm, warm, client-friendly, and polished
+
+Important:
+- Make the layout feel editorial and spacious
+- Use consistent alignment and equal card rhythm
+- Do not make it look like a harsh enterprise admin panel
+- Do not use strong black blocks or deep dark cards
+- Keep the page warm, soft, elegant, and high-end

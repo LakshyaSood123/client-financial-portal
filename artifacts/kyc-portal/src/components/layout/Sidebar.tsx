@@ -1,172 +1,165 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { 
-  LayoutDashboard, 
-  BarChart2, 
-  CreditCard, 
-  Key, 
-  ScrollText, 
-  Upload,
-  Webhook,
-  LogOut,
-  Settings,
-  Shield,
+import { motion } from "framer-motion";
+import {
+  LayoutDashboard, Users, ShieldCheck, Webhook,
+  CreditCard, BarChart2, TrendingUp, ClipboardList,
+  Settings, HelpCircle, LogOut, ChevronLeft,
 } from "lucide-react";
-import { Link, useLocation } from "wouter";
-import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { icon: LayoutDashboard, label: "Overview", path: "/" },
-  { icon: BarChart2, label: "Usage", path: "/usage" },
-  { icon: Webhook, label: "Webhooks", path: "/webhooks" },
-  { icon: CreditCard, label: "Billing", path: "/billing" },
-  { icon: Key, label: "API Keys", path: "/api-keys" },
-  { icon: ScrollText, label: "Audit Logs", path: "/audit-logs" },
-  { icon: Upload, label: "KYB Upload", path: "/kyb-upload" },
+  { id: "overview",     label: "Overview",      icon: LayoutDashboard },
+  { id: "clients",      label: "Clients",       icon: Users },
+  { id: "verification", label: "Verifications", icon: ShieldCheck },
+  { id: "integrations", label: "Integrations",  icon: Webhook },
+  { id: "billing",      label: "Billing",       icon: CreditCard },
+  { id: "reports",      label: "Reports",       icon: BarChart2 },
+  { id: "analytics",    label: "Analytics",     icon: TrendingUp },
+  { id: "tasks",        label: "Tasks",         icon: ClipboardList },
 ];
 
-export function Sidebar() {
-  const [isHovered, setIsHovered] = useState(false);
-  const [location] = useLocation();
+const UTIL_ITEMS = [
+  { label: "Settings",    icon: Settings },
+  { label: "Help Center", icon: HelpCircle },
+  { label: "Logout",      icon: LogOut },
+];
 
+interface SidebarProps {
+  activeTab: string;
+  setActiveTab: (id: string) => void;
+}
+
+export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   return (
-    <motion.aside
-      className="fixed left-0 top-0 bottom-0 z-50 glass-panel border-l-0 border-y-0 rounded-none flex flex-col pt-6 pb-6"
-      initial={{ width: 72 }}
-      animate={{ width: isHovered ? 240 : 72 }}
-      transition={{ duration: 0.3, ease: "anticipate" }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+    <motion.div
+      style={{
+        width: 220,
+        flexShrink: 0,
+        background: "#F2EAE1",
+        borderRight: "1px solid rgba(120,90,50,0.08)",
+        display: "flex",
+        flexDirection: "column",
+        padding: "24px 14px 20px",
+      }}
+      initial={{ x: -20, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="flex items-center px-5 mb-10 h-10 overflow-hidden shrink-0">
-        <div className="relative w-8 h-8 shrink-0 flex items-center justify-center">
-          {/* Animated Logo Mark */}
-          <motion.div 
-            className="absolute inset-0 border-2 border-accent-lime rounded-full opacity-80"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          />
-          <motion.div 
-            className="absolute inset-1 border-2 border-accent-teal rounded-full opacity-60"
-            animate={{ rotate: -360 }}
-            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-          />
-          <div className="w-2 h-2 bg-accent-lime rounded-full box-glow" />
+      {/* Logo row */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+          <div style={{
+            width: 30, height: 30, borderRadius: 8, flexShrink: 0,
+            background: "linear-gradient(135deg, #F97316, #F59E0B)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <span style={{ color: "#fff", fontWeight: 900, fontSize: 14, letterSpacing: "-0.02em" }}>N</span>
+          </div>
+          <span style={{ fontWeight: 800, fontSize: 15, color: "#1C1917", letterSpacing: "-0.01em" }}>
+            Nexus<span style={{ color: "#F97316" }}>KYC</span>
+          </span>
         </div>
-        
-        <AnimatePresence>
-          {isHovered && (
-            <motion.span 
-              className="ml-4 font-display font-bold text-xl tracking-wide text-foreground whitespace-nowrap"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              transition={{ duration: 0.2 }}
-            >
-              Nexus<span className="text-accent-lime">KYC</span>
-            </motion.span>
-          )}
-        </AnimatePresence>
+        <button style={{
+          border: "none", background: "transparent", cursor: "pointer",
+          color: "#C4B5A5", padding: 4, borderRadius: 6,
+        }}>
+          <ChevronLeft style={{ width: 15, height: 15 }} />
+        </button>
       </div>
 
-      <nav className="flex-1 px-3 space-y-2 overflow-y-auto no-scrollbar overflow-x-hidden">
+      {/* MENU label */}
+      <p style={{
+        fontSize: 10, fontWeight: 700, letterSpacing: "0.1em",
+        textTransform: "uppercase", color: "#C4B5A5",
+        marginBottom: 6, paddingLeft: 10,
+      }}>
+        Menu
+      </p>
+
+      {/* Nav items */}
+      <nav style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
         {NAV_ITEMS.map((item) => {
-          const isActive = location === item.path;
+          const active = activeTab === item.id;
           return (
-            <Link 
-              key={item.path} 
-              href={item.path}
-              className={cn(
-                "flex items-center h-12 px-3 rounded-xl transition-all duration-200 relative group shrink-0",
-                isActive 
-                  ? "bg-accent-lime/10 text-accent-lime" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-              )}
-            >
-              {isActive && (
-                <motion.div 
-                  layoutId="active-nav"
-                  className="absolute left-0 top-2 bottom-2 w-1 bg-accent-lime rounded-r-full box-glow"
+            <div key={item.id} style={{ position: "relative" }}>
+              {active && (
+                <motion.div
+                  layoutId="sidebar-active-bg"
+                  style={{
+                    position: "absolute", inset: 0, borderRadius: 12,
+                    background: "linear-gradient(135deg, #F97316, #F59E0B)",
+                  }}
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 />
               )}
-              
-              <item.icon className={cn("w-5 h-5 shrink-0 transition-colors", isActive ? "text-accent-lime" : "group-hover:text-accent-teal")} />
-              
-              <AnimatePresence>
-                {isHovered && (
-                  <motion.span
-                    className="ml-4 font-medium whitespace-nowrap"
-                    initial={{ opacity: 0, w: 0 }}
-                    animate={{ opacity: 1, w: "auto" }}
-                    exit={{ opacity: 0, w: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {item.label}
-                  </motion.span>
-                )}
-              </AnimatePresence>
-
-              {/* Tooltip for collapsed state */}
-              {!isHovered && (
-                <div className="absolute left-14 px-3 py-1.5 bg-[#0a181c] border border-white/10 rounded-lg text-sm text-foreground opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap shadow-xl z-50">
+              <button
+                onClick={() => setActiveTab(item.id)}
+                style={{
+                  position: "relative", zIndex: 1,
+                  display: "flex", alignItems: "center", gap: 10,
+                  padding: "9px 12px", borderRadius: 12,
+                  width: "100%", border: "none", cursor: "pointer",
+                  background: "transparent",
+                  color: active ? "#ffffff" : "#A09080",
+                  textAlign: "left",
+                  fontFamily: "'Satoshi', sans-serif",
+                  transition: "color 0.15s ease",
+                }}
+                onMouseEnter={e => {
+                  if (!active) {
+                    (e.currentTarget as HTMLElement).style.background = "rgba(120,90,50,0.08)";
+                    (e.currentTarget as HTMLElement).style.color = "#1C1917";
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!active) {
+                    (e.currentTarget as HTMLElement).style.background = "transparent";
+                    (e.currentTarget as HTMLElement).style.color = "#A09080";
+                  }
+                }}
+              >
+                <item.icon style={{ width: 16, height: 16, flexShrink: 0 }} />
+                <span style={{ fontSize: 13.5, fontWeight: active ? 700 : 500 }}>
                   {item.label}
-                </div>
-              )}
-            </Link>
+                </span>
+              </button>
+            </div>
           );
         })}
       </nav>
 
-      <div className="px-3 mt-auto pt-6 border-t border-white/5 space-y-2 shrink-0">
-        <Link
-          href="/admin"
-          className="w-full flex items-center h-12 px-3 rounded-xl text-muted-foreground hover:text-[#ff5a5a] hover:bg-[rgba(255,90,90,0.1)] transition-all duration-200 group"
-        >
-          <Shield className="w-5 h-5 shrink-0" />
-          <AnimatePresence>
-            {isHovered && (
-              <motion.span
-                className="ml-4 font-medium whitespace-nowrap text-sm"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                Admin Panel
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </Link>
-        <button className="w-full flex items-center h-12 px-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200 group">
-          <Settings className="w-5 h-5 shrink-0 group-hover:rotate-90 transition-transform duration-500" />
-          <AnimatePresence>
-            {isHovered && (
-              <motion.span 
-                className="ml-4 font-medium whitespace-nowrap"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                Settings
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </button>
-        <button className="w-full flex items-center h-12 px-3 rounded-xl text-muted-foreground hover:text-accent-red hover:bg-accent-red/10 transition-all duration-200 group">
-          <LogOut className="w-5 h-5 shrink-0" />
-          <AnimatePresence>
-            {isHovered && (
-              <motion.span 
-                className="ml-4 font-medium whitespace-nowrap"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                Log Out
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </button>
+      {/* Utility section */}
+      <div style={{
+        borderTop: "1px solid rgba(120,90,50,0.1)",
+        paddingTop: 12,
+        display: "flex",
+        flexDirection: "column",
+        gap: 1,
+      }}>
+        {UTIL_ITEMS.map((item) => (
+          <button
+            key={item.label}
+            style={{
+              display: "flex", alignItems: "center", gap: 10,
+              padding: "9px 12px", borderRadius: 12,
+              border: "none", background: "transparent",
+              color: "#A09080", cursor: "pointer", textAlign: "left",
+              width: "100%",
+              fontFamily: "'Satoshi', sans-serif",
+              transition: "all 0.15s ease",
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.background = "rgba(120,90,50,0.08)";
+              (e.currentTarget as HTMLElement).style.color = "#1C1917";
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background = "transparent";
+              (e.currentTarget as HTMLElement).style.color = "#A09080";
+            }}
+          >
+            <item.icon style={{ width: 16, height: 16, flexShrink: 0 }} />
+            <span style={{ fontSize: 13.5, fontWeight: 500 }}>{item.label}</span>
+          </button>
+        ))}
       </div>
-    </motion.aside>
+    </motion.div>
   );
 }
