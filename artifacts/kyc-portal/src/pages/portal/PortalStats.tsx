@@ -7,6 +7,7 @@ export default function PortalStats() {
     <PortalShell
       title="Account Overview"
       subtitle="KYB progress, integration health, billing status, and recent activity"
+      showRail={false}
     >
       <BackendPlaceholder
         type="mock"
