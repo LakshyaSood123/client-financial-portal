@@ -16,86 +16,114 @@ interface PortalShellProps {
 export function PortalShell({ children, title, subtitle, showRail = true }: PortalShellProps) {
   const [location] = useLocation();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [showScrollHint, setShowScrollHint] = useState(true);
+  const [showScrollHint, setShowScrollHint] = useState(false);
 
-  // Reset to visible + scroll to top on every page navigation
+  // After mount + on navigation: scroll to top, then decide if pill is needed
   useEffect(() => {
-    setShowScrollHint(true);
-    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTop = 0;
+    // Show pill only when content is taller than the container
+    const needsScroll = el.scrollHeight > el.clientHeight + 60;
+    setShowScrollHint(needsScroll);
   }, [location]);
 
-  // Hide once user scrolls near the bottom
+  // Hide once user scrolls near the bottom; re-show if they scroll back up
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     const onScroll = () => {
-      if (el.scrollHeight - el.scrollTop - el.clientHeight < 80) {
-        setShowScrollHint(false);
-      }
+      const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+      setShowScrollHint(!atBottom);
     };
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
   }, []);
 
   const scrollDown = () => {
-    scrollRef.current?.scrollBy({ top: 360, behavior: "smooth" });
+    scrollRef.current?.scrollBy({ top: 380, behavior: "smooth" });
   };
 
   return (
+    /*
+     * Root must be height:100vh (not minHeight) so the flex children get a
+     * constrained height, enabling overflowY:auto to actually scroll.
+     */
     <div style={{
-      background: "#FAF8F4",
-      minHeight: "100vh",
+      height: "100vh",
+      overflow: "hidden",
       display: "flex",
+      background: "#FAF8F4",
       fontFamily: "'Satoshi', sans-serif",
     }}>
-      <div style={{ width: "100%", background: "#FAF8F4", display: "flex", minHeight: "100vh" }}>
-        <Sidebar />
+      <Sidebar />
 
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0 }}>
-          <MainHeader title={title} subtitle={subtitle} />
+      {/* Column: header + scrollable body */}
+      <div style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        minWidth: 0,
+        minHeight: 0,
+        height: "100%",
+      }}>
+        <MainHeader title={title} subtitle={subtitle} />
 
-          <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-            {/* Main scrollable content */}
-            <div
-              ref={scrollRef}
-              style={{ flex: 1, overflowY: "auto", padding: "4px 28px 32px", minWidth: 0 }}
-            >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={location}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  {children}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            {/* Right rail */}
-            {showRail && (
-              <div style={{
-                width: 320,
-                borderLeft: "1px solid rgba(120,90,50,0.08)",
-                overflowY: "auto",
-                flexShrink: 0,
-                background: "#FAF8F4",
-              }}>
-                <RightPanel />
-              </div>
-            )}
+        {/* Row: main scroll area + optional right rail */}
+        <div style={{
+          flex: 1,
+          display: "flex",
+          minHeight: 0,     /* ← critical: lets flex children shrink below content height */
+          overflow: "hidden",
+        }}>
+          {/* Scrollable main content */}
+          <div
+            ref={scrollRef}
+            style={{
+              flex: 1,
+              overflowY: "auto",
+              minWidth: 0,
+              minHeight: 0,
+              padding: "4px 28px 32px",
+            }}
+          >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
           </div>
+
+          {/* Right rail */}
+          {showRail && (
+            <div style={{
+              width: 320,
+              flexShrink: 0,
+              borderLeft: "1px solid rgba(120,90,50,0.08)",
+              overflowY: "auto",
+              background: "#FAF8F4",
+            }}>
+              <RightPanel />
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ── Scroll hint pill — fixed so it's always visible regardless of stacking ── */}
+      {/* Scroll hint pill — fixed to viewport, always on top */}
       <AnimatePresence>
         {showScrollHint && (
           <motion.div
             key="scroll-hint"
-            exit={{ opacity: 0, y: 6 }}
-            transition={{ duration: 0.25 }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.22 }}
             style={{
               position: "fixed",
               bottom: 28,
