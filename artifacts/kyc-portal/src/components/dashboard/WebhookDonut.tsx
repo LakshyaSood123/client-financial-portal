@@ -6,7 +6,7 @@ import { Link } from "wouter";
 const data = [
   { name: "Delivered", value: 1248, color: "#22C55E" },
   { name: "Failed",    value: 23,   color: "#f54a4a" },
-  { name: "Pending",   value: 91,   color: "#4F7CFF" },
+  { name: "Pending",   value: 91,   color: "#F59E0B" },
 ];
 
 export function WebhookDonut() {
@@ -18,19 +18,19 @@ export function WebhookDonut() {
     <GlassPanel
       hoverable
       className="p-5 col-span-12 lg:col-span-4 flex flex-col"
-      style={{ background: "#D9E9F5" }}
+      style={{ background: "#F2EBE1" }}
     >
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#111827" }}>Webhooks</h3>
-          <p className="text-xs uppercase tracking-wider" style={{ color: "#94A3B8", letterSpacing: "0.06em" }}>
+          <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#1C1917" }}>Webhooks</h3>
+          <p className="text-xs uppercase tracking-wider" style={{ color: "#A09080", letterSpacing: "0.06em" }}>
             Delivery Status
           </p>
         </div>
         <Link
           href="/webhooks"
-          className="text-xs font-semibold flex items-center gap-0.5 transition-colors hover:text-[#111827]"
-          style={{ color: "#94A3B8" }}
+          className="text-xs font-semibold flex items-center gap-0.5 transition-colors hover:text-[#1C1917]"
+          style={{ color: "#A09080" }}
         >
           View All →
         </Link>
@@ -70,10 +70,10 @@ export function WebhookDonut() {
             alignItems: "center", justifyContent: "center",
             pointerEvents: "none",
           }}>
-            <span style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 800, fontSize: 18, color: "#111827", lineHeight: 1.1 }}>
+            <span style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 800, fontSize: 18, color: "#1C1917", lineHeight: 1.1 }}>
               {total.toLocaleString()}
             </span>
-            <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 9, color: "#94A3B8", letterSpacing: "0.06em", textTransform: "uppercase", marginTop: 3 }}>
+            <span style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 9, color: "#A09080", letterSpacing: "0.06em", textTransform: "uppercase", marginTop: 3 }}>
               Total Events
             </span>
           </div>
@@ -95,8 +95,8 @@ export function WebhookDonut() {
                 boxShadow: `0 0 5px ${item.color}55`,
               }} />
               <div>
-                <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, color: "#94A3B8" }}>{item.name}</p>
-                <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 14, fontWeight: 700, color: "#111827" }}>
+                <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 12, color: "#A09080" }}>{item.name}</p>
+                <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: 14, fontWeight: 700, color: "#1C1917" }}>
                   {item.value.toLocaleString()}
                 </p>
               </div>

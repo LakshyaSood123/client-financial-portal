@@ -26,18 +26,18 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabId>("overview");
 
   return (
-    <div className="min-h-screen font-sans relative overflow-x-hidden" style={{ background: "#F7F9FB" }}>
-      {/* Subtle gradient wash — top right */}
+    <div className="min-h-screen font-sans relative overflow-x-hidden" style={{ background: "#EDEBE6" }}>
+      {/* Warm gradient blobs */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute" style={{
-          width: "55%", height: "65%",
-          top: "-8%", right: "-4%",
-          background: "radial-gradient(ellipse 55% 65% at 100% 0%, rgba(217,233,245,0.55) 0%, rgba(235,242,248,0.2) 50%, transparent 75%)",
+          width: "50%", height: "60%",
+          top: "-10%", right: "-5%",
+          background: "radial-gradient(ellipse 55% 60% at 100% 0%, rgba(249,115,22,0.06) 0%, rgba(245,158,11,0.03) 45%, transparent 75%)",
         }} />
         <div className="absolute" style={{
           width: "35%", height: "45%",
           bottom: "5%", left: "3%",
-          background: "radial-gradient(ellipse 60% 60% at 0% 100%, rgba(219,240,233,0.35) 0%, transparent 70%)",
+          background: "radial-gradient(ellipse 60% 55% at 0% 100%, rgba(249,115,22,0.05) 0%, transparent 70%)",
         }} />
       </div>
 
@@ -58,7 +58,7 @@ export default function Dashboard() {
             >
               <h1
                 className="font-display"
-                style={{ fontSize: 54, fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.05, color: "#111827" }}
+                style={{ fontSize: 54, fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.05, color: "#1C1917" }}
               >
                 Account Overview
               </h1>
@@ -66,7 +66,7 @@ export default function Dashboard() {
                 <motion.p
                   key={activeTab}
                   className="text-sm font-sans mt-1"
-                  style={{ color: "#94A3B8" }}
+                  style={{ color: "#A09080" }}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}

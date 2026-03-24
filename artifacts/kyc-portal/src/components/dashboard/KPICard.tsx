@@ -29,26 +29,26 @@ export function KPICard({ title, value, percent, color, trend, delay = 0 }: KPIC
     <div
       className="relative flex flex-col items-center justify-center cursor-pointer"
       style={{
-        background: "#EBF2F8",
-        border: "1px solid rgba(13,18,33,0.06)",
+        background: "#FAF8F4",
+        border: "1px solid rgba(120,90,50,0.08)",
         borderRadius: 20,
-        boxShadow: "0 1px 4px rgba(13,18,33,0.04)",
+        boxShadow: "0 1px 4px rgba(120,90,50,0.05)",
         height: 168,
         transition: "transform 0.3s ease, box-shadow 0.3s ease",
       }}
       onMouseEnter={e => {
         (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)";
-        (e.currentTarget as HTMLDivElement).style.boxShadow = `0 10px 28px rgba(13,18,33,0.08), 0 0 20px ${color}18`;
+        (e.currentTarget as HTMLDivElement).style.boxShadow = `0 10px 28px rgba(120,90,50,0.08), 0 0 20px ${color}18`;
       }}
       onMouseLeave={e => {
         (e.currentTarget as HTMLDivElement).style.transform = "";
-        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 1px 4px rgba(13,18,33,0.04)";
+        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 1px 4px rgba(120,90,50,0.05)";
       }}
     >
       {/* Subtle color glow */}
       <div style={{
         position: "absolute", inset: 0, borderRadius: 20,
-        opacity: 0.08,
+        opacity: 0.07,
         background: `radial-gradient(circle at center, ${color}, transparent 70%)`,
         pointerEvents: "none",
       }} />
@@ -65,7 +65,7 @@ export function KPICard({ title, value, percent, color, trend, delay = 0 }: KPIC
           <circle
             cx={size / 2} cy={size / 2} r={radius}
             fill="none"
-            stroke="rgba(13,18,33,0.07)"
+            stroke="rgba(120,90,50,0.1)"
             strokeWidth={strokeWidth}
           />
           {/* Fill */}
@@ -93,7 +93,7 @@ export function KPICard({ title, value, percent, color, trend, delay = 0 }: KPIC
             fontFamily: "'Satoshi', sans-serif",
             fontWeight: 800,
             fontSize: value.length > 7 ? "12px" : "18px",
-            color: "#111827",
+            color: "#1C1917",
             letterSpacing: "-0.02em",
             lineHeight: 1,
           }}>
@@ -103,7 +103,7 @@ export function KPICard({ title, value, percent, color, trend, delay = 0 }: KPIC
             fontFamily: "'Satoshi', sans-serif",
             fontSize: "9px",
             fontWeight: 600,
-            color: "#94A3B8",
+            color: "#A09080",
             letterSpacing: "0.08em",
             textTransform: "uppercase",
             marginTop: 5,

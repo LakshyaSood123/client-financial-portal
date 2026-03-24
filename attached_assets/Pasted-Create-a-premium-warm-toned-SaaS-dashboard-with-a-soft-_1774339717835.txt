@@ -1,0 +1,51 @@
+Create a premium warm-toned SaaS dashboard with a soft ivory and cream color system, subtle orange/amber highlights, and a polished client-facing business workspace aesthetic.
+
+Layout:
+- One large rounded master container centered on a light neutral gray outer background
+- Left vertical sidebar with brand, navigation, bottom utility links, and logout
+- Main content area with a top greeting/header row
+- Search bar and utility icons in the top-right
+- Row of 4 equal KPI cards below the header
+- Large analytics chart card on the middle-left
+- Vertical profit-insights summary card on the middle-right
+- Wide performance table card on the bottom
+
+Visual style:
+- Warm premium dashboard
+- Use cream, ivory, pale beige, and blush-neutral surface tones instead of pure white
+- Keep the page elegant, calm, soft, and editorial
+- Use orange/amber/yellow as the main highlight/accent family
+- Avoid harsh contrast, strong blue tones, or heavy dark panels
+- Use very subtle borders and minimal shadows
+- Everything should feel clean, spacious, and high-end
+
+Color direction:
+- outer background: very light neutral gray
+- main container: warm ivory / off-white
+- sidebar: pale blush-beige
+- cards: cream / soft ivory / pale beige
+- active nav: warm orange to yellow gradient
+- icon circles: amber / orange gradient
+- chart colors: soft orange area + yellow accent line
+- positive indicators: green
+- neutral text: soft charcoal and warm gray
+
+Box treatment:
+- large rounded rectangles
+- cards separated more by tint and spacing than by shadow
+- soft pill buttons and rounded search bar
+- subtle borders, almost invisible
+- flat-premium rather than heavily elevated
+
+Typography:
+- clean modern sans-serif
+- bold greeting and KPI numbers
+- medium-weight card titles
+- muted supporting labels
+- elegant SaaS dashboard hierarchy
+
+Mood:
+- premium client portal
+- modern agency/productivity dashboard
+- warm, soft, polished, and professional
+- more welcoming than enterprise admin

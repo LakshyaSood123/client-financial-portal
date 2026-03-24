@@ -4,10 +4,10 @@ import { ChevronRight, Key, Webhook, Upload, FileText, RefreshCw, CheckCircle2, 
 import { Link } from "wouter";
 
 const ACTIVITY = [
-  { id: 1, label: "API key rotated",       detail: "prod_key_**** → new key",         time: "Mar 22", icon: Key,       color: "#4F7CFF", bg: "rgba(79,124,255,0.1)" },
+  { id: 1, label: "API key rotated",       detail: "prod_key_**** → new key",         time: "Mar 22", icon: Key,       color: "#F97316", bg: "rgba(249,115,22,0.1)" },
   { id: 2, label: "Webhook test sent",     detail: "endpoint: /hooks/kyb",            time: "Mar 21", icon: Webhook,   color: "#8b6ff4", bg: "rgba(139,111,244,0.1)" },
   { id: 3, label: "KYB document uploaded", detail: "Certificate of Incorporation",    time: "Mar 20", icon: Upload,    color: "#22C55E", bg: "rgba(34,197,94,0.1)" },
-  { id: 4, label: "Audit log exported",    detail: "March 2026 · 847 events",         time: "Mar 19", icon: FileText,  color: "#f59b20", bg: "rgba(245,155,32,0.1)" },
+  { id: 4, label: "Audit log exported",    detail: "March 2026 · 847 events",         time: "Mar 19", icon: FileText,  color: "#F59E0B", bg: "rgba(245,158,11,0.1)" },
   { id: 5, label: "Delivery replayed",     detail: "evt_8xKp2mNq · success",          time: "Mar 18", icon: RefreshCw, color: "#f54a4a", bg: "rgba(245,74,74,0.1)" },
 ];
 
@@ -27,8 +27,8 @@ export function RightPanel() {
     <motion.div
       className="flex flex-col"
       style={{
-        background: "#EBF2F8",
-        borderLeft: "1px solid rgba(13,18,33,0.06)",
+        background: "#FAF8F4",
+        borderLeft: "1px solid rgba(120,90,50,0.08)",
         minHeight: "100%",
       }}
       initial={{ opacity: 0, x: 20 }}
@@ -40,7 +40,7 @@ export function RightPanel() {
         {/* Account Summary */}
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display font-bold" style={{ fontSize: 18, color: "#111827" }}>Account Summary</h2>
+            <h2 className="font-display font-bold" style={{ fontSize: 18, color: "#1C1917" }}>Account Summary</h2>
           </div>
           <AccountSummaryCard />
         </section>
@@ -48,11 +48,11 @@ export function RightPanel() {
         {/* Recent Activity */}
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display font-bold" style={{ fontSize: 18, color: "#111827" }}>Recent Activity</h2>
+            <h2 className="font-display font-bold" style={{ fontSize: 18, color: "#1C1917" }}>Recent Activity</h2>
             <Link
               href="/audit-logs"
-              className="text-xs font-semibold flex items-center gap-0.5 transition-colors hover:text-[#3B6AF3]"
-              style={{ color: "#4F7CFF" }}
+              className="text-xs font-semibold flex items-center gap-0.5 transition-colors hover:text-[#1C1917]"
+              style={{ color: "#F97316" }}
             >
               Audit Logs <ChevronRight className="w-3 h-3" />
             </Link>
@@ -67,8 +67,8 @@ export function RightPanel() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 + i * 0.07 }}
                 onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.background = "rgba(13,18,33,0.04)";
-                  (e.currentTarget as HTMLElement).style.borderLeftColor = "#4F7CFF";
+                  (e.currentTarget as HTMLElement).style.background = "rgba(120,90,50,0.04)";
+                  (e.currentTarget as HTMLElement).style.borderLeftColor = "#F97316";
                 }}
                 onMouseLeave={e => {
                   (e.currentTarget as HTMLElement).style.background = "";
@@ -82,36 +82,36 @@ export function RightPanel() {
                   <item.icon className="w-3.5 h-3.5" style={{ color: item.color }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate" style={{ color: "#111827" }}>
+                  <p className="text-sm font-semibold truncate" style={{ color: "#1C1917" }}>
                     {item.label}
                   </p>
-                  <p className="text-[10px] truncate" style={{ color: "#94A3B8" }}>{item.detail}</p>
+                  <p className="text-[10px] truncate" style={{ color: "#A09080" }}>{item.detail}</p>
                 </div>
-                <span className="text-[10px] flex-shrink-0 font-mono" style={{ color: "#94A3B8" }}>{item.time}</span>
+                <span className="text-[10px] flex-shrink-0 font-mono" style={{ color: "#A09080" }}>{item.time}</span>
               </motion.div>
             ))}
           </div>
         </section>
 
-        {/* Onboarding progress — mint/support surface */}
+        {/* Onboarding progress — warm blush surface */}
         <section
           className="rounded-2xl p-4"
           style={{
-            background: "#DBF0E9",
-            border: "1px solid rgba(13,18,33,0.06)",
-            boxShadow: "0 1px 4px rgba(13,18,33,0.04)",
+            background: "#EBE1D5",
+            border: "1px solid rgba(120,90,50,0.08)",
+            boxShadow: "0 1px 4px rgba(120,90,50,0.05)",
           }}
         >
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-display font-bold" style={{ fontSize: 16, color: "#111827" }}>Onboarding</h2>
-            <span className="text-xs font-mono" style={{ color: "#94A3B8" }}>{done}/{total} complete</span>
+            <h2 className="font-display font-bold" style={{ fontSize: 16, color: "#1C1917" }}>Onboarding</h2>
+            <span className="text-xs font-mono" style={{ color: "#A09080" }}>{done}/{total} complete</span>
           </div>
 
           {/* Progress bar */}
-          <div className="h-1.5 rounded-full mb-4 overflow-hidden" style={{ background: "rgba(13,18,33,0.08)" }}>
+          <div className="h-1.5 rounded-full mb-4 overflow-hidden" style={{ background: "rgba(120,90,50,0.1)" }}>
             <motion.div
               className="h-full rounded-full"
-              style={{ background: "linear-gradient(90deg, #22C55E, #4F7CFF)" }}
+              style={{ background: "linear-gradient(90deg, #F97316, #F59E0B)" }}
               initial={{ width: 0 }}
               animate={{ width: `${(done / total) * 100}%` }}
               transition={{ delay: 1.2, duration: 0.8, ease: "easeOut" }}
@@ -129,12 +129,12 @@ export function RightPanel() {
               >
                 {step.done
                   ? <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: "#22C55E" }} />
-                  : <Circle className="w-4 h-4 flex-shrink-0" style={{ color: "rgba(13,18,33,0.2)" }} />
+                  : <Circle className="w-4 h-4 flex-shrink-0" style={{ color: "rgba(120,90,50,0.25)" }} />
                 }
                 <span
                   className="text-xs"
                   style={{
-                    color: step.done ? "#94A3B8" : "#475569",
+                    color: step.done ? "#A09080" : "#57493C",
                     textDecoration: step.done ? "line-through" : undefined,
                   }}
                 >

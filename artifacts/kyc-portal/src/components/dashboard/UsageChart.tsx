@@ -17,15 +17,15 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
       <div
         className="px-4 py-2.5 text-sm rounded-xl"
         style={{
-          background: "#EBF2F8",
-          border: "1px solid rgba(13,18,33,0.08)",
-          boxShadow: "0 6px 20px rgba(13,18,33,0.08)",
+          background: "#FAF8F4",
+          border: "1px solid rgba(120,90,50,0.1)",
+          boxShadow: "0 6px 20px rgba(120,90,50,0.08)",
         }}
       >
-        <p className="text-xs mb-1" style={{ color: "#94A3B8" }}>{label}</p>
-        <p className="font-display font-bold" style={{ color: "#111827" }}>
+        <p className="text-xs mb-1" style={{ color: "#A09080" }}>{label}</p>
+        <p className="font-display font-bold" style={{ color: "#1C1917" }}>
           {payload[0].value.toLocaleString()}{" "}
-          <span style={{ color: "#94A3B8", fontWeight: 400, fontSize: 11 }}>jobs</span>
+          <span style={{ color: "#A09080", fontWeight: 400, fontSize: 11 }}>jobs</span>
         </p>
       </div>
     );
@@ -37,17 +37,17 @@ export function UsageChart() {
   return (
     <GlassPanel
       className="p-6 col-span-12 lg:col-span-8 flex flex-col"
-      style={{ background: "#D9E9F5" }}
+      style={{ background: "#F2EBE1" }}
     >
       <div className="flex items-center justify-between mb-2">
         <div>
-          <h3 className="font-display font-bold" style={{ fontSize: "20px", color: "#111827" }}>Jobs Processed</h3>
-          <p className="text-xs mt-0.5" style={{ color: "#94A3B8" }}>Verification jobs run via API — last 6 months</p>
+          <h3 className="font-display font-bold" style={{ fontSize: "20px", color: "#1C1917" }}>Jobs Processed</h3>
+          <p className="text-xs mt-0.5" style={{ color: "#A09080" }}>Verification jobs run via API — last 6 months</p>
         </div>
         <Link
           href="/usage"
-          className="text-xs font-semibold transition-colors hover:text-[#111827] flex items-center gap-1"
-          style={{ color: "#94A3B8" }}
+          className="text-xs font-semibold transition-colors hover:text-[#1C1917] flex items-center gap-1"
+          style={{ color: "#A09080" }}
         >
           View Usage →
         </Link>
@@ -55,13 +55,13 @@ export function UsageChart() {
 
       <div className="flex items-center gap-5 mb-5">
         <div>
-          <span className="font-display font-bold" style={{ fontSize: 28, letterSpacing: "-0.02em", color: "#111827" }}>1,124</span>
-          <span className="text-xs ml-2" style={{ color: "#94A3B8" }}>jobs this month</span>
+          <span className="font-display font-bold" style={{ fontSize: 28, letterSpacing: "-0.02em", color: "#1C1917" }}>1,124</span>
+          <span className="text-xs ml-2" style={{ color: "#A09080" }}>jobs this month</span>
         </div>
-        <div className="h-8 w-px" style={{ background: "rgba(13,18,33,0.1)" }} />
+        <div className="h-8 w-px" style={{ background: "rgba(120,90,50,0.12)" }} />
         <div>
-          <span className="font-display font-bold" style={{ fontSize: 18, color: "#4F7CFF" }}>+29%</span>
-          <span className="text-xs ml-2" style={{ color: "#94A3B8" }}>vs last month</span>
+          <span className="font-display font-bold" style={{ fontSize: 18, color: "#F97316" }}>+29%</span>
+          <span className="text-xs ml-2" style={{ color: "#A09080" }}>vs last month</span>
         </div>
       </div>
 
@@ -69,31 +69,35 @@ export function UsageChart() {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }} barCategoryGap="30%">
             <defs>
-              <pattern id="hatch-pattern" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
-                <rect width="8" height="8" fill="rgba(79,124,255,0.06)" />
-                <line x1="0" y1="0" x2="0" y2="8" stroke="#4F7CFF" strokeWidth="2.5" opacity="0.18" />
+              <pattern id="hatch-warm" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
+                <rect width="8" height="8" fill="rgba(249,115,22,0.06)" />
+                <line x1="0" y1="0" x2="0" y2="8" stroke="#F97316" strokeWidth="2.5" opacity="0.15" />
               </pattern>
+              <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#F97316" />
+                <stop offset="100%" stopColor="#F59E0B" />
+              </linearGradient>
             </defs>
             <XAxis
               dataKey="name"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#94A3B8", fontSize: 12, fontFamily: "Satoshi" }}
+              tick={{ fill: "#A09080", fontSize: 12, fontFamily: "Satoshi" }}
               dy={10}
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#94A3B8", fontSize: 11, fontFamily: "JetBrains Mono" }}
+              tick={{ fill: "#A09080", fontSize: 11, fontFamily: "JetBrains Mono" }}
               tickFormatter={(val) => val >= 1000 ? `${(val / 1000).toFixed(1)}K` : String(val)}
             />
-            <Tooltip cursor={{ fill: "rgba(13,18,33,0.03)" }} content={<CustomTooltip />} />
+            <Tooltip cursor={{ fill: "rgba(120,90,50,0.04)" }} content={<CustomTooltip />} />
             <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={48}>
               {data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={entry.name === "Mar" ? "#4F7CFF" : "url(#hatch-pattern)"}
-                  style={entry.name === "Mar" ? { filter: "drop-shadow(0 0 8px rgba(79,124,255,0.3))" } : undefined}
+                  fill={entry.name === "Mar" ? "url(#barGrad)" : "url(#hatch-warm)"}
+                  style={entry.name === "Mar" ? { filter: "drop-shadow(0 0 8px rgba(249,115,22,0.3))" } : undefined}
                 />
               ))}
             </Bar>

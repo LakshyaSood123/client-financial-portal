@@ -42,8 +42,8 @@
 
 @layer base {
   :root {
-    --background: #F7F9FB;
-    --foreground: #111827;
+    --background: #EDEBE6;
+    --foreground: #1C1917;
   }
 
   body {

@@ -4,15 +4,15 @@ import { Link } from "wouter";
 import { useState } from "react";
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 
-// ── Client surface tokens ──────────────────────────────────────
-const NEUTRAL  = "#EBF2F8";
-const ANALYTIC = "#D9E9F5";
+// ── Warm surface tokens ────────────────────────────────────────
+const CREAM = "#FAF8F4";
+const WARM  = "#F2EBE1";
 
 const mkCard = (bg: string): React.CSSProperties => ({
   background: bg,
-  border: "1px solid rgba(13,18,33,0.06)",
+  border: "1px solid rgba(120,90,50,0.08)",
   borderRadius: 20,
-  boxShadow: "0 1px 4px rgba(13,18,33,0.04)",
+  boxShadow: "0 1px 4px rgba(120,90,50,0.05)",
 });
 
 const API_KEYS = [
@@ -29,7 +29,7 @@ const WEBHOOKS = [
 
 const HEALTH_STYLES: Record<string, { color: string; bg: string; label: string }> = {
   healthy:  { color: "#22C55E", bg: "rgba(34,197,94,0.1)",  label: "Healthy" },
-  degraded: { color: "#f59b20", bg: "rgba(245,155,32,0.1)", label: "Degraded" },
+  degraded: { color: "#F59E0B", bg: "rgba(245,158,11,0.1)", label: "Degraded" },
   failing:  { color: "#f54a4a", bg: "rgba(245,74,74,0.1)",  label: "Failing" },
 };
 
@@ -44,10 +44,10 @@ const deliveryData = [
 ];
 
 const RECENT_DELIVERIES = [
-  { id: "evt_8xKp2mNq", endpoint: "/hooks/kyb-events", event: "kyb.verified",           status: "delivered", time: "2 min ago" },
-  { id: "evt_7wJm1kLp", endpoint: "/hooks/billing",    event: "billing.invoice.created", status: "failed",    time: "14 min ago" },
-  { id: "evt_6vHl0jKo", endpoint: "/hooks/kyb-events", event: "kyb.document.uploaded",  status: "delivered", time: "1 hour ago" },
-  { id: "evt_5uGk9iJn", endpoint: "/hooks/test",       event: "kyb.verified",           status: "delivered", time: "2 hours ago" },
+  { id: "evt_8xKp2mNq", event: "kyb.verified",           status: "delivered", time: "2 min ago" },
+  { id: "evt_7wJm1kLp", event: "billing.invoice.created", status: "failed",    time: "14 min ago" },
+  { id: "evt_6vHl0jKo", event: "kyb.document.uploaded",  status: "delivered", time: "1 hour ago" },
+  { id: "evt_5uGk9iJn", event: "kyb.verified",           status: "delivered", time: "2 hours ago" },
 ];
 
 const DELIVERY_STATUS: Record<string, { color: string; bg: string }> = {
@@ -77,17 +77,17 @@ export function IntegrationsTab() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
     >
-      {/* API Keys — neutral surface */}
-      <motion.div style={mkCard(NEUTRAL)} className="p-6" custom={0} variants={item} initial="hidden" animate="show">
+      {/* API Keys — cream */}
+      <motion.div style={mkCard(CREAM)} className="p-6" custom={0} variants={item} initial="hidden" animate="show">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#111827" }}>API Keys</h3>
-            <p className="text-xs mt-0.5" style={{ color: "#94A3B8" }}>3 active keys across production and sandbox</p>
+            <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#1C1917" }}>API Keys</h3>
+            <p className="text-xs mt-0.5" style={{ color: "#A09080" }}>3 active keys across production and sandbox</p>
           </div>
           <Link
             href="/api-keys"
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all hover:opacity-90"
-            style={{ background: "rgba(79,124,255,0.1)", color: "#4F7CFF", border: "1px solid rgba(79,124,255,0.18)" }}
+            style={{ background: "rgba(249,115,22,0.1)", color: "#F97316", border: "1px solid rgba(249,115,22,0.2)" }}
           >
             <Plus className="w-3 h-3" /> New Key
           </Link>
@@ -98,33 +98,33 @@ export function IntegrationsTab() {
             <div
               key={k.key}
               className="flex items-center gap-4 h-14 px-4 rounded-xl group transition-all"
-              style={{ background: "rgba(13,18,33,0.04)", border: "1px solid rgba(13,18,33,0.05)" }}
+              style={{ background: "rgba(120,90,50,0.04)", border: "1px solid rgba(120,90,50,0.06)" }}
             >
               <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{ background: k.env === "production" ? "rgba(79,124,255,0.1)" : "rgba(139,111,244,0.1)" }}>
-                <Key className="w-4 h-4" style={{ color: k.env === "production" ? "#4F7CFF" : "#8b6ff4" }} />
+                style={{ background: k.env === "production" ? "rgba(249,115,22,0.1)" : "rgba(139,111,244,0.1)" }}>
+                <Key className="w-4 h-4" style={{ color: k.env === "production" ? "#F97316" : "#8b6ff4" }} />
               </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-bold" style={{ color: "#111827" }}>{k.name}</p>
+                  <p className="text-sm font-bold" style={{ color: "#1C1917" }}>{k.name}</p>
                   <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded" style={{
-                    background: k.env === "production" ? "rgba(79,124,255,0.1)" : "rgba(139,111,244,0.1)",
-                    color: k.env === "production" ? "#4F7CFF" : "#8b6ff4",
+                    background: k.env === "production" ? "rgba(249,115,22,0.1)" : "rgba(139,111,244,0.1)",
+                    color: k.env === "production" ? "#F97316" : "#8b6ff4",
                   }}>{k.env}</span>
                 </div>
-                <p className="text-[10px] font-mono" style={{ color: "#94A3B8" }}>{k.key}</p>
+                <p className="text-[10px] font-mono" style={{ color: "#A09080" }}>{k.key}</p>
               </div>
 
               <div className="text-right hidden lg:block">
-                <p className="text-xs" style={{ color: "#94A3B8" }}>Last used</p>
-                <p className="text-xs font-semibold" style={{ color: "#111827" }}>{k.lastUsed}</p>
+                <p className="text-xs" style={{ color: "#A09080" }}>Last used</p>
+                <p className="text-xs font-semibold" style={{ color: "#1C1917" }}>{k.lastUsed}</p>
               </div>
 
               <button
                 onClick={() => handleCopy(k.key)}
                 className="p-2 rounded-lg transition-colors hover:bg-black/5"
-                style={{ color: copiedKey === k.key ? "#4F7CFF" : "#94A3B8" }}
+                style={{ color: copiedKey === k.key ? "#F97316" : "#A09080" }}
               >
                 {copiedKey === k.key ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>
@@ -136,14 +136,14 @@ export function IntegrationsTab() {
       {/* Webhook endpoints + delivery health */}
       <div className="grid grid-cols-12 gap-5">
 
-        {/* Endpoints — neutral */}
-        <motion.div style={{ ...mkCard(NEUTRAL), gridColumn: "span 7" }} className="col-span-7 p-6" custom={1} variants={item} initial="hidden" animate="show">
+        {/* Endpoints — cream */}
+        <motion.div style={{ ...mkCard(CREAM), gridColumn: "span 7" }} className="col-span-7 p-6" custom={1} variants={item} initial="hidden" animate="show">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#111827" }}>Webhook Endpoints</h3>
-              <p className="text-xs mt-0.5" style={{ color: "#94A3B8" }}>3 configured · 1 degraded</p>
+              <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#1C1917" }}>Webhook Endpoints</h3>
+              <p className="text-xs mt-0.5" style={{ color: "#A09080" }}>3 configured · 1 degraded</p>
             </div>
-            <Link href="/webhooks" className="text-xs font-semibold transition-colors hover:text-[#111827]" style={{ color: "#94A3B8" }}>
+            <Link href="/webhooks" className="text-xs font-semibold transition-colors hover:text-[#1C1917]" style={{ color: "#A09080" }}>
               Manage →
             </Link>
           </div>
@@ -152,19 +152,19 @@ export function IntegrationsTab() {
             {WEBHOOKS.map((wh) => {
               const hs = HEALTH_STYLES[wh.health];
               return (
-                <div key={wh.url} className="p-4 rounded-2xl" style={{ background: "rgba(13,18,33,0.04)", border: "1px solid rgba(13,18,33,0.05)" }}>
+                <div key={wh.url} className="p-4 rounded-2xl" style={{ background: "rgba(120,90,50,0.04)", border: "1px solid rgba(120,90,50,0.06)" }}>
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2 min-w-0">
-                      <Webhook className="w-4 h-4 flex-shrink-0" style={{ color: "#94A3B8" }} />
-                      <p className="text-sm font-mono font-semibold truncate" style={{ color: "#111827" }}>{wh.url}</p>
+                      <Webhook className="w-4 h-4 flex-shrink-0" style={{ color: "#A09080" }} />
+                      <p className="text-sm font-mono font-semibold truncate" style={{ color: "#1C1917" }}>{wh.url}</p>
                     </div>
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold flex-shrink-0 ml-3" style={{ background: hs.bg, color: hs.color }}>
                       <Circle className="w-1.5 h-1.5 fill-current" />{hs.label}
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 text-[10px]" style={{ color: "#94A3B8" }}>
+                  <div className="flex items-center gap-4 text-[10px]" style={{ color: "#A09080" }}>
                     <span>{wh.deliveries.toLocaleString()} delivered</span>
-                    <span style={{ color: wh.failures > 0 ? "#f54a4a" : "#94A3B8" }}>{wh.failures} failed</span>
+                    <span style={{ color: wh.failures > 0 ? "#f54a4a" : "#A09080" }}>{wh.failures} failed</span>
                     <div className="flex flex-wrap gap-1">
                       {wh.events.map(ev => (
                         <span key={ev} className="px-1.5 py-0.5 rounded font-mono" style={{ background: "rgba(139,111,244,0.1)", color: "#8b6ff4" }}>{ev}</span>
@@ -177,55 +177,55 @@ export function IntegrationsTab() {
           </div>
         </motion.div>
 
-        {/* Delivery health chart — analytic surface */}
-        <motion.div style={{ ...mkCard(ANALYTIC), gridColumn: "span 5" }} className="col-span-5 p-6" custom={2} variants={item} initial="hidden" animate="show">
+        {/* Delivery health chart — warm beige */}
+        <motion.div style={{ ...mkCard(WARM), gridColumn: "span 5" }} className="col-span-5 p-6" custom={2} variants={item} initial="hidden" animate="show">
           <div className="flex items-center gap-2 mb-1">
-            <Activity className="w-4 h-4" style={{ color: "#8b6ff4" }} />
-            <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#111827" }}>Delivery Activity</h3>
+            <Activity className="w-4 h-4" style={{ color: "#F97316" }} />
+            <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#1C1917" }}>Delivery Activity</h3>
           </div>
-          <p className="text-xs mb-4" style={{ color: "#94A3B8" }}>Last 24 hours</p>
+          <p className="text-xs mb-4" style={{ color: "#A09080" }}>Last 24 hours</p>
 
           <div style={{ height: 100 }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={deliveryData} margin={{ top: 4, right: 0, left: -30, bottom: 0 }}>
                 <defs>
                   <linearGradient id="delGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#8b6ff4" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#8b6ff4" stopOpacity={0} />
+                    <stop offset="5%"  stopColor="#F97316" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#F97316" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="h" tick={{ fill: "#94A3B8", fontSize: 9 }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="h" tick={{ fill: "#A09080", fontSize: 9 }} axisLine={false} tickLine={false} />
                 <YAxis hide />
                 <Tooltip
-                  contentStyle={{ background: NEUTRAL, border: "1px solid rgba(13,18,33,0.08)", borderRadius: 8, fontSize: 11 }}
-                  labelStyle={{ color: "#94A3B8" }}
+                  contentStyle={{ background: CREAM, border: "1px solid rgba(120,90,50,0.1)", borderRadius: 8, fontSize: 11 }}
+                  labelStyle={{ color: "#A09080" }}
                 />
-                <Area type="monotone" dataKey="delivered" stroke="#8b6ff4" strokeWidth={2} fill="url(#delGrad)" dot={false} name="Delivered" />
+                <Area type="monotone" dataKey="delivered" stroke="#F97316" strokeWidth={2} fill="url(#delGrad)" dot={false} name="Delivered" />
                 <Area type="monotone" dataKey="failed"    stroke="#f54a4a" strokeWidth={1.5} fill="rgba(245,74,74,0.06)" dot={false} name="Failed" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
 
           <div className="mt-4 space-y-2">
-            <p className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: "#94A3B8" }}>Recent Events</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: "#A09080" }}>Recent Events</p>
             {RECENT_DELIVERIES.map((ev) => (
               <div key={ev.id} className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: DELIVERY_STATUS[ev.status].color }} />
-                  <span className="text-[10px] font-mono truncate" style={{ color: "#94A3B8" }}>{ev.event}</span>
+                  <span className="text-[10px] font-mono truncate" style={{ color: "#A09080" }}>{ev.event}</span>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold" style={{ background: DELIVERY_STATUS[ev.status].bg, color: DELIVERY_STATUS[ev.status].color }}>
                     {ev.status}
                   </span>
-                  <span className="text-[9px]" style={{ color: "#94A3B8" }}>{ev.time}</span>
+                  <span className="text-[9px]" style={{ color: "#A09080" }}>{ev.time}</span>
                 </div>
               </div>
             ))}
           </div>
 
           <button className="w-full mt-4 flex items-center justify-center gap-1.5 h-8 rounded-xl text-xs font-semibold transition-all hover:opacity-90"
-            style={{ background: "rgba(139,111,244,0.1)", color: "#8b6ff4", border: "1px solid rgba(139,111,244,0.18)" }}>
+            style={{ background: "rgba(249,115,22,0.1)", color: "#F97316", border: "1px solid rgba(249,115,22,0.2)" }}>
             <RefreshCw className="w-3 h-3" /> Replay Failed Events
           </button>
         </motion.div>

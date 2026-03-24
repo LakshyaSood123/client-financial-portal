@@ -28,8 +28,8 @@ export function TopNav({ activeTab, setActiveTab }: TopNavProps) {
       className="sticky top-0 z-40 flex items-center justify-between px-8"
       style={{
         height: 64,
-        background: "#F7F9FB",
-        borderBottom: "1px solid rgba(13,18,33,0.06)",
+        background: "#FAF8F4",
+        borderBottom: "1px solid rgba(120,90,50,0.08)",
       }}
       initial={{ y: -64, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
@@ -40,10 +40,10 @@ export function TopNav({ activeTab, setActiveTab }: TopNavProps) {
         {/* Logo pill */}
         <div
           className="px-4 py-1.5 rounded-full cursor-pointer select-none shrink-0"
-          style={{ border: "1.5px solid #1E293B" }}
+          style={{ border: "1.5px solid #1C1917" }}
         >
-          <span className="font-display font-bold text-sm" style={{ color: "#0F172A", letterSpacing: "-0.01em" }}>
-            Nexus<span style={{ color: "#4F7CFF" }}>KYC</span>
+          <span className="font-display font-bold text-sm" style={{ color: "#1C1917", letterSpacing: "-0.01em" }}>
+            Nexus<span style={{ color: "#F97316" }}>KYC</span>
           </span>
         </div>
 
@@ -55,14 +55,15 @@ export function TopNav({ activeTab, setActiveTab }: TopNavProps) {
               onClick={() => setActiveTab(tab.id)}
               className={cn(
                 "relative px-4 py-1.5 rounded-full text-sm font-medium transition-colors z-10",
-                activeTab === tab.id ? "text-white" : "text-[#94A3B8] hover:text-[#111827]"
+                activeTab === tab.id ? "text-white" : "hover:text-[#1C1917]"
               )}
+              style={{ color: activeTab === tab.id ? "#ffffff" : "#A09080" }}
             >
               {activeTab === tab.id && (
                 <motion.div
                   layoutId="active-top-nav"
                   className="absolute inset-0 rounded-full -z-10"
-                  style={{ background: "#4F7CFF" }}
+                  style={{ background: "linear-gradient(135deg, #F97316, #F59E0B)" }}
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
@@ -70,13 +71,14 @@ export function TopNav({ activeTab, setActiveTab }: TopNavProps) {
             </button>
           ))}
 
-          <div className="w-px h-4 mx-2" style={{ background: "rgba(79,124,255,0.15)" }} />
+          <div className="w-px h-4 mx-2" style={{ background: "rgba(120,90,50,0.12)" }} />
 
           {LINK_ITEMS.map(item => (
             <Link
               key={item.href}
               href={item.href}
-              className="px-4 py-1.5 rounded-full text-sm font-medium text-[#94A3B8] hover:text-[#111827] transition-colors whitespace-nowrap"
+              className="px-4 py-1.5 rounded-full text-sm font-medium hover:text-[#1C1917] transition-colors whitespace-nowrap"
+              style={{ color: "#A09080" }}
             >
               {item.label}
             </Link>
@@ -84,7 +86,8 @@ export function TopNav({ activeTab, setActiveTab }: TopNavProps) {
 
           <Link
             href="/admin"
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium text-[#94A3B8] hover:text-[#111827] transition-colors whitespace-nowrap"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium hover:text-[#1C1917] transition-colors whitespace-nowrap"
+            style={{ color: "#A09080" }}
           >
             <Shield className="w-3.5 h-3.5" />
             Admin
@@ -97,35 +100,35 @@ export function TopNav({ activeTab, setActiveTab }: TopNavProps) {
         {/* Health pill */}
         <div
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
-          style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)", color: "#22C55E" }}
+          style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)", color: "#16a34a" }}
         >
           <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#22C55E" }} />
           All systems operational
         </div>
 
         {/* Bell */}
-        <button className="relative p-1.5 rounded-full hover:bg-[rgba(79,124,255,0.08)] transition-colors" style={{ color: "#94A3B8" }}>
+        <button className="relative p-1.5 rounded-full transition-colors hover:bg-[rgba(120,90,50,0.07)]" style={{ color: "#A09080" }}>
           <Bell className="w-5 h-5" />
-          <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: "#f54a4a", border: "1.5px solid #EEF4F8" }} />
+          <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: "#f54a4a", border: "1.5px solid #FAF8F4" }} />
         </button>
 
         {/* Help */}
-        <button className="p-1.5 rounded-full hover:bg-[rgba(79,124,255,0.08)] transition-colors" style={{ color: "#94A3B8" }}>
+        <button className="p-1.5 rounded-full transition-colors hover:bg-[rgba(120,90,50,0.07)]" style={{ color: "#A09080" }}>
           <HelpCircle className="w-5 h-5" />
         </button>
 
         {/* Separator */}
-        <div style={{ width: 1, height: 24, background: "rgba(79,124,255,0.12)" }} />
+        <div style={{ width: 1, height: 24, background: "rgba(120,90,50,0.1)" }} />
 
         {/* Avatar */}
         <div className="flex items-center gap-2.5 cursor-pointer group">
           <div
             className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 font-display font-bold text-sm"
-            style={{ background: "linear-gradient(135deg, #4F7CFF, #3B6AF3)", color: "#ffffff" }}
+            style={{ background: "linear-gradient(135deg, #F97316, #F59E0B)", color: "#ffffff" }}
           >
             C
           </div>
-          <p className="text-sm font-display font-semibold group-hover:text-[#4F7CFF] transition-colors" style={{ color: "#111827" }}>
+          <p className="text-sm font-display font-semibold group-hover:text-[#F97316] transition-colors" style={{ color: "#1C1917" }}>
             Client
           </p>
         </div>
