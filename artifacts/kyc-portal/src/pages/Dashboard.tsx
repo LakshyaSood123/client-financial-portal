@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { MainHeader } from "@/components/layout/MainHeader";
+import { RightPanel } from "@/components/dashboard/RightPanel";
 import { OverviewTab } from "@/components/dashboard/tabs/OverviewTab";
 import { VerificationTab } from "@/components/dashboard/tabs/VerificationTab";
 import { IntegrationsTab } from "@/components/dashboard/tabs/IntegrationsTab";
@@ -55,22 +56,35 @@ export default function Dashboard() {
         {/* Sidebar */}
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-        {/* Main content */}
+        {/* Main content + right rail */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0 }}>
           <MainHeader />
-          <div style={{ flex: 1, overflowY: "auto", padding: "4px 32px 32px" }}>
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              >
-                {renderTab()}
-              </motion.div>
-            </AnimatePresence>
+          <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+            {/* Scrollable tab content */}
+            <div style={{ flex: 1, overflowY: "auto", padding: "4px 28px 32px", minWidth: 0 }}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  variants={slideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  {renderTab()}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* Right rail */}
+            <div style={{
+              width: 320,
+              flexShrink: 0,
+              borderLeft: "1px solid rgba(120,90,50,0.08)",
+              overflowY: "auto",
+            }}>
+              <RightPanel />
+            </div>
           </div>
         </div>
       </div>

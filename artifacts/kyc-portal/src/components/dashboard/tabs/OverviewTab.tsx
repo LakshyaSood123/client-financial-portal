@@ -2,15 +2,10 @@ import { motion } from "framer-motion";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { UsageChart } from "@/components/dashboard/UsageChart";
 import { WebhookDonut } from "@/components/dashboard/WebhookDonut";
-import { AccountSummaryCard } from "@/components/dashboard/AccountSummaryCard";
-import {
-  Key, Webhook, Upload, FileText, RefreshCw,
-  BookOpen, AlertTriangle, ScrollText, ChevronRight,
-} from "lucide-react";
+import { Key, BookOpen, AlertTriangle, ScrollText } from "lucide-react";
 import { Link } from "wouter";
 
 // ── Warm surface tokens ────────────────────────────────────────
-const CREAM = "#FAF8F4";
 const BLUSH = "#EBE1D5";
 
 const mkCard = (bg: string): React.CSSProperties => ({
@@ -68,14 +63,6 @@ const BOTTOM_CARDS = [
   },
 ];
 
-// ── Recent activity ────────────────────────────────────────────
-const ACTIVITY = [
-  { id: 1, label: "API key rotated",       detail: "prod_key_**** → new key",          time: "Mar 22", icon: Key,       color: "#F97316", bg: "rgba(249,115,22,0.1)" },
-  { id: 2, label: "Webhook test sent",     detail: "endpoint: /hooks/kyb",             time: "Mar 21", icon: Webhook,   color: "#8b6ff4", bg: "rgba(139,111,244,0.1)" },
-  { id: 3, label: "KYB document uploaded", detail: "Certificate of Incorporation",     time: "Mar 20", icon: Upload,    color: "#22C55E", bg: "rgba(34,197,94,0.1)" },
-  { id: 4, label: "Audit log exported",    detail: "March 2026 · 847 events",          time: "Mar 19", icon: FileText,  color: "#F59E0B", bg: "rgba(245,158,11,0.1)" },
-  { id: 5, label: "Delivery replayed",     detail: "evt_8xKp2mNq · success",           time: "Mar 18", icon: RefreshCw, color: "#f54a4a", bg: "rgba(245,74,74,0.1)" },
-];
 
 export function OverviewTab() {
   return (
@@ -145,66 +132,6 @@ export function OverviewTab() {
             </div>
           </motion.div>
         ))}
-      </div>
-
-      {/* ── Row 4: Account Summary + Recent Activity ──────────────── */}
-      <div className="grid grid-cols-12 gap-5">
-
-        {/* Account Summary — col-4 */}
-        <motion.div
-          className="col-span-4"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.4 }}
-        >
-          <AccountSummaryCard />
-        </motion.div>
-
-        {/* Recent Activity — col-8, cream */}
-        <motion.div
-          className="col-span-8"
-          style={mkCard(CREAM)}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.45, duration: 0.4 }}
-        >
-          <div className="flex items-center justify-between px-6 pt-5 pb-4" style={{ borderBottom: "1px solid rgba(120,90,50,0.07)" }}>
-            <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#1C1917" }}>Recent Activity</h3>
-            <Link href="/audit-logs" className="flex items-center gap-0.5 text-xs font-semibold transition-colors hover:text-[#1C1917]" style={{ color: "#F97316" }}>
-              Audit Logs <ChevronRight className="w-3 h-3" />
-            </Link>
-          </div>
-
-          <div className="px-4 py-3">
-            {ACTIVITY.map((item, i) => (
-              <motion.div
-                key={item.id}
-                className="flex items-center gap-3 h-14 px-2 rounded-xl cursor-pointer transition-all duration-150"
-                style={{ borderLeft: "2px solid transparent" }}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.55 + i * 0.06 }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.background = "rgba(120,90,50,0.04)";
-                  (e.currentTarget as HTMLElement).style.borderLeftColor = "#F97316";
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.background = "";
-                  (e.currentTarget as HTMLElement).style.borderLeftColor = "transparent";
-                }}
-              >
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: item.bg }}>
-                  <item.icon className="w-3.5 h-3.5" style={{ color: item.color }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate" style={{ color: "#1C1917" }}>{item.label}</p>
-                  <p className="text-[10px] truncate" style={{ color: "#A09080" }}>{item.detail}</p>
-                </div>
-                <span className="text-[10px] flex-shrink-0 font-mono" style={{ color: "#A09080" }}>{item.time}</span>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
       </div>
 
     </motion.div>
