@@ -109,7 +109,7 @@ const ROW_STATUS_STYLE: Record<RowStatus, { icon: typeof CheckCircle2; color: st
 };
 
 // Backend is not wired — use placeholder treatment
-const BACKEND_WIRED = false;
+const BACKEND_WIRED = true;
 
 export function OverviewTab() {
   return (
