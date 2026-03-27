@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { AdminLayout, SURF_SUPPORT, SURF_ANALYTIC, TEXT, MUTED, cardShell, DARK_1 } from "./AdminLayout";
-import {
-  AlertTriangle, Shield, Globe, TrendingUp,
-  CheckCircle2, Clock, Zap,
-} from "lucide-react";
+import { AlertTriangle, Shield, Globe, TrendingUp, CheckCircle2, Clock, Zap } from "lucide-react";
+import { AdminLayout, SURF_SUPPORT, SURF_ANALYTIC, TEXT, MUTED, cardShell } from "./AdminLayout";
 
 const ALERTS = [
   {
@@ -39,23 +36,23 @@ const ALERTS = [
   },
 ];
 
-const SEVERITY_STYLES: Record<string, { color: string; border: string; label: string; icon: typeof AlertTriangle }> = {
-  critical: { color: "#f54a4a", border: "rgba(245,74,74,0.2)",   label: "Critical", icon: AlertTriangle },
-  high:     { color: "#d97706", border: "rgba(217,119,6,0.2)",   label: "High",     icon: Zap           },
-  medium:   { color: "#8b6ff4", border: "rgba(139,111,244,0.2)", label: "Medium",   icon: TrendingUp    },
+const SEVERITY_STYLES: Record<string, { color: string; border: string; label: string; icon: typeof AlertTriangle; className: string }> = {
+  critical: { color: "#f54a4a", border: "rgba(245,74,74,0.2)", label: "Critical", icon: AlertTriangle, className: "admin-pill admin-pill-negative" },
+  high: { color: "#d97706", border: "rgba(217,119,6,0.2)", label: "High", icon: Zap, className: "admin-pill admin-pill-warning" },
+  medium: { color: "#8b6ff4", border: "rgba(139,111,244,0.2)", label: "Medium", icon: TrendingUp, className: "admin-pill admin-pill-neutral" },
 };
 
 const CATEGORY_ICONS: Record<string, typeof Shield> = {
-  "Jurisdiction":  Globe,
+  Jurisdiction: Globe,
   "PEP/Sanctions": Shield,
-  "Behavioral":    TrendingUp,
+  Behavioral: TrendingUp,
 };
 
 const RISK_METRICS = [
-  { label: "Critical Alerts", value: "1", color: "#f54a4a", bg: "rgba(245,74,74,0.1)",    icon: AlertTriangle },
-  { label: "High Priority",   value: "2", color: "#d97706", bg: "rgba(217,119,6,0.1)",    icon: Zap           },
-  { label: "Under Review",    value: "7", color: "#8b6ff4", bg: "rgba(139,111,244,0.1)",  icon: Clock         },
-  { label: "Resolved Today",  value: "12",color: "#22C55E", bg: "rgba(34,197,94,0.1)",    icon: CheckCircle2  },
+  { label: "Critical Alerts", value: "1", color: "#f54a4a", bg: "rgba(245,74,74,0.1)", icon: AlertTriangle },
+  { label: "High Priority", value: "2", color: "#d97706", bg: "rgba(217,119,6,0.1)", icon: Zap },
+  { label: "Under Review", value: "7", color: "#8b6ff4", bg: "rgba(139,111,244,0.1)", icon: Clock },
+  { label: "Resolved Today", value: "12", color: "#22C55E", bg: "rgba(34,197,94,0.1)", icon: CheckCircle2 },
 ];
 
 export default function RiskAlerts() {
@@ -64,12 +61,7 @@ export default function RiskAlerts() {
   return (
     <AdminLayout>
       <div className="p-8 space-y-7">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <h1 className="font-display" style={{ fontSize: 48, fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.05, color: TEXT }}>
             Risk Alerts
           </h1>
@@ -78,47 +70,42 @@ export default function RiskAlerts() {
           </p>
         </motion.div>
 
-        {/* Risk metric cards — analytic surface */}
         <div className="grid grid-cols-4 gap-5">
           {RISK_METRICS.map((m, i) => (
             <motion.div
               key={m.label}
+              className="flex items-center gap-4 cursor-pointer admin-panel admin-panel-hover admin-kpi"
               style={{ ...cardShell, background: SURF_ANALYTIC, borderRadius: 22, padding: 20 }}
-              className="flex items-center gap-4 hover:-translate-y-0.5 transition-transform cursor-pointer"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 + i * 0.07 }}
             >
-              <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: m.bg }}
-              >
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 admin-kpi-icon" style={{ background: m.bg }}>
                 <m.icon className="w-5 h-5" style={{ color: m.color }} />
               </div>
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: MUTED }}>{m.label}</p>
-                <p className="font-display font-bold" style={{ fontSize: 28, letterSpacing: "-0.03em", lineHeight: 1.1, color: m.color }}>
-                  {m.value}
-                </p>
+                <p className="font-display font-bold" style={{ fontSize: 28, letterSpacing: "-0.03em", lineHeight: 1.1, color: m.color }}>{m.value}</p>
               </div>
             </motion.div>
           ))}
         </div>
 
-        {/* Alert cards — support surface base + severity border */}
         <div className="space-y-4">
-          {ALERTS.filter(a => !dismissed.has(a.id)).map((alert, i) => {
+          {ALERTS.filter((a) => !dismissed.has(a.id)).map((alert, i) => {
             const sev = SEVERITY_STYLES[alert.severity];
             const CategoryIcon = CATEGORY_ICONS[alert.category] || AlertTriangle;
 
             return (
               <motion.div
                 key={alert.id}
+                className={`admin-panel admin-panel-hover ${alert.severity === "critical" ? "admin-critical-pulse" : ""}`}
                 style={{
                   ...cardShell,
                   background: SURF_SUPPORT,
                   borderRadius: 22,
                   border: `1px solid ${sev.border}`,
+                  boxShadow: `inset 3px 0 0 ${sev.color}, 0 10px 28px rgba(10,15,24,0.06)`,
                 }}
                 initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -127,29 +114,14 @@ export default function RiskAlerts() {
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-start gap-4">
-                      <div
-                        className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
-                        style={{ background: `${sev.color}14` }}
-                      >
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 admin-kpi-icon" style={{ background: `${sev.color}14` }}>
                         <sev.icon className="w-5 h-5" style={{ color: sev.color }} />
                       </div>
                       <div>
                         <div className="flex items-center gap-3 mb-1">
-                          <h3 className="font-display font-bold" style={{ fontSize: 15, color: TEXT }}>
-                            {alert.title}
-                          </h3>
-                          <span
-                            className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
-                            style={{ background: `${sev.color}14`, color: sev.color }}
-                          >
-                            {sev.label}
-                          </span>
-                          <span
-                            className="px-2.5 py-0.5 rounded-full text-[10px] font-medium"
-                            style={{ background: "rgba(13,18,33,0.06)", color: MUTED }}
-                          >
-                            {alert.category}
-                          </span>
+                          <h3 className="font-display font-bold" style={{ fontSize: 15, color: TEXT }}>{alert.title}</h3>
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${sev.className}`}>{sev.label}</span>
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-medium admin-pill admin-pill-neutral">{alert.category}</span>
                         </div>
                         <div className="flex items-center gap-3 text-xs" style={{ color: MUTED }}>
                           <CategoryIcon className="w-3.5 h-3.5" />
@@ -161,11 +133,7 @@ export default function RiskAlerts() {
                         </div>
                       </div>
                     </div>
-                    <button
-                      onClick={() => setDismissed(d => new Set([...d, alert.id]))}
-                      className="text-xs px-3 py-1.5 rounded-lg transition-colors hover:bg-black/5"
-                      style={{ color: MUTED }}
-                    >
+                    <button onClick={() => setDismissed((d) => new Set([...d, alert.id]))} className="text-xs px-3 py-1.5 rounded-lg admin-button" style={{ color: MUTED }}>
                       Dismiss
                     </button>
                   </div>
@@ -178,7 +146,7 @@ export default function RiskAlerts() {
                     {alert.actions.map((action, ai) => (
                       <button
                         key={action}
-                        className="px-4 py-2 rounded-xl text-xs font-semibold transition-all hover:scale-105"
+                        className="px-4 py-2 rounded-xl text-xs font-semibold admin-button"
                         style={ai === 0 ? {
                           background: `${sev.color}14`,
                           color: sev.color,
@@ -199,11 +167,7 @@ export default function RiskAlerts() {
           })}
 
           {dismissed.size === ALERTS.length && (
-            <motion.div
-              className="flex flex-col items-center justify-center py-20 text-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
+            <motion.div className="flex flex-col items-center justify-center py-20 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <CheckCircle2 className="w-12 h-12 mb-4" style={{ color: "#22C55E" }} />
               <h3 className="font-display font-bold text-xl mb-2" style={{ color: TEXT }}>All clear!</h3>
               <p className="text-sm" style={{ color: MUTED }}>All risk alerts have been resolved.</p>

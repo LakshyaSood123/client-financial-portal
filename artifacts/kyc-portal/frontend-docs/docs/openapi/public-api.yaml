@@ -1,0 +1,919 @@
+openapi: 3.0.3
+info:
+  title: KYC Platform HTTP API
+  version: "v1"
+  description: |
+    Evidence-based OpenAPI spec for the repo implementation.
+
+    Auth notes:
+    - All HTTP API routes require `Authorization: Bearer <api_key_id>.<secret>` (split on the first dot; secret may contain dots).
+    - CloudFront injects `x-origin-verify` and the authorizer denies requests missing/mismatching it. If you call the API Gateway invoke URL directly, you must supply the correct header value.
+    - Admin/control-plane routes additionally require scope `admin:write` and header `x-admin-token` matching the controller `ADMIN_TOKEN`.
+
+servers:
+  - url: https://{host}
+    variables:
+      host:
+        default: example.cloudfront.net
+
+tags:
+  - name: Public
+  - name: Jobs
+  - name: Webhooks
+  - name: Billing
+  - name: Compliance
+  - name: Admin
+  - name: ControlPlaneEvents
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: "<api_key_id>.<secret>"
+    adminToken:
+      type: apiKey
+      in: header
+      name: x-admin-token
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        error_code:
+          type: string
+      required: [error]
+    HealthResponse:
+      type: object
+      properties:
+        ok: { type: boolean }
+        ts: { type: integer, format: int64 }
+      required: [ok, ts]
+    Environment:
+      type: string
+      enum: [SANDBOX, PROD]
+    JobCreateRequest:
+      type: object
+      description: |
+        Create a new job request. Environment is server-authoritative; do not send env headers.
+      properties:
+        subject_id: { type: string }
+        data_class: { type: string }
+        inputs:
+          type: object
+          additionalProperties: true
+      required: [inputs]
+    JobCreateResponse:
+      type: object
+      properties:
+        ok: { type: boolean }
+        job_id: { type: string }
+        request_id: { type: string }
+      required: [ok, job_id]
+    PresignRequest:
+      type: object
+      properties:
+        filename: { type: string }
+        content_type: { type: string }
+        data_class: { type: string }
+      required: [filename, content_type]
+    PresignResponse:
+      type: object
+      properties:
+        ok: { type: boolean }
+        url: { type: string }
+        requiredHeaders:
+          type: object
+          additionalProperties: { type: string }
+      required: [ok, url]
+    WebhookEndpointCreateRequest:
+      type: object
+      properties:
+        environment:
+          type: string
+          enum: [SANDBOX, PROD, BOTH]
+        target_url:
+          type: string
+          format: uri
+        event_types:
+          type: array
+          items: { type: string }
+        description: { type: string }
+      required: [environment, target_url, event_types]
+    WebhookEndpointResponse:
+      type: object
+      properties:
+        endpoint_id: { type: string }
+        environment: { type: string }
+        target_url: { type: string }
+        event_types:
+          type: array
+          items: { type: string }
+        status: { type: string }
+        description: { type: string, nullable: true }
+        signing_secret:
+          type: string
+          description: Secret is only shown once and is masked in responses.
+      required: [endpoint_id, environment, target_url, event_types, status]
+    BillingBalanceResponse:
+      type: object
+      properties:
+        balance:
+          type: object
+          additionalProperties: true
+      required: [balance]
+    ComplianceHoldRequest:
+      type: object
+      properties:
+        scope:
+          type: string
+          enum: [TENANT, SUBJECT]
+        subject_id:
+          type: string
+        actor:
+          type: string
+        reason:
+          type: string
+      required: [scope]
+    AdminTenantCreateRequest:
+      type: object
+      properties:
+        tenant_id: { type: string }
+        kyb_status: { type: string }
+        ops_status: { type: string }
+        env_access: { type: string }
+        plan_snapshot:
+          type: object
+          additionalProperties: true
+      required: [tenant_id, plan_snapshot]
+    AdminApiKeyCreateRequest:
+      type: object
+      properties:
+        tenant_id: { type: string }
+        environment: { $ref: "#/components/schemas/Environment" }
+        scopes:
+          type: array
+          items: { type: string }
+        expires_at:
+          type: integer
+          format: int64
+      required: [tenant_id]
+    AdminApiKeyCreateResponse:
+      type: object
+      properties:
+        ok: { type: boolean }
+        api_key_id: { type: string }
+        bearer:
+          type: string
+          description: Returned once at creation; treat as secret.
+      required: [ok, api_key_id, bearer]
+    ControlPlaneEventRecord:
+      type: object
+      properties:
+        idempotency_key: { type: string }
+        event_id: { type: string }
+        occurred_at: { type: string }
+        env: { type: string }
+        tenant_id: { type: string }
+        actor_api_key_id: { type: string }
+        action_type: { type: string }
+        target_type: { type: string }
+        target_id: { type: string, nullable: true }
+        request_id: { type: string, nullable: true }
+        outcome: { type: string }
+        error_code: { type: string, nullable: true }
+        payload_summary:
+          type: string
+          description: JSON-encoded summary (no secrets).
+      required: [idempotency_key, occurred_at, env, tenant_id, action_type, target_type, outcome]
+
+paths:
+  /health:
+    get:
+      tags: [Public]
+      summary: Health check
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HealthResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /jobs:
+    post:
+      tags: [Jobs]
+      summary: Create a new job (admission-guarded)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/JobCreateRequest" }
+      responses:
+        "200":
+          description: Job created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/JobCreateResponse" }
+        "402":
+          description: Denied by admission guard (funds/caps)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: Denied by admission guard (status/env)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "429":
+          description: Denied by admission guard (cap)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /jobs/{jobId}:
+    get:
+      tags: [Jobs]
+      summary: Get job status
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: jobId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Job record
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /uploads/presign:
+    post:
+      tags: [Jobs]
+      summary: Create a presigned S3 upload URL
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PresignRequest" }
+      responses:
+        "200":
+          description: Presign result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PresignResponse" }
+
+  /webhooks/endpoints:
+    post:
+      tags: [Webhooks]
+      summary: Create webhook endpoint
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/WebhookEndpointCreateRequest" }
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/WebhookEndpointResponse" }
+    get:
+      tags: [Webhooks]
+      summary: List webhook endpoints
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Endpoints
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  endpoints:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+
+  /webhooks/endpoints/{endpointId}:
+    get:
+      tags: [Webhooks]
+      summary: Get endpoint
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: endpointId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Endpoint
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+    patch:
+      tags: [Webhooks]
+      summary: Update endpoint (partial)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: endpointId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: Updated endpoint
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /webhooks/endpoints/{endpointId}/rotate-secret:
+    post:
+      tags: [Webhooks]
+      summary: Rotate webhook signing secret (masked secret returned once)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: endpointId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Rotated
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /webhooks/endpoints/{endpointId}/test:
+    post:
+      tags: [Webhooks]
+      summary: Enqueue a webhook test delivery
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: endpointId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Test delivery created
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /webhooks/deliveries:
+    get:
+      tags: [Webhooks]
+      summary: List deliveries (tenant-scoped)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Deliveries
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /webhooks/deliveries/{deliveryId}:
+    get:
+      tags: [Webhooks]
+      summary: Get delivery
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: deliveryId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Delivery
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /webhooks/deliveries/{deliveryId}/replay:
+    post:
+      tags: [Webhooks]
+      summary: Replay a delivery
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: deliveryId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string }
+                max_retries: { type: integer }
+      responses:
+        "200":
+          description: Replayed
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /billing/balance:
+    get:
+      tags: [Billing]
+      summary: Get tenant balance
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Balance
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BillingBalanceResponse" }
+
+  /billing/ledger:
+    get:
+      tags: [Billing]
+      summary: Get recent ledger entries
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Ledger entries
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /compliance/holds:
+    post:
+      tags: [Compliance]
+      summary: Create/update a legal hold
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ComplianceHoldRequest" }
+      responses:
+        "200":
+          description: Hold updated
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+    delete:
+      tags: [Compliance]
+      summary: Remove a legal hold
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ComplianceHoldRequest" }
+      responses:
+        "200":
+          description: Hold removed
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+    get:
+      tags: [Compliance]
+      summary: List legal holds (tenant-scoped)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Holds
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /tenants:
+    post:
+      tags: [Admin]
+      summary: Create tenant (admin)
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminTenantCreateRequest" }
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /apikeys:
+    post:
+      tags: [Admin]
+      summary: Create API key (admin; returns bearer once)
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminApiKeyCreateRequest" }
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminApiKeyCreateResponse" }
+
+  /apikeys/rotate:
+    post:
+      tags: [Admin]
+      summary: Rotate API key secret (admin)
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                api_key_id: { type: string }
+                reason: { type: string }
+                rotated_by: { type: string }
+                next_active_from: { type: string }
+                rotation_grace_seconds: { type: integer }
+              required: [api_key_id]
+      responses:
+        "200":
+          description: Rotated (bearer returned once)
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /apikeys/revoke:
+    post:
+      tags: [Admin]
+      summary: Revoke API key (admin)
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                api_key_id: { type: string }
+                reason: { type: string }
+                revoked_by: { type: string }
+              required: [api_key_id]
+      responses:
+        "200":
+          description: Revoked
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /apikeys/{apiKeyId}:
+    get:
+      tags: [Admin]
+      summary: Get API key metadata (no secrets)
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      parameters:
+        - in: path
+          name: apiKeyId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /kyb/start:
+    post:
+      tags: [Admin]
+      summary: Start KYB (admin skeleton)
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tenant_id: { type: string }
+                actor: { type: string }
+              required: [tenant_id]
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /kyb/complete:
+    post:
+      tags: [Admin]
+      summary: Complete KYB (admin skeleton)
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tenant_id: { type: string }
+                kyb_status: { type: string, enum: [APPROVED, REJECTED] }
+                actor: { type: string }
+                vendor_ref: { type: string }
+                reason: { type: string }
+              required: [tenant_id, kyb_status]
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /risk/recompute:
+    post:
+      tags: [Admin]
+      summary: Recompute risk tier (admin skeleton)
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tenant_id: { type: string }
+              required: [tenant_id]
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /risk/override:
+    post:
+      tags: [Admin]
+      summary: Override risk tier (admin skeleton)
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tenant_id: { type: string }
+                risk_tier: { type: string }
+                actor: { type: string }
+                reason: { type: string }
+              required: [tenant_id, risk_tier]
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /plans/snapshot:
+    post:
+      tags: [Admin]
+      summary: Create PlanSnapshot (admin)
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tenant_id: { type: string }
+                plan_snapshot:
+                  type: object
+                  additionalProperties: true
+              required: [tenant_id, plan_snapshot]
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /plans/overrides:
+    post:
+      tags: [Admin]
+      summary: Create tenant plan override (admin)
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /billing/topup:
+    post:
+      tags: [Admin]
+      summary: Top up tenant balance (admin)
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tenant_id: { type: string }
+                amount: { type: number }
+                environment: { $ref: "#/components/schemas/Environment" }
+              required: [tenant_id, amount]
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /notify:
+    post:
+      tags: [Admin]
+      summary: Enqueue a notification (admin skeleton)
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tenant_id: { type: string }
+                kind: { type: string }
+                payload:
+                  type: object
+                  additionalProperties: true
+                actor: { type: string }
+              required: [tenant_id]
+      responses:
+        "200":
+          description: Enqueued
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /control-plane-events:
+    get:
+      tags: [ControlPlaneEvents]
+      summary: List control-plane events (admin)
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      parameters:
+        - in: query
+          name: env
+          required: false
+          schema: { type: string, enum: [SANDBOX, PROD] }
+        - in: query
+          name: from
+          required: false
+          schema: { type: string, description: ISO timestamp lower bound }
+        - in: query
+          name: to
+          required: false
+          schema: { type: string, description: ISO timestamp upper bound }
+        - in: query
+          name: limit
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+      responses:
+        "200":
+          description: Events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items: { $ref: "#/components/schemas/ControlPlaneEventRecord" }
+                required: [events]
+

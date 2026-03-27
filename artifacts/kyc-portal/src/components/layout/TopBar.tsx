@@ -5,7 +5,6 @@ import { useLocation } from "wouter";
 const ROUTE_LABELS: Record<string, string> = {
   "/": "Account Overview",
   "/usage": "Usage",
-  "/webhooks": "Webhooks",
   "/billing": "Billing",
   "/api-keys": "API Keys",
   "/audit-logs": "Audit Logs",
@@ -71,7 +70,7 @@ export function TopBar() {
             <p className="text-sm font-display font-semibold text-foreground group-hover:text-[#a8ff3e] transition-colors leading-tight">
               Stefan
             </p>
-            <p className="text-[10px] leading-tight" style={{ color: "#6b8a82" }}>Acme Corp Ltd</p>
+            <p className="text-[10px] leading-tight" style={{ color: "#6b8a82" }}>Anime Corp Ltd</p>
           </div>
           <div
             className="w-9 h-9 rounded-full p-[2px] flex-shrink-0"

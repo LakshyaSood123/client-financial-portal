@@ -5,13 +5,13 @@ import { BackendPlaceholder } from "@/components/shared/BackendPlaceholder";
 export default function PortalStats() {
   return (
     <PortalShell
-      title="Account Overview"
-      subtitle="KYB progress, integration health, billing status, and recent activity"
+      title="Good evening, Client"
+      subtitle="Environment access, onboarding gates, balance controls, and recent platform activity"
       showRail={true}
     >
       <BackendPlaceholder
         type="mock"
-        description="Displaying illustrative data. Connect VITE_PORTAL_API_BASE to see live stats from GET /portal/stats."
+        description="Displaying illustrative tenant state based on the embedded frontend spec. Connect VITE_PORTAL_API_BASE to replace these values with live overview data."
       />
       <OverviewTab />
     </PortalShell>

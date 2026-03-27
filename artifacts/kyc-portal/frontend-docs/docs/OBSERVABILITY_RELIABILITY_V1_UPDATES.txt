@@ -1,0 +1,161 @@
+CHANGELOG - 2025-12-16
+- Initial publication covering all Platform Observability & Reliability v1 deliverables for kyc-agents-main and kyc-infra-main, including idempotency/callback hardening, admission/sandbox/safe logging controls, and infra alarm/idempotency resources.
+- Added docs/PIPELINE_AND_WEBHOOKS_V1_IMPLEMENTATION.txt capturing the StepFunctions webhook pipeline, queues, storage, controllers, and IAM; reference it for webhook fanout/delivery specifics.
+
+CHANGELOG - 2025-12-24
+- SANDBOX rating events are now optionally emitted (default ON) so sandbox caps can be enforced via the sandbox daily usage table; disable via DISABLE_SANDBOX_RATING_EVENTS=1 if needed.
+- Added additional infra alarms + an ops dashboard for auth outcomes, Lambda errors, queue age/DLQ depth, and retention legal-hold skips (see cdktf/src/stacks/dev.ts).
+
+CHANGELOG - 2025-12-25
+- Edge/API visibility: added CloudFront + API Gateway latency widgets (p50/p99), 4xx/5xx signals, and alarms for p99 latency and sustained edge 5xx error rate (`cdktf/src/stacks/dev.ts`).
+- Authorizer performance visibility: authorizer emits `auth.duration_ms` EMF metric (dims `{env,outcome}`) and adds an alarm on p99 duration; API-key cache emits low-cardinality counters (`kyc.api_key_cache_*`) (`cdktf/src/backend/auth/authorizer.ts`, `cdktf/src/stacks/dev.ts`).
+- WAF visibility/hardening: dashboard includes WAF Allowed/Blocked/Counted request counters and WAF rules are feature-flagged for safer rollout (`cdktf/src/stacks/dev.ts`, `docs/EDGE_FRONT_DOOR_CLOUDFRONT_WAF.md`).
+- Webhook metrics cardinality hardening: removed `EventType` as a CloudWatch metric dimension; webhook EMF now uses bounded dims `{Environment,Kind,Outcome}` to avoid unbounded series growth (`cdktf/src/backend/webhooks/fanout-worker.ts`, `cdktf/src/backend/webhooks/delivery-worker.ts`).
+
+1) Executive Summary
+All observability, reliability, and KYC agent spec hardening requirements for backend services are complete and in PROD-ready state (PASS). Scope was limited to backend/infra work: structured JSON logging, correlation propagation, EMF metrics, runner + StepFunctions callback hardening (size/truncation/invalid token handling), rating-event safety, deterministic idempotency with DynamoDB locks, artifact storage (S3 + sandbox), admission guard + sandbox modes, and IaC for SQS alarms, dashboards, log retention, SNS notifications, and idempotency DynamoDB table/IAM wiring. No frontend changes were made.
+
+2) Repos + Key Paths
+- Agents repo (kyc-agents-main/kyc-agents-main/)
+  * Logging/observability: common/logger.py, common/observability.py, common/metrics.py, common/events.py, common/runtime.py
+  * Runner + shared behaviors: common/runner.py, common/models.py, common/idempotency.py, common/artifacts.py, common/admission.py, common/s3.py, common/retry.py
+  * Agent entrypoints: image/deepfake_classifier/main.py, image/facematch/main.py, doc/doc_agent/main.py, video/liveness/main.py, audio/... (each imports runner + stores)
+  * Tests: tests/test_observability.py, tests/test_events.py, tests/test_runner_exitcode.py, tests/test_idempotency.py, tests/test_admission.py, tests/test_agents.py, tests/test_metrics.py
+- Infra repo (kyc-infra-main/cdktf/)
+  * Main construct: cdktf/src/constructs/compute/index.ts (queues, DLQs, alarms, dashboard, SNS topic, DynamoDB table, IAM, env vars)
+  * Supporting docs: OBSERVABILITY_IMPLEMENTED.md, docs/OBSERVABILITY_RELIABILITY_V1_UPDATES.txt (this file), docs/PIPELINE_AND_WEBHOOKS_V1_IMPLEMENTATION.txt (webhook pipeline deep dive)
+
+3) Agents (kyc-agents-main/kyc-agents-main/)
+Logging:
+- Structured JSON logging implemented via common/logger.py + common/observability.py contextvars. All logs include timestamp (UTC ISO8601), level, component, message, request_id, correlation_id, tenant_id, environment, and when available job_id + agent_type + request-scoped metadata.
+- Example sanitized log payload: {"timestamp":"2025-12-16T02:11:30.123456Z","level":"INFO","component":"agent-runner","message":"handler completed","request_id":"req-abc","correlation_id":"corr-123","tenant_id":"tenant-x","environment":"prod","job_id":"job-42","agent_type":"image_deepfake"}.
+- safe_identifier in common/observability.py truncates + hashes identifiers; used wherever document IDs or secrets could surface. Rules: never log raw images, document IDs, webhook secrets, or payload bodies.
+
+Correlation propagation:
+- request_observability_context binds request_id/correlation_id/tenant/environment/job_id/agent_type for lifetime of handler.
+- build_agent_request (common/models.py) accepts optional correlation_id; if missing, uuid4 is generated and stored but not added to response schema fields unless optional. FastAPI ingestion and CLI runner both call request_observability_context ensuring logs/metrics share the same IDs.
+- Runner (common/runner.py) obtains payload from stdin/INPUT_JSON, builds AgentRequestBase, and ensures correlation_id travels into AgentResponseBase/logs/metrics and StepFunctions callbacks.
+
+Metrics:
+- common/metrics.py emits CloudWatch Embedded Metrics Format JSON directly to stdout. Two mandatory metrics:
+  * kyc.agent_calls_total (lower_snake_case) with dimensions agent_type, tenant_id, environment, status.
+  * kyc.agent_latency_ms with agent_type, tenant_id, environment (value in ms).
+- Optional kyc.agent_failures_total emitted on failure paths with error_code dimension.
+- HTTP handlers + runner both call emit_agent_metrics(request, response, duration_ms). "Success" equals Status.SUCCESS; any other status increments failure counter and produces exit code 1.
+
+Runner behavior:
+- load_request_payload reads INPUT_JSON env or stdin (errors if empty). run_once(handler) handles AgentProcessingError vs generic Exception.
+- After handler, rating events + metrics emitted, response serialized.
+- StepFunctions token: runner pulls task_token/TaskToken/TASK_TOKEN env. If present, send_task_success/send_task_failure is called with payload described below; otherwise response JSON is printed to stdout.
+- Exit code: 0 only if Status.SUCCESS; else 1 regardless of callback success.
+- Callback payload shape on success: {status, decision, reason_code, reason_message, request_id, tenant_id, job_id, agent_type, outputs, artifacts}. On failure: StepFunctions error/cause fields only (no outputs).
+
+StepFunctions limits hardening:
+- _truncate_utf8(value,max_bytes) ensures multi-byte safe truncation (256 bytes for error, 1024 bytes for cause). Defaults used when reason_code/reason_message missing.
+- Success payload size guard: if serialized callback > 240KB, runner strips outputs/artifacts and sends minimal payload (status/decision/reason_code/reason_message/request_id/tenant_id/job_id/agent_type) to stay under 256KB StepFunctions limit.
+- ClientError handling: only TaskTimedOut/TaskDoesNotExist/InvalidToken are swallowed with WARN log (structured). Other errors re-raise causing runner to exit after sys.exit(exit_code). Logger uses getattr(agent_type,"value",agent_type) to avoid Enum issues.
+
+Rating events:
+- emit_rating_event (common/events.py) constructs JSON payload with agent metadata, decisions, timing, bytes, artifact_count. Sends to SQS FIFO queue defined by RATING_EVENTS_QUEUE_URL.
+- Behavior: returns early if DISABLE_RATING_EVENTS=1/true or queue env missing. In SANDBOX it emits by default (charge remains $0 in billing); set DISABLE_SANDBOX_RATING_EVENTS=1 to suppress sandbox events.
+
+Idempotency:
+- deterministic_request_id (common/idempotency.py) uses canonical JSON of tenant_id/environment/job_id/agent_type/inputs/metadata hashed via SHA-256 for consistent request IDs.
+- IdempotencyStore interface with InMemory implementation (thread-safe map + locks) used in sandbox/tests.
+- DynamoDbIdempotencyStore uses boto3 DynamoDB client, table keyed on id. get() respects expires_at TTL. put() stores JSON + TTL. try_lock uses UpdateItem conditional on lock_expires_at, setting both lock and expires_at; avoids deadlock across replicas. TTL defaults via IDEMPOTENCY_TTL_SECONDS (86400) and lock TTL via IDEMPOTENCY_LOCK_TTL_SECONDS (30). create_idempotency_store() uses DynamoDB when IDEMPOTENCY_TABLE_NAME set and not sandbox.
+
+Artifacts:
+- build_artifact_key -> tenants/{tenant}/jobs/{job}/requests/{request}/agents/{agent_type}/{version}/{timestamp}/{artifact_name}. Timestamp UTC to seconds + microseconds.
+- S3ArtifactStore writes to ARTIFACT_BUCKET_NAME bucket; LocalArtifactStore keeps memory dict and returns sandbox:// URIs. create_artifact_store returns Local store when SANDBOX=1 to avoid AWS calls.
+- Agents write placeholder artifacts referencing processed outputs (no binary logged). Sandbox stores used in tests.
+
+Admission guard:
+- common/admission.py implements check_admission(request) with optional ADMISSION_URL for external policy. When unset, local rules enforce allowlist/blocklist (ADMISSION_ALLOW_TENANTS, ADMISSION_BLOCK_TENANTS, ADMISSION_ALLOW_ENVS, ADMISSION_BLOCK_ENVS), input size caps, and file-type filters.
+- ADMISSION_FAIL_MODE=open|closed controls whether external failure blocks processing. SANDBOX=1 bypasses outbound HTTP and forces local evaluation.
+- SANDBOX disables network-limited features (rating events, artifact uploads to S3, admission URLs) and marks response.debug.sandbox=true.
+
+Tests:
+- tests/test_observability.py validates logger emits required fields incl timestamp ISO8601 UTC (via datetime.fromisoformat + timezone checks), correlation, tenant, env, job_id.
+- tests/test_metrics.py ensures EMF metrics contain required keys.
+- tests/test_events.py verifies rating event payload, no AWS client when queue unset, and sandbox skip when SANDBOX=1 despite queue env being set.
+- tests/test_runner_exitcode.py ensures runner exit code 0 only on Status.SUCCESS and StepFunctions callback behavior.
+- tests/test_idempotency.py covers deterministic_request_id canonicalization and lock/store semantics.
+- tests/test_admission.py covers admission allow/block, fail-open/closed, sandbox bypass.
+- tests/test_agents.py ensures duplicate request_id responses return cached outputs and artifacts; validation errors structured.
+
+Config reference table:
+- SANDBOX ("1"/"true"): forces sandbox stores, disables rating events, admission URL calls, external network writes; sets response.debug.sandbox.
+- RATING_EVENTS_QUEUE_URL: FIFO queue URL for rating events; optional. DISABLE_RATING_EVENTS disables emission entirely.
+- IDEMPOTENCY_TABLE_NAME, IDEMPOTENCY_TTL_SECONDS, IDEMPOTENCY_LOCK_TTL_SECONDS: configure DynamoDB store usage + TTL.
+- ADMISSION_URL, ADMISSION_FAIL_MODE (open/closed), ADMISSION_TIMEOUT_S, ADMISSION_ALLOW_TENANTS, ADMISSION_BLOCK_TENANTS, ADMISSION_ALLOW_ENVS, ADMISSION_BLOCK_ENVS, ADMISSION_MAX_INPUT_BYTES, ADMISSION_ALLOWED_FILETYPES (examples - see common/admission.py constants).
+- DEFAULT_TIMEOUT_S, agent-specific timeouts via env (per main.py) control handler deadlines.
+- TASK_TOKEN/TASK_TOKEN payload fields for StepFunctions callbacks.
+- ARTIFACT_BUCKET_NAME, AWS_REGION, TOOL_NAME, JOBS_TABLE_NAME, SQS_QUEUE_URL provided by infra.
+
+4) Infra (kyc-infra-main/cdktf/)
+SQS queues:
+- For each agent (image-deepfake, audio-deepfake, image-facematch; extendable), compute/index.ts provisions primary FIFO queue `${prefix}-${agent}.fifo` with content-based dedup on, messageRetentionSeconds=3600, and DLQ `${prefix}-${agent}-dlq.fifo` with retention 14 days. Redrive policy on main queue routes to DLQ after 3 receives.
+- Additional queue settings: FIFO ensures ordering, dedup ensures idempotent SQS usage; 1-minute retention ensures quick failover.
+
+CloudWatch alarms:
+- For every primary queue: CloudwatchMetricAlarm resources `alarm<agent>MainBacklog` (ApproximateNumberOfMessagesVisible > threshold 0, Sum, period 60s, evaluationPeriods=1, treatMissingData=notBreaching) and `alarm<agent>MainAge` (ApproximateAgeOfOldestMessage > 300s, Maximum, period 60s).
+- For every DLQ: `alarm<agent>DlqDepth` (ApproximateNumberOfMessagesVisible >0) and `alarm<agent>DlqAge` (ApproximateAgeOfOldestMessage >300s). All alarms set alarmActions + okActions = [alertsTopic.arn] to ensure notifications on breach and recovery (insufficientDataActions can be added if needed).
+
+Alerts SNS topic:
+- Created once per stack: `${prefix}-alerts`. Intended for oncall/Slack/Email subscriptions; team must subscribe endpoints manually.
+- All SQS alarms publish notifications to this topic; add more actions (Lambda, PagerDuty) via IaC if required.
+
+CloudWatch dashboard:
+- Dashboard name `${prefix}-kyc-agents`. Contains widgets: Agent Queue Backlog (Sum backlog per main queues), Agent Queue Age (Maximum age), DLQ Backlog/Age metrics, and EMF metrics panel using SEARCH expressions for kyc.agent_calls_total / kyc.agent_failures_total / kyc.agent_latency_ms. View via CloudWatch -> Dashboards -> search for prefix.
+
+Log retention:
+- props.logRetentionDays defaults to 30 days but configurable via stack input LOG_RETENTION_DAYS. Applied to CloudwatchLogGroup resources for ECS agent services (`/ecs/${prefix}-${agent}`) and Lambda functions (`/aws/lambda/${prefix}-video-submit`, `/aws/lambda/${prefix}-video-callback`). Ensures compliance with retention policy.
+
+DynamoDB idempotency table:
+- Resource `agentIdempotencyTable`: name `${prefix}-agent-idempotency`, PAY_PER_REQUEST, hashKey id (S), TTL attribute `expires_at`, serverSideEncryption enabled (AWS managed). Supports multi-replica idempotency store via DynamoDbIdempotencyStore. TTL ensures old entries/locks expire automatically.
+
+IAM changes:
+- ECS task role policy per agent includes least-privilege actions: SQS (Receive/Delete/Attributes/ChangeVisibility) limited to queue ARN, DynamoDB PutItem limited to jobsTable for job updates, S3 List/Get/Put restricted to artifact bucket, DynamoDB (Get/Put/Update/Describe) restricted to idempotency table.
+- SageMaker role now uses granular inline policies (S3 list/bucket, CloudWatch logs limited to /aws/sagemaker/*, ECR read to `${prefix}/video-agent` plus GetAuthorizationToken wildcard, SNS publish to success/failure topics, DynamoDB to token + idempotency tables). Removes AmazonS3FullAccess/CloudWatchLogsFullAccess wildcards.
+- Video Lambda role policy restricts states:SendTaskSuccess/Failure (Resource:* mandatory), DynamoDB to token + idempotency tables, S3 PutObject limited to artifacts bucket, SageMaker InvokeEndpointAsync limited to video endpoint ARN, kms:Decrypt to specific KMS key.
+- No other wildcards introduced.
+
+Agent runtime env injection:
+- ContainerDefinitions for each agent include env vars: SQS_QUEUE_URL, JOBS_TABLE_NAME, ARTIFACT_BUCKET_NAME, AWS_REGION, TOOL_NAME, IDEMPOTENCY_TABLE_NAME. Additional env (timeouts, sandbox) set via runtime configuration.
+
+5) Operational Runbook
+Code review checklist:
+- Verify all logs generated through logger/context include timestamp/IDs and never leak payloads or secrets; confirm safe_identifier usage.
+- Check StepFunctions callback logic uses _truncate_utf8 and failure codes restricted to allowed set; success payload guard intact.
+- Confirm rating events skip AWS client when SANDBOX=1 or queue missing.
+- Ensure DynamoDbIdempotencyStore uses TTL, lock semantics, and create_idempotency_store respects sandbox.
+- Validate IAM policies remain least-privilege and no new wildcards except documented ones.
+
+Deployment checklist:
+- Confirm DynamoDB table `${prefix}-agent-idempotency` exists with TTL enabled on expires_at and SSE active.
+- Ensure SNS topic `${prefix}-alerts` exists with required subscriptions (email/SMS/PagerDuty). Without subscription, alarms will not page.
+- Verify each CloudWatch alarm shows correct actions (View alarm -> Actions tab) and metrics evaluate.
+- Confirm CloudWatch dashboard `${prefix}-kyc-agents` renders data (EMF metrics require deployed agents emitting logs).
+- Validate ECS/Lambda log groups show retention=30 days (or env-specific override).
+
+Local commands:
+- Agents: `cd kyc-agents-main/kyc-agents-main && python -m pytest`. (Note: local environment currently lacks pytest in PATH; install via `pip install -r requirements-dev.txt` before running.)
+- Infra: `cd "kyc-infra-main (1)/kyc-infra-main/cdktf" && yarn install && yarn build && yarn synth` to generate Terraform JSON, then `cdktf diff` against target env.
+
+Common failure modes:
+- StepFunctions callback ClientError TaskDoesNotExist/InvalidToken: runner logs WARN and continues; investigate state machine concurrency/wiring.
+- Alarm not notifying: check SNS subscription confirmation, ensure alarmActions include topic ARN.
+- DynamoDB TTL delay: AWS may take up to 48h to purge expired items; locks rely on lock_expires_at check so manual cleanup rarely needed.
+- SQS FIFO dedup: deduplication uses request_id; repeated identical request within 5 minutes may be dropped-ensure idempotency store consistent.
+- Sandbox misconfiguration: SANDBOX=1 disables S3/SQS/HTTP; ensure tests set/del env as needed.
+- Idempotency table misconfig: missing IDEMPOTENCY_TABLE_NAME env causes fallback to in-memory store, leading to per-pod duplication; verify env injection.
+
+6) Security Notes
+- Logging never records PII/raw payloads/images/IDs; safe_identifier enforces truncated hashed IDs.
+- Secrets (webhook/API keys, task tokens) never written to logs. Admission external calls disabled in sandbox to avoid unintended outbound.
+- IAM policies follow least privilege; only states:SendTaskSuccess/Failure require Resource:*.
+- StepFunctions error/cause truncation enforces AWS 256-byte/32768-byte limits to avoid leaking large payloads and to satisfy service constraints.
+- Sandbox mode ensures no outbound network for admission/rating events/artifacts, preventing data exfiltration during local/dev runs.
+
+7) MANDATORY: Keep This Doc Updated
+Every future change touching observability, reliability, idempotency, artifacts, admission, or related infra MUST update docs/OBSERVABILITY_RELIABILITY_V1_UPDATES.txt in the same PR/change set. All future implementation prompts must explicitly include the instruction "update OBSERVABILITY_RELIABILITY_V1_UPDATES.txt". Failure to do so will block release reviews.

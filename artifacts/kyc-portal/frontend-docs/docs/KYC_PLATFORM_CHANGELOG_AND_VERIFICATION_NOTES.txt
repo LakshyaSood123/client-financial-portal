@@ -1,0 +1,348 @@
+KYC_PLATFORM_CHANGELOG_AND_VERIFICATION_NOTES
+Date: 2025-12-25
+
+Overview
+- Added API-key based authentication, environment gating, and scope enforcement for all FastAPI agent endpoints (`kyc-agents-main/kyc-agents-main/common/auth.py`, `common/http.py`), including structured error codes and metrics. Auth payloads are now seeded from `AuthContext` prior to request normalization and a shared ApiKeyStore instance is reused per process.
+- Introduced client-side artifact encryption + per-tenant/subject key hierarchy with crypto-shredding hooks (`common/encryption.py`, `common/key_management.py`, `common/artifacts.py`), plus retention job primitives and dry-run capable cleanup (`common/retention.py`, `cdktf/src/backend/retention/job.ts`). Retention scans now paginate through all DynamoDB pages with throttling backoff.
+- Provisioned new DynamoDB tables, IAM permissions, KMS key, and a scheduled retention Lambda in infrastructure (`cdktf/src/constructs/storage/index.ts`, `cdktf/src/stacks/dev.ts`, `cdktf/src/constructs/compute/index.ts`). The retention Lambda now runs with reserved concurrency = 1 and alarms notify `${prefix}-alerts`.
+- Added detailed tests for auth parsing, scope/IP enforcement, encryption/retention flows (`kyc-agents-main/kyc-agents-main/tests/test_auth.py`, `tests/test_crypto_retention.py`) plus new cases covering auth injection and scan pagination.
+- Enforced Edge AuthN/AuthZ at API Gateway (HTTP API Lambda authorizer with simple response) using the same API key table + Argon2 verification as the agents (`cdktf/src/backend/auth/authorizer.ts`, `cdktf/src/stacks/dev.ts`). All HTTP API routes require `Authorization: Bearer api_key_id.secret`; environment is now server-authoritative (derived only from the API key record) and `x-env`/`x-tenant-id` are not used.
+- Enforced Admission Guard for costly work: `POST /jobs` runs the TypeScript admission checks (strongly consistent reads) before starting Step Functions (`cdktf/src/backend/admission/index.ts`, `cdktf/src/backend/controller/index.ts`).
+- Wired rating events into the deployed Billing Lambda via SQS -> Lambda event source mapping (FIFO queue + DLQ) and added SQS batch partial failure handling in the billing handler (`cdktf/src/constructs/billing/index.ts`, `cdktf/src/backend/billing/index.ts`).
+- Standardized production agent execution to SQS -> ECS workers (FastAPI `/process` remains for local/dev). Agent containers now default to a long-poll SQS worker loop (`kyc-agents-main/kyc-agents-main/common/sqs_worker.py`, `*/main.py`, `cdktf/src/constructs/compute/index.ts`).
+- Hardened artifacts S3 bucket: block public access, enforce TLS, and enforce SSE-S3 (`AES256`) via default encryption + bucket policy; updated all writers/presign flows to include the required SSE header (`cdktf/src/constructs/storage/index.ts`, `cdktf/src/backend/controller/index.ts`, `cdktf/src/backend/video/submit.ts`, `kyc-agents-main/kyc-agents-main/common/s3.py`, `kyc-agents-main/kyc-agents-main/common/artifacts.py`).
+- Reduced EMF metric cardinality by removing `tenant_id` as a dimension in agents metrics (`kyc-agents-main/kyc-agents-main/common/metrics.py`).
+- Added an Edge “front door” for the HTTP API using CloudFront + WAFv2 (CLOUDFRONT scope), with an origin verification secret header to prevent direct API Gateway invoke URL bypass (`cdktf/src/stacks/dev.ts`, `cdktf/src/backend/auth/authorizer.ts`). The origin secret is stored as an SSM SecureString and injected into both CloudFront and the authorizer.
+- Upgraded the deployed Billing Lambda to “v2” rating: rate rules come from a DynamoDB RateCard table (with minimal DEFAULT ratecards seeded at deploy time) and pricing comes from PlanSnapshot + TenantOverrides; writes are now fully atomic via DynamoDB TransactWriteItems (idempotency marker + ledger + balance + daily usage in a single transaction) (`cdktf/src/backend/billing/index.ts`, `cdktf/src/constructs/billing/index.ts`).
+- Enabled SANDBOX usage tracking via rating events (SANDBOX remains $0, but now increments sandbox daily usage counters used by Admission Guard) (`kyc-agents-main/kyc-agents-main/common/events.py`, `cdktf/src/backend/billing/index.ts`, `cdktf/src/backend/admission/index.ts`).
+- Added a minimal control-plane skeleton (admin-gated by `admin:write` + `x-admin-token`) including tenant onboarding (`POST /tenants`), key management (`POST /apikeys`, `POST /apikeys/rotate`, `POST /apikeys/revoke`, `GET /apikeys/{apiKeyId}`), billing topups (`POST /billing/topup`), KYB lifecycle (`POST /kyb/start`, `POST /kyb/complete`), risk tier (`POST /risk/recompute`, `POST /risk/override`), notifications (`POST /notify` to an SQS bus), and plan management (`POST /plans/snapshot`, `POST /plans/overrides`). All admin actions write durable entries to the admin-audit table (`cdktf/src/backend/controller/index.ts`, `cdktf/src/stacks/dev.ts`).
+- Expanded observability: ops dashboard + alarms now include edge/API latency (p50/p99), edge/API 4xx/5xx signals, WAF request counters, authorizer duration (p99), DynamoDB throttle alarms, and additional queue age alarms (`cdktf/src/stacks/dev.ts`, `cdktf/src/backend/auth/authorizer.ts`).
+- Implemented a real daily Penalty Engine sweep: promotes `ON_CREDIT -> OVERDUE` after `grace_period_days`, applies daily penalties while `OVERDUE` (bounded by `penalty_cap_ratio` and `penalty_rate_per_day`), and optionally transitions `OVERDUE -> LOCKED` after `lock_after_overdue_days` (`cdktf/src/backend/billing/index.ts`, `cdktf/src/constructs/billing/index.ts`).
+
+Rationale
+- Harden public API access with API keys, Argon2id hashing, audit logging, scope checks, environment isolation, IP allowlists, and metrics for observability and abuse response.
+- Meet data retention and crypto-shredding requirements by encrypting artifacts per subject, minimizing KMS calls via tenant master keys, and adding automated cleanup with legal hold awareness and dry-run safety.
+- Extend infra with least-privilege tables/roles and scheduled retention processing to support compliance and operational runbooks.
+
+Files Changed (key highlights)
+- Auth & HTTP: `kyc-agents-main/kyc-agents-main/common/auth.py`, `kyc-agents-main/kyc-agents-main/common/http.py`, `kyc-agents-main/kyc-agents-main/common/rate_limit.py`, `kyc-agents-main/kyc-agents-main/common/models.py`, `kyc-agents-main/kyc-agents-main/common/idempotency.py`.
+- Crypto & retention: `kyc-agents-main/kyc-agents-main/common/encryption.py`, `kyc-agents-main/kyc-agents-main/common/key_management.py`, `kyc-agents-main/kyc-agents-main/common/retention.py`, `kyc-agents-main/kyc-agents-main/common/artifacts.py`.
+- Agents: `audio/deepfake_classifier/main.py`, `doc/doc_agent/main.py`, `image/deepfake_classifier/main.py`, `image/facematch/main.py`, `video/liveness/main.py`.
+- Tests: `kyc-agents-main/tests/test_auth.py`, `tests/test_crypto_retention.py`.
+- Infra: `cdktf/src/constructs/storage/index.ts`, `cdktf/src/constructs/compute/index.ts`, `cdktf/src/stacks/dev.ts`, `cdktf/src/backend/retention/job.ts`, `cdktf/src/backend/build.ts`.
+- Infra (runtime correctness): `cdktf/src/backend/auth/authorizer.ts`, `cdktf/src/backend/controller/index.ts`, `cdktf/src/backend/admission/index.ts`, `cdktf/src/backend/billing/index.ts`, `cdktf/src/constructs/billing/index.ts`, `cdktf/src/backend/webhooks/delivery-worker.ts`.
+- Agents (prod worker path): `kyc-agents-main/kyc-agents-main/common/sqs_worker.py`, `audio/deepfake_classifier/main.py`, `image/facematch/main.py`, `image/deepfake_classifier/main.py`, `kyc-agents-main/kyc-agents-main/common/metrics.py`, `kyc-agents-main/kyc-agents-main/common/s3.py`.
+- Docs: this changelog, `docs/PIPELINE_AND_WEBHOOKS_IMPLEMENTATION_NOTES.txt`.
+
+Latest Iteration Addenda
+- Controller identity is now derived exclusively from HTTP API authorizer context (`event.requestContext.authorizer.lambda.*`). Any request missing authorizer context is treated as unauthenticated (401), and caller-provided tenant/env headers are ignored.
+- Admission Guard emits low-cardinality metrics (no `tenant_id` dimension) while still logging tenant details in structured logs for debugging (`cdktf/src/backend/admission/index.ts`).
+- The Step Functions -> agent SQS integration now uses `States.JsonToString($)` for `MessageBody` (SQS requires string bodies) and includes server-authoritative `tenantId` and `env` in the message payload (`cdktf/src/stacks/dev.ts`). Agents parse JSON and construct requests from those fields.
+- SFN work items now include `request_id`/`usage_id` (deterministic per job+tool+env), plus `subject_id` and `data_class` when present. SQS FIFO deduplication uses `request_id` to avoid double-enqueue on SFN retries (`cdktf/src/backend/controller/index.ts`, `cdktf/src/stacks/dev.ts`, `kyc-agents-main/kyc-agents-main/common/models.py`).
+- FIFO note: SQS FIFO deduplication is only guaranteed within the 5-minute content-based window; downstream idempotency still applies (agents must be safe under reprocessing, and billing uses a DynamoDB idempotency marker keyed by `usage_id`).
+- Mermaid deviation: `video-liveness` remains `waitForTaskToken` (Lambda/SageMaker path) rather than SQS->ECS worker. This is intentionally preserved to match current deployed behavior and reduce risk; the SQS agent path is used for the other tools (`cdktf/src/stacks/dev.ts`).
+- Rating ingestion is now “real”: agents/services emit events to `RATING_EVENTS_QUEUE_URL` and Billing Lambda consumes them via event source mapping with `ReportBatchItemFailures` enabled; malformed messages are retried and eventually DLQ’d without blocking the full batch (`cdktf/src/constructs/billing/index.ts`, `cdktf/src/backend/billing/index.ts`).
+- Billing schema drift is fixed in controller endpoints: `TenantBalance` is keyed by `tenant_id` only (no environment key) and ledger reads use `Query` on the tenant PK + time-sorted SK (no fake `GSI_TenantLedger`) (`cdktf/src/backend/controller/index.ts`).
+- S3 hardening requires that presigned clients include `x-amz-server-side-encryption: AES256` (SSE-S3). The controller presign endpoint now returns `requiredHeaders` to enforce this on the caller side (`cdktf/src/backend/controller/index.ts`).
+- Agent tasks now receive `KYC_JOB_TABLE_NAME` so best-effort retention index pointer writes can happen at artifact write time (reduces reliance on backfill tools) (`cdktf/src/constructs/compute/index.ts`).
+- `common/http.py` now seeds payloads with tenant/environment from `AuthContext` before normalization and reuses a module-scoped ApiKeyStore to eliminate per-request boto3 client creation.
+- `common/retention.py` and `cdktf/src/backend/retention/job.ts` scan all DynamoDB pages with a simple exponential backoff on throttling to ensure every expired artifact/subject/tenant is evaluated.
+- `cdktf/src/stacks/dev.ts` configures the retention Lambda with `reservedConcurrentExecutions=1` and wires the retention error alarm to `${prefix}-alerts` SNS; `cdktf/src/constructs/compute/index.ts` now surfaces that topic ARN for reuse.
+- `CachingApiKeyStore` adds a per-process TTL/LRU cache that honors Argon2 expiry/revocation semantics and exposes `API_KEY_CACHE_*` env knobs; `create_agent_app` instantiates a single shared Dynamo store wrapped by the cache to remove per-request boto3 clients.
+- DynamoDB retention tables now expose `GSI_Expire`, `GSI_Scrub`, and `GSI_TenantDelete`, and both the Python retention job and the Lambda backend issue bounded `Query` calls (with backoff + LastEvaluatedKey pagination) instead of scans.
+- Retention processing enforces `RETENTION_MAX_ITEMS_PER_CATEGORY`, `RETENTION_QUERY_*` limits, and `RETENTION_TIME_BUDGET_SECONDS|MS` deadlines while logging processed/skipped counts per phase.
+- Added `tools/backfill_retention_indexes.py` to seed shard/sort attributes for legacy records; run it once per environment before enabling the Query-only retention job.
+- Edge authorizer API-key cache: the HTTP API Lambda authorizer now includes an explicit in-process TTL cache with single-flight (stampede protection) for `(api_key_id, secret)` verification. Cache TTL is short (default 10s, max 60s) and is clamped to `expires_at` and (when applicable) the NEXT-secret rotation window. Denies are cached only briefly (default 2s). Metrics are low-cardinality (no tenant/api_key dimensions): `kyc.api_key_cache_hit_total`, `kyc.api_key_cache_miss_total`, `kyc.api_key_cache_singleflight_wait_total`, plus rotation/revocation counters (`cdktf/src/backend/auth/authorizer.ts`).
+- Legal hold checks now issue strongly consistent reads against the base `legal-hold` table (scope + tenant_scope) in both Python agents and the retention Lambda, preventing deletion/scrubbing when a hold was just written but not yet visible via GSIs.
+- `docs/ONBOARDING_BILLING_COST_LIMITING_ADMISSION_GUARD.md` now uses Markdown-friendly headings, emphasis, and bullets (content unchanged) to improve readability for onboarding/billing reviewers.
+
+New / Updated Env Vars
+- Auth (edge HTTP API authorizer): `API_KEY_TABLE_NAME`, `API_KEY_AUDIT_TABLE_NAME`, `AUTHORIZER_TTL_SECONDS` (API Gateway authorizer result caching; default 0 = disabled).
+- Auth (agents FastAPI `/process`): `API_KEY_TABLE_NAME`, `API_KEY_AUDIT_TABLE_NAME`, `REQUESTED_ENVIRONMENT`, `TRUSTED_PROXY_HOPS`, `USE_X_FORWARDED_FOR_FROM_ALB`, `ENABLE_INPROCESS_RATE_LIMIT`, `RATE_LIMIT_MAX_REQUESTS`, `RATE_LIMIT_WINDOW_SECONDS`.
+- Auth cache tuning (agents): `API_KEY_CACHE_TTL_SECONDS`, `API_KEY_CACHE_NEGATIVE_TTL_SECONDS`, `API_KEY_CACHE_MAX_ENTRIES`, `API_KEY_CACHE_NEGATIVE_ENABLED`, `API_KEY_CACHE_DISABLED`.
+- Auth cache tuning (edge authorizer): `AUTH_CACHE_TTL_SECONDS`, `AUTH_CACHE_NEGATIVE_TTL_SECONDS`, `AUTH_CACHE_MAX_ENTRIES`, `AUTH_CACHE_SELFTEST` (set to `1` for a one-time in-process self-check at first invoke).
+- Crypto/keys: `PLATFORM_KMS_KEY_ID`, `TENANT_KEY_TABLE_NAME`, `SUBJECT_KEY_TABLE_NAME`.
+- Retention: `KYC_JOB_TABLE_NAME`, `KYC_SUBJECT_TABLE_NAME`, `RETENTION_POLICY_TABLE_NAME`, `LEGAL_HOLD_TABLE_NAME`, `DATA_REQUEST_TABLE_NAME`, `DRY_RUN`, `RETENTION_QUERY_PAGE_SIZE`, `RETENTION_QUERY_MAX_ITEMS`, `RETENTION_MAX_ITEMS_PER_CATEGORY`, `RETENTION_TIME_BUDGET_SECONDS`, `RETENTION_TIME_BUDGET_MS`, `RETENTION_EXPIRE_SHARD`, `RETENTION_SCRUB_SHARD`, `RETENTION_TENANT_DELETE_SHARD`.
+- Agent defaults: `ENABLE_ARTIFACT_ENCRYPTION` (on by default).
+- WAF flags (CloudFront WebACL): `WAF_BLOCK_MODE`, `WAF_RATE_LIMIT_PER_5MIN`, `WAF_MANAGED_RULES_BLOCK_MODE`, `WAF_ENABLE_KNOWN_BAD_INPUTS`, `WAF_ENABLE_SQLI`, `WAF_ADMIN_ALLOWLIST_CIDRS`, `WAF_ADMIN_ALLOWLIST_ENFORCE`.
+- Alarm thresholds (dev stack): `EDGE_5XX_ERROR_RATE_THRESHOLD`, `EDGE_ORIGIN_LATENCY_P99_MS_THRESHOLD`, `API_5XX_ERROR_THRESHOLD`, `API_LATENCY_P99_MS_THRESHOLD`, `AUTH_DURATION_P99_MS_THRESHOLD`, `NOTIFICATIONS_MAX_AGE_SECONDS`.
+
+IAM / Permissions
+- Agent task role now allows DynamoDB access to API key, audit, tenant key, and subject key tables plus KMS encrypt/decrypt/generate-data-key on the new data-protection key.
+- Controller lambda granted read/write on auth/crypto tables and access to the same KMS key for future key management.
+- New retention Lambda role now uses `dynamodb:Query` + `dynamodb:UpdateItem` with explicit access to each retention table and its GSIs (`.../index/*`), along with S3 DeleteObject on the artifact bucket.
+- New data-protection KMS key added; webhook KMS key remains unchanged.
+
+Data Model Changes (DynamoDB)
+- `api-keys`: pk `api_key_id`, attrs `hashed_secret` (CURRENT), optional `hashed_secret_next` + `next_active_from` + `rotation_grace_seconds` (NEXT rotation), revoke metadata (`revoked_at`, `revoked_by`, `revoke_reason`), plus tenant/env/scopes/status/expires_at (TTL).
+- `api-key-audit`: pk `tenant_id`, sk `timestamp#api_key_id#action` (edge authorizer writes `AUTH_ALLOW` / `AUTH_DENY` with request metadata in `details`).
+- `subjects`: pk `tenant_id`, sk `subject_id`, attrs earliest_deletion_at, subject_deleted, retention_policy_id, `scrub_shard`=`SCRUB`, `scrub_sort`=`earliest_deletion_at#tenant_id#subject_id` (feeds `GSI_Scrub`).
+- `jobs-retention`: pk `tenant_id`, sk `job_id`, attr expires_at (TTL), data_class, s3_key, `expire_shard`=`EXPIRE`, `expire_sort`=`expires_at#tenant_id#job_id` (feeds `GSI_Expire`).
+- `subject-keys`: pk `tenant_id`, sk `subject_id`, attrs enc_data_key, key_status.
+- `tenant-keys`: pk `tenant_id`, attrs enc_tenant_master_key, status, env_access, `tenant_delete_shard`=`TENANT_DELETE`, `tenant_delete_sort`=`tenant_data_retention_until#tenant_id` (feeds `GSI_TenantDelete`).
+- `legal-hold`: pk `scope`, sk `tenant_scope`, GSI_TenantHold on tenant_id/created_at. Retention paths now issue strongly consistent `GetItem` calls on `scope`/`tenant_scope` (no GSI dependency) so newly created holds block destructive work immediately.
+- `retention-policies`, `data-requests` created for policy/DSAR tracking (schema documented in code comments).
+- Migration helpers: `tools/backfill_retention_indexes.py` scans each table for missing shard/sort attributes and backfills them with the correct composite keys; run it prior to enabling the Query-only retention job and document the change in the rollout checklist.
+
+How to Test
+- Python (agents): `cd kyc-agents-main/kyc-agents-main && python -m pytest tests/test_auth.py tests/test_crypto_retention.py tests/test_admission.py` (previous run: 24 passed; rerun after agent changes).
+- TypeScript (lambda bundle): `cd "kyc-infra-main (1)/kyc-infra-main/cdktf" && cmd /c yarn.cmd -s compile:lambda` (ran: Build Complete).
+- TypeScript (typecheck): `cd "kyc-infra-main (1)/kyc-infra-main/cdktf" && cmd /c yarn.cmd -s tsc --noEmit` (ran: success / no output).
+- CDKTF synth: `cd "kyc-infra-main (1)/kyc-infra-main/cdktf" && cmd /c yarn.cmd -s synth` (ran: FAILED because `terraform` is not on PATH in this environment).
+- Manual curl (HTTP API):
+  - Use CloudFront URL output as the primary endpoint: `<CLOUDFRONT_URL>` (stack output `cloudfront_url`).
+  - No auth: `curl -i <CLOUDFRONT_URL>/health` (expect 401).
+  - Valid key: `curl -i -H "Authorization: Bearer <api_key_id>.<secret>" <CLOUDFRONT_URL>/health` (expect 200).
+  - Revoked/expired key: `curl -i -H "Authorization: Bearer <api_key_id>.<secret>" <CLOUDFRONT_URL>/health` (expect 401).
+  - Direct API Gateway invoke URL bypass should fail (origin verification): `curl -i -H "Authorization: Bearer <api_key_id>.<secret>" <API_URL>/health` (expect 401).
+  - Debug-only direct invoke (requires origin secret):
+    - Retrieve secret: `aws ssm get-parameter --with-decryption --name <origin_verify_secret_ssm_param>`
+    - Call: `curl -i -H "Authorization: Bearer <api_key_id>.<secret>" -H "x-origin-verify: <SECRET>" <API_URL>/health` (expect 200).
+  - Admin bootstrap routes (requires a key with `admin:write` scope AND `-H "x-admin-token: <ADMIN_TOKEN>"`):
+    - Create tenant + plan snapshot: `curl -i -X POST <CLOUDFRONT_URL>/tenants -H "Authorization: Bearer ..." -H "x-admin-token: ..." -H "content-type: application/json" -d '{"tenant_id":"TENANT#123","plan_snapshot":{...}}'`
+    - Create API key: `curl -i -X POST <CLOUDFRONT_URL>/apikeys -H "Authorization: Bearer ..." -H "x-admin-token: ..." -H "content-type: application/json" -d '{"tenant_id":"TENANT#123","environment":"PROD","scopes":["compliance:read"]}'`
+    - Top up: `curl -i -X POST <CLOUDFRONT_URL>/billing/topup -H "Authorization: Bearer ..." -H "x-admin-token: ..." -H "content-type: application/json" -d '{"tenant_id":"TENANT#123","amount":1000,"environment":"PROD"}'`
+- Commands executed in this workspace (2025-12-24):
+  - `cd "kyc-infra-main (1)/kyc-infra-main/cdktf" && cmd /c yarn.cmd -s compile:lambda` (Build Complete).
+  - `cd "kyc-infra-main (1)/kyc-infra-main/cdktf" && cmd /c yarn.cmd -s tsc --noEmit` (success).
+  - `cd "kyc-infra-main (1)/kyc-infra-main/cdktf" && cmd /c yarn.cmd -s synth` (fails: `terraform` not on PATH in this environment).
+  - `cd "kyc-agents-main/kyc-agents-main" && python -m pytest tests/test_auth.py tests/test_crypto_retention.py tests/test_admission.py` (24 passed).
+- FastAPI integration: call `/process` with `Authorization: Bearer <prefix.secret>` and omit tenant/env in the body; verify the response uses the authenticated tenant/environment and rejects tampering attempts.
+- Artifact encryption: inspect uploaded objects for `encrypted` metadata and S3 tags (tenant_id, subject_id, data_class, environment).
+- Retention Lambda: invoke `retention-job` with `DRY_RUN=1`; CloudWatch logs should show Query usage (`IndexName: GSI_*`), processed/skipped counters, and zero deletes. Confirm the Lambda concurrency metric never exceeds 1 and the CloudWatch alarm notifies `${prefix}-alerts` SNS when errors occur.
+- Run `python tools/backfill_retention_indexes.py --jobs-table <jobs-retention> --subjects-table <subjects> --tenants-table <tenant-keys>` once per environment to seed shard/sort keys; inspect stdout for counts and spot-check a few rows afterward.
+- Confirm CloudWatch EMF output includes `kyc.api_key_cache_hit_total`, `kyc.api_key_cache_miss_total`, and `kyc.api_key_cache_singleflight_wait_total` (dims `{env}` only) when exercising cached/uncached API-key requests; tenant/api_key dimensions are intentionally omitted.
+- Confirm authorizer EMF metrics:
+  - Detailed: `auth.outcome_total` with dims `{env,outcome,reason}`
+  - Rollup: `auth.outcome_rollup_total` with dims `{env,outcome}` (used by alarms/dashboard)
+  - Audit failures: `auth.audit_error_total` increments when audit write fails (auth still proceeds best-effort).
+- Verify a freshly created legal hold immediately blocks retention by inserting a hold row and then forcing the job to run; both the Python job and Lambda should log the hold skip without requiring propagation delay.
+
+Rollout Plan
+- Deploy infra (cdktf) to provision new tables, KMS key, and retention schedule. Ensure controllers/agents receive new env vars (table names, KMS key id).
+- Rotate/create API keys stored in `api-keys` table with Argon2id hashes; distribute secrets securely.
+- Enable retention job with DRY_RUN=1 for at least one cycle; review CloudWatch logs/metrics before disabling dry-run.
+- Execute the retention index backfill script (see How to Test) prior to turning DRY_RUN off; capture its output and verification evidence in the rollout notes.
+
+Rollback Plan
+- Disable retention EventBridge rule to halt cleanup.
+- Revert agent/container env vars to omit API auth if emergency bypass is required; be aware this weakens security.
+- Remove newly created tables/roles only after data export/backups; re-associate previous KMS usage if applicable.
+
+Verification Checklist (for reviewer)
+- [ ] `/process` returns auth errors with correct codes (401_INVALID_API_KEY, 401_KEY_EXPIRED, 403_ENVIRONMENT_MISMATCH, 403_INSUFFICIENT_SCOPE, 403_IP_NOT_ALLOWED).
+- [ ] Authenticated requests succeed without tenant/environment payload fields and tenant/env cannot be overridden post-auth (see new test coverage).
+- [ ] CloudFront URL is the primary endpoint; direct API Gateway invoke URL is effectively blocked by origin verification unless `x-origin-verify` matches the SSM secret.
+- [ ] Ops dashboard `${prefix}-ops` shows edge/API latency p50/p99 and 4xx/5xx signals; alarms exist for sustained edge 5xx and p99 latency thresholds.
+- [ ] WAFv2 WebACL is attached to the CloudFront distribution; managed rule groups are COUNT by default (can be switched to native actions via `WAF_MANAGED_RULES_BLOCK_MODE=1`) and the rate-based rule is COUNT by default (can be switched to BLOCK via `WAF_BLOCK_MODE=1` during deploy). If `WAF_ADMIN_ALLOWLIST_CIDRS` is configured, confirm admin/control-plane routes are blocked (or counted) for non-allowlisted IPs.
+- [ ] S3 artifacts stored encrypted and tagged; Local sandbox store still functions.
+- [ ] Dynamo tables created (api-keys, api-key-audit, subject-keys, tenant-keys, subjects, jobs-retention, legal-hold, retention-policies, data-requests) and the new `GSI_Expire`, `GSI_Scrub`, `GSI_TenantDelete` are ACTIVE.
+- [ ] Billing v2: RateCard table exists and Billing Lambda processes `{kind:"rating", payload:{...}}` from `rating-events.fifo` with a single DynamoDB transaction per event (idempotency marker + ledger + balance + daily usage).
+- [ ] SANDBOX usage tracking: sandbox rating events increment sandbox daily usage counters used by Admission Guard, while charge amount remains 0.
+- [ ] Penalty Engine: daily sweep promotes `ON_CREDIT -> OVERDUE` after grace window and applies daily penalties while overdue without double-applying for the same day (idempotency marker in ledger).
+- [ ] IAM policies include only required resources (agent task role, controller role, retention role) and explicitly reference table + `/index/*` ARNs.
+- [ ] Retention Lambda logs show Query requests (with `IndexName` set), processed/skipped counters, and runtime never exceeds the reserved concurrency of 1; the CloudWatch alarm still targets `${prefix}-alerts`.
+- [ ] Backfill script executed (attach output) or evidence that upstream writers populate the new shard/sort attributes on insert/update.
+- [ ] Tests added/updated and pass locally (see pytest command above).
+- [ ] Cache metrics (`kyc.api_key_cache_*`) emit hits/misses/singleflight-waits with low-cardinality dims (no tenant/api_key); revoked/expired keys never appear as allow-cache hits beyond the short TTL clamp.
+- [ ] Legal hold creation immediately blocks deletions/scrubs because the retention components issue `ConsistentRead` queries against the base `legal-hold` table (no dependency on GSI propagation). Document reviewer should capture a log excerpt showing the skip.
+
+Mandatory Note
+- Future code/infra changes MUST update this changelog and reference it in PR descriptions to satisfy auditability and reviewer guidance.
+
+=====================================================================================
+Update: 2025-12-25 (Shared backend hardening + WAF/obs)
+
+Goals covered
+1) Make `cdktf/src/backend/shared/` real (single source of truth) for SSRF/time/http/json utilities used by running lambdas.
+2) Production-hardening improvements:
+   - WAF managed rules expansion behind flags
+   - key lifecycle operational metrics + dashboard visibility
+   - authorizer throttling alarm
+
+What changed (backend)
+- SSRF/URL validation is now centralized with typed errors:
+  - Added `UrlValidationErrorCode` + `UrlValidationError` in `cdktf/src/backend/shared/ssrf.ts`.
+  - Shared SSRF validator:
+    - enforces https-only
+    - blocks userinfo (`https://user:pass@...`)
+    - blocks common internal hostnames (`localhost`, `.local`, `.internal`, `.intra`)
+    - blocks private/reserved IPv4 ranges and common IPv6 internal ranges
+    - validates all resolved A/AAAA answers stay public (DNS rebinding safety check at validation time)
+    - supports optional port allowlist (`allowedHttpsPorts`) when explicitly configured by server-side code
+- Controller webhook endpoint validation now delegates to shared SSRF (no duplicate IP/DNS validator logic in controller):
+  - Controller keeps legacy human-readable error messages by mapping typed SSRF error codes.
+- Delivery-worker now uses shared building blocks:
+  - URL validation delegates to shared SSRF before each delivery attempt.
+  - HTTP delivery uses `cdktf/src/backend/shared/http.ts` (timeout + streaming response snippet capture).
+  - Redirects are not followed (manual redirect policy); 3xx + Location remains a permanent failure.
+  - Webhook payload JSON is serialized with `stableStringify()` for deterministic signing inputs.
+- Time helpers are now centralized:
+  - Removed ad-hoc `nowIso()/isoNow()/todayUTC()` definitions from lambdas and imported from `cdktf/src/backend/shared/time.ts`.
+
+What changed (contracts + metrics)
+- Authorizer metric cardinality hardening:
+  - `auth.*_total` metrics no longer accept arbitrary exception messages as the `reason` dimension value; the value is now normalized to an allowlisted set (unknown -> `other`, unexpected failures -> `internal_error`).
+- Admission Guard alarmability hardening:
+  - Admission Guard now emits CloudWatch Embedded Metric Format (EMF) counters for decisions (`admission.decision_*`) while retaining the existing JSON marker used by any log-metric-filters.
+- Agents ↔ infra auth contract alignment:
+  - Python agents now parse bearer tokens by splitting on the FIRST dot so secrets may contain dots (matches infra authorizer parsing semantics).
+  - Python agents treat environment as server-authoritative from the API key record; callers do not select env via headers/query.
+  - Agent env-access gating now evaluates PROD-vs-SANDBOX decisions against the API key record environment (not caller input).
+  - Agent EMF metrics no longer include `tenant_id` as a dimension (even when local DEBUG flags are set), to avoid accidental high-cardinality in CloudWatch.
+- Workspace conventions:
+  - Added repo-root `AGENTS.md` to document local build/test commands and the auth/env contract at a glance.
+- Control-plane durability maturity:
+  - Added a dedicated DynamoDB control-plane events table and controller writes one idempotent durable event record per admin/control-plane request (no secrets stored).
+  - Added low-cardinality EMF metrics: `controlplane.event_write_total {env,outcome}` and `controlplane.event_write_error_total {env}`.
+
+What changed (infra)
+- WAF hardening behind deploy flags:
+  - Added optional AWS managed rule groups:
+    - `AWSManagedRulesAnonymousIpList` (flag: `WAF_ENABLE_ANONYMOUS_IP=1`)
+    - `AWSManagedRulesBotControlRuleSet` (flag: `WAF_ENABLE_BOT_CONTROL=1`, inspection level via `WAF_BOT_CONTROL_INSPECTION_LEVEL`)
+  - Managed rule groups continue to default to COUNT unless `WAF_MANAGED_RULES_BLOCK_MODE=1` is set at deploy time.
+- Added authorizer throttles alarm (`AWS/Lambda Throttles` > 0) to surface edge/auth capacity issues quickly.
+- Added key lifecycle widget to ops dashboard for quick rotation/revocation/next-secret usage visibility.
+- Added a WAF rule activity widget (counted/blocked per rule name) to make managed-rule “count mode” visible during rollout.
+
+Key lifecycle observability
+- Controller now emits low-cardinality metrics:
+  - `key.rotate_total {env,outcome}`
+  - `key.revoke_total {env,outcome}`
+- Authorizer already emits a low-cardinality "next-secret used" signal:
+  - `kyc.api_key_next_secret_used_total {env}`
+
+Unit tests (Node)
+- Added unit tests for:
+  - `cdktf/src/backend/shared/ssrf.ts` allow/deny cases (DNS mocked; no network)
+  - `cdktf/src/backend/shared/json.ts` determinism and ordering
+
+Commands actually run (do not invent)
+- `cd g:\KYC\kyc-infra-main (1)\kyc-infra-main\cdktf`
+- `C:\Users\prate\AppData\Roaming\npm\yarn.cmd -s test:unit`
+- `.\node_modules\.bin\tsc.cmd -p tsconfig.json --noEmit`
+- `node -e "const u=new URL('https://[::1]/'); console.log(u.hostname); console.log(u.host);"`
+- Additional commands actually run (same day)
+  - `cd g:\KYC\kyc-infra-main (1)\kyc-infra-main\cdktf`
+  - `.\node_modules\.bin\tsc.cmd -p tsconfig.json --noEmit` (success; no output beyond PowerShell profile warning)
+  - `yarn.cmd -s test:unit` (pass 10)
+  - `yarn.cmd -s compile:lambda` (Build Complete!)
+  - `cd g:\KYC\kyc-agents-main\kyc-agents-main`
+  - `python -m pytest -q` (FAILED during collection: `ModuleNotFoundError: No module named 'numpy'`)
+  - `python -m pytest -q tests/test_auth.py` (14 passed)
+- Additional commands actually run (control-plane durable events)
+  - `cd g:\KYC\kyc-infra-main (1)\kyc-infra-main\cdktf`
+  - `.\node_modules\.bin\tsc.cmd -p tsconfig.json --noEmit` (success; no output beyond PowerShell profile warning)
+  - `yarn.cmd -s test:unit` (pass 10)
+  - `yarn.cmd -s compile:lambda` (Build Complete!)
+
+Proof points (file:line)
+- Shared SSRF typed errors: `cdktf/src/backend/shared/ssrf.ts:5`, `cdktf/src/backend/shared/ssrf.ts:17`
+- Controller delegates webhook URL validation: `cdktf/src/backend/controller/index.ts:21`, `cdktf/src/backend/controller/index.ts:418`
+- Delivery-worker uses shared SSRF+HTTP+JSON: `cdktf/src/backend/webhooks/delivery-worker.ts:109`, `cdktf/src/backend/webhooks/delivery-worker.ts:330`, `cdktf/src/backend/webhooks/delivery-worker.ts:412`
+- Key lifecycle metrics: `cdktf/src/backend/controller/index.ts:627`, `cdktf/src/backend/controller/index.ts:738`
+- WAF optional managed rules flags: `cdktf/src/stacks/dev.ts:1015`, `cdktf/src/stacks/dev.ts:1158`
+- Authorizer metric reason allowlist: `cdktf/src/backend/auth/authorizer.ts:91`, `cdktf/src/backend/auth/authorizer.ts:142`
+- Admission Guard EMF decision counters: `cdktf/src/backend/admission/index.ts:322`, `cdktf/src/backend/admission/index.ts:351`
+- Agents bearer parsing split-on-first-dot: `kyc-agents-main/kyc-agents-main/common/auth.py:295`, `kyc-agents-main/kyc-agents-main/common/auth.py:305`
+- Agents env server-authoritative usage: `kyc-agents-main/kyc-agents-main/common/auth.py:413`, `kyc-agents-main/kyc-agents-main/common/auth.py:434`
+- Agents metrics dimensions (no tenant_id): `kyc-agents-main/kyc-agents-main/common/metrics.py:29`, `kyc-agents-main/kyc-agents-main/common/metrics.py:33`
+- Workspace conventions doc: `AGENTS.md:1`, `AGENTS.md:36`
+- Control-plane events table: `cdktf/src/constructs/storage/index.ts:168`
+- Control-plane events wiring (IAM + env var): `cdktf/src/stacks/dev.ts:691`, `cdktf/src/stacks/dev.ts:831`
+- Controller durable event writer + EMF metrics: `cdktf/src/backend/controller/index.ts:184`, `cdktf/src/backend/controller/index.ts:216`
+
+Mermaid vs Repo delta (sections)
+- §3 Edge/Auth: ✅
+  - Proof: `cdktf/src/backend/auth/authorizer.ts` (origin verify + auth metrics), `cdktf/src/stacks/dev.ts` (CloudFront+WAF+alarms/dashboard).
+- §5 Control plane: ⚠️
+  - Proof: controller writes durable, idempotent control-plane event records in addition to admin audit (`cdktf/src/backend/controller/index.ts`, `cdktf/src/constructs/storage/index.ts`, `cdktf/src/stacks/dev.ts`).
+- §6 Runtime: ✅
+  - Proof: controller emits deterministic request_id/usage_id; unchanged by this update.
+- §7 Billing: ✅
+  - Proof: billing lambda + SQS FIFO flow unchanged by this update; time helpers centralized.
+- §9 Observability: ✅
+  - Proof: ops dashboard includes edge/api latency p50/p99 + error signals; added authorizer throttles alarm and key lifecycle widget.
+
+Docs updated/added in this update
+- `docs/BACKEND_SHARED_UTILITIES.md` (shared/ adoption note)
+- `docs/webhooks-ops-runbook.md` (SSRF + redirect + deterministic payload notes)
+- `docs/EDGE_FRONT_DOOR_CLOUDFRONT_WAF.md` (new WAF managed rule flags)
+
+=====================================================================================
+Update: 2025-12-25 (Client interfaces + in-repo architecture + notifications consumer)
+
+Goals covered
+1) Close §2 “Client Interfaces” parity with repo-local artifacts (OpenAPI + admin CLI).
+2) Make notifications “real” (queue consumer + durable event logging) without external vendor dependencies.
+3) Remove remaining “external/untracked Mermaid diagram” sharp edge by tracking the architecture diagram in-repo.
+4) Keep §7 stream reality explicit (rating events are SQS FIFO → billing lambda; diagram matches repo).
+
+What changed (docs / client interfaces)
+- Added an evidence-based OpenAPI spec:
+  - `docs/openapi/public-api.yaml`
+- Added a repo-local admin CLI (Node.js; no external deps):
+  - `tools/admin_cli/kyc-admin.mjs`
+  - `tools/admin_cli/README.md`
+- Added a repo-tracked Mermaid diagram matching the implemented architecture (and annotating intentional deviations):
+  - `docs/architecture/kyc-platform.mmd`
+  - `docs/architecture/README.md`
+- Added docs runbooks:
+  - `docs/CLIENT_INTERFACES_OPENAPI_AND_ADMIN_CLI.md`
+  - `docs/NOTIFICATIONS_DISPATCHER.md`
+
+What changed (backend / infra)
+- Notifications dispatcher Lambda added (default: log-only + durable event record; optional SNS publish behind flag):
+  - Lambda code: `cdktf/src/backend/notifications/dispatcher.ts`
+  - Build wiring: `cdktf/src/backend/build.ts`
+  - Infra wiring (SQS mapping + IAM + logs + alarms + SNS topic + outputs): `cdktf/src/stacks/dev.ts`
+- Controller `POST /notify` enqueue message now includes server-authoritative `environment` for downstream metrics/audit clarity:
+  - `cdktf/src/backend/controller/index.ts`
+- Control-plane events listing endpoint (admin-gated) is exposed for ops tooling:
+  - `GET /control-plane-events` in controller and HTTP API route in infra.
+
+What changed (agents / dev ergonomics)
+- `pytest` collection no longer requires optional heavy deps during import:
+  - `tests/test_agents.py` uses `pytest.importorskip("numpy")`.
+- Tests updated to match the repo’s low-cardinality metric policy and rating-event envelope shape.
+
+Proof points (selected)
+- OpenAPI spec: `docs/openapi/public-api.yaml:1`
+- In-repo Mermaid: `docs/architecture/kyc-platform.mmd:1`
+- Admin CLI entrypoint: `tools/admin_cli/kyc-admin.mjs:1`
+- Notifications dispatcher Lambda: `cdktf/src/backend/notifications/dispatcher.ts:1`
+- Lambda build includes notifications: `cdktf/src/backend/build.ts:13`
+- Notifications infra wiring + alarm + topic output:
+  - `cdktf/src/stacks/dev.ts:191` (SNS topic)
+  - `cdktf/src/stacks/dev.ts:380` (dispatcher lambda)
+  - `cdktf/src/stacks/dev.ts:1418` (dispatcher errors alarm)
+  - `cdktf/src/stacks/dev.ts:1872` (topic ARN output)
+- Controller notify enqueue includes env: `cdktf/src/backend/controller/index.ts:1143`
+- Control-plane events list route:
+  - `cdktf/src/backend/controller/index.ts:1160`
+  - `cdktf/src/stacks/dev.ts:998`
+
+Mermaid vs Repo delta (sections) — current
+- §2 Client Interfaces: ✅ (repo-local OpenAPI + admin CLI; no external UI project)
+- §3 Edge/Auth: ✅ (unchanged)
+- §4 Admission Guard: ✅ (unchanged)
+- §5 Control Plane: ✅ (skeleton endpoints + durable control-plane events)
+- §6 Runtime: ✅ (intentional deviation preserved: video-liveness uses waitForTaskToken)
+- §7 Billing & Rating: ✅ (diagram matches repo: SQS FIFO stream, not EventBridge)
+- §8 Compliance & Retention: ✅ (unchanged)
+- §9 Observability: ✅ (dispatcher adds Lambda error alarm + low-card EMF)
+
+Commands actually run (verbatim)
+NOTE: PowerShell prints an execution-policy warning for a user profile script on every command; commands below still ran successfully.
+
+Infra (from `kyc-infra-main (1)/kyc-infra-main/cdktf`)
+- `.\node_modules\.bin\tsc.cmd -p tsconfig.json --noEmit`  (no output; exit code 0)
+- `yarn.cmd -s test:unit`
+  - Result: 10 passed (Node test runner)
+- `yarn.cmd -s compile:lambda`
+  - Result: Build Complete! (includes `dist/notifications/dispatcher.js`)
+
+Agents (from `kyc-agents-main/kyc-agents-main`)
+- `python -m pytest -q`
+  - Result: 37 passed, 1 skipped

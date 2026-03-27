@@ -11,7 +11,15 @@ const data = [
   { name: "Mar", value: 1124 },
 ];
 
-const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: { value: number }[]; label?: string }) => {
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: { value: number }[];
+  label?: string;
+}) => {
   if (active && payload && payload.length) {
     return (
       <div
@@ -22,7 +30,9 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
           boxShadow: "0 6px 20px rgba(120,90,50,0.08)",
         }}
       >
-        <p className="text-xs mb-1" style={{ color: "#A09080" }}>{label}</p>
+        <p className="text-xs mb-1" style={{ color: "#A09080" }}>
+          {label}
+        </p>
         <p className="font-display font-bold" style={{ color: "#1C1917" }}>
           {payload[0].value.toLocaleString()}{" "}
           <span style={{ color: "#A09080", fontWeight: 400, fontSize: 11 }}>jobs</span>
@@ -35,33 +45,42 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
 
 export function UsageChart() {
   return (
-    <GlassPanel
-      className="p-6 col-span-12 lg:col-span-8 flex flex-col"
-      style={{ background: "#F2EBE1" }}
-    >
+    <GlassPanel hoverable className="p-6 col-span-12 lg:col-span-8 flex flex-col" style={{ background: "#F2EBE1" }}>
       <div className="flex items-center justify-between mb-2">
         <div>
-          <h3 className="font-display font-bold" style={{ fontSize: "20px", color: "#1C1917" }}>Jobs Processed</h3>
-          <p className="text-xs mt-0.5" style={{ color: "#A09080" }}>Verification jobs run via API — last 6 months</p>
+          <h3 className="font-display font-bold" style={{ fontSize: "20px", color: "#1C1917" }}>
+            Jobs Processed
+          </h3>
+          <p className="text-xs mt-0.5" style={{ color: "#A09080" }}>
+            Verification jobs across sandbox and production in the current cycle
+          </p>
         </div>
         <Link
-          href="/usage"
+          href="/portal/jobs"
           className="text-xs font-semibold transition-colors hover:text-[#1C1917] flex items-center gap-1"
           style={{ color: "#A09080" }}
         >
-          View Usage →
+          View Jobs {"->"}
         </Link>
       </div>
 
       <div className="flex items-center gap-5 mb-5">
         <div>
-          <span className="font-display font-bold" style={{ fontSize: 28, letterSpacing: "-0.02em", color: "#1C1917" }}>1,124</span>
-          <span className="text-xs ml-2" style={{ color: "#A09080" }}>jobs this month</span>
+          <span className="font-display font-bold" style={{ fontSize: 28, letterSpacing: "-0.02em", color: "#1C1917" }}>
+            1,124
+          </span>
+          <span className="text-xs ml-2" style={{ color: "#A09080" }}>
+            jobs this cycle
+          </span>
         </div>
         <div className="h-8 w-px" style={{ background: "rgba(120,90,50,0.12)" }} />
         <div>
-          <span className="font-display font-bold" style={{ fontSize: 18, color: "#F97316" }}>+29%</span>
-          <span className="text-xs ml-2" style={{ color: "#A09080" }}>vs last month</span>
+          <span className="font-display font-bold" style={{ fontSize: 18, color: "#F97316" }}>
+            +29%
+          </span>
+          <span className="text-xs ml-2" style={{ color: "#A09080" }}>
+            vs previous cycle
+          </span>
         </div>
       </div>
 
@@ -89,7 +108,7 @@ export function UsageChart() {
               axisLine={false}
               tickLine={false}
               tick={{ fill: "#A09080", fontSize: 11, fontFamily: "JetBrains Mono" }}
-              tickFormatter={(val) => val >= 1000 ? `${(val / 1000).toFixed(1)}K` : String(val)}
+              tickFormatter={(value) => (value >= 1000 ? `${(value / 1000).toFixed(1)}K` : String(value))}
             />
             <Tooltip cursor={{ fill: "rgba(120,90,50,0.04)" }} content={<CustomTooltip />} />
             <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={48}>

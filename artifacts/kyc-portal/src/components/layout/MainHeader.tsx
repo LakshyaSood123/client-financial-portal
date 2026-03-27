@@ -1,28 +1,47 @@
-import { motion } from "framer-motion";
-import { Search, Bell, Settings } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Bell } from "lucide-react";
+import { GlobalSearchBox, type SearchItem } from "@/components/layout/GlobalSearchBox";
 
 interface MainHeaderProps {
   title?: string;
   subtitle?: string;
+  elevated?: boolean;
 }
+
+const PORTAL_SEARCH_ITEMS: SearchItem[] = [
+  { label: "Overview", href: "/portal", description: "Account summary and current usage", keywords: ["dashboard", "home", "stats"] },
+  { label: "Onboarding", href: "/onboarding", description: "Business setup and KYB steps", keywords: ["kyb", "setup", "verification"] },
+  { label: "API Keys", href: "/portal/apikeys", description: "Create, rotate, and review keys", keywords: ["keys", "token", "secret"] },
+  { label: "Jobs", href: "/portal/jobs", description: "Submitted jobs and processing status", keywords: ["cases", "jobs", "processing"] },
+  { label: "Uploads", href: "/portal/uploads", description: "Document uploads and requests", keywords: ["documents", "files", "presigned"] },
+  { label: "Billing", href: "/portal/billing", description: "Balance, plan, and ledger details", keywords: ["plan", "usage", "wallet", "invoice"] },
+  { label: "Webhooks", href: "/portal/webhooks", description: "Endpoint health and deliveries", keywords: ["deliveries", "endpoint", "replay"] },
+  { label: "Compliance", href: "/portal/compliance", description: "Risk, holds, and verification data", keywords: ["risk", "kyb", "holds"] },
+  { label: "Audit Logs", href: "/portal/audit-logs", description: "Search platform activity events", keywords: ["events", "history", "logs"] },
+  { label: "Settings", href: "/portal/settings", description: "Notification and tenant preferences", keywords: ["preferences", "alerts", "profile"] },
+];
 
 export function MainHeader({
   title   = "Account Overview",
   subtitle = "KYB progress, integration health, billing status, and recent activity",
+  elevated = false,
 }: MainHeaderProps) {
   return (
-    <motion.div
+    <div
+      className={cn("topbar-elevation", elevated && "scrolled")}
       style={{
         padding: "28px 32px 22px",
         display: "flex",
         alignItems: "flex-start",
         justifyContent: "space-between",
-        borderBottom: "1px solid rgba(120,90,50,0.07)",
+        borderBottom: "1px solid var(--nk-border)",
+        background: "linear-gradient(180deg, #FFFFFF 0%, #FAF8F5 100%)",
         flexShrink: 0,
+        transformStyle: "preserve-3d",
+        position: "relative",
+        zIndex: 25,
+        overflow: "visible",
       }}
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.1, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
     >
       <div>
         <h1 style={{
@@ -38,25 +57,16 @@ export function MainHeader({
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0, marginTop: 2 }}>
-        <div style={{
-          display: "flex", alignItems: "center", gap: 8,
-          background: "#F0E9E0", borderRadius: 999,
-          padding: "9px 18px", border: "1px solid rgba(120,90,50,0.1)", width: 210,
-        }}>
-          <Search style={{ width: 15, height: 15, color: "#B0A090", flexShrink: 0 }} />
-          <input
-            placeholder="Search..."
-            style={{
-              background: "transparent", border: "none", outline: "none",
-              fontSize: 13, color: "#1C1917", width: "100%",
-              fontFamily: "'Satoshi', sans-serif",
-            }}
-          />
-        </div>
+        <GlobalSearchBox
+          items={PORTAL_SEARCH_ITEMS}
+          placeholder="Search pages, jobs, billing..."
+          width={210}
+        />
 
-        <button style={{
-          width: 36, height: 36, borderRadius: "50%", background: "#F0E9E0",
-          border: "1px solid rgba(120,90,50,0.1)",
+        <button className="cta-3d" style={{
+          width: 36, height: 36, borderRadius: "50%", background: "#FFFFFF",
+          border: "1px solid var(--nk-border)",
+          boxShadow: "var(--elev-1)",
           display: "flex", alignItems: "center", justifyContent: "center",
           cursor: "pointer", position: "relative", flexShrink: 0, color: "#A09080",
         }}>
@@ -65,15 +75,6 @@ export function MainHeader({
             position: "absolute", top: 6, right: 7, width: 7, height: 7,
             borderRadius: "50%", background: "#f54a4a", border: "1.5px solid #FAF8F4",
           }} />
-        </button>
-
-        <button style={{
-          width: 36, height: 36, borderRadius: "50%", background: "#F0E9E0",
-          border: "1px solid rgba(120,90,50,0.1)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          cursor: "pointer", flexShrink: 0, color: "#A09080",
-        }}>
-          <Settings style={{ width: 16, height: 16 }} />
         </button>
 
         <div style={{
@@ -87,6 +88,6 @@ export function MainHeader({
           C
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

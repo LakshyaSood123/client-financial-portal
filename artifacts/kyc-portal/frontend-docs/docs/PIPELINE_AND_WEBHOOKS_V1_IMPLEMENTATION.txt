@@ -1,0 +1,87 @@
+PIPELINE_AND_WEBHOOKS_V1_IMPLEMENTATION.txt
+
+1) Executive Summary
+Original gap: StepFunctions emitted basic job results but lacked a hardened fanout/delivery pipeline. The current implementation (state-machines/kyc.json plus cdktf/src/stacks/dev.ts and backend lambdas) now produces deterministic webhook events for both success and failure states, persists them, and drives a dual-queue fanout/delivery system guarded by schema validation, quota-aware APIs, and per-tenant isolation. This document captures the PASS-state design for emitting terminal StepFunctions events through SQS fanout, storing webhooks, managing HTTP API routes, enforcing security guardrails, and provisioning all storage/queues/IAM used by the controller, workers, and replay flows.
+Scope: terminal StepFunctions -> webhook fanout -> delivery -> storage/logging -> API management + security. Frontend/UI changes are out of scope.
+
+2) System Architecture Overview
+Components: AWS Step Functions (state-machines/kyc.json and cdktf/src/stacks/dev.ts), webhook fanout FIFO queue `${prefix}-webhook-fanout.fifo`, webhook delivery FIFO queue `${prefix}-webhook-delivery.fifo`, DynamoDB tables (`${prefix}-webhook-endpoints`, `${prefix}-webhook-events`, `${prefix}-webhook-delivery-logs` plus GSI_TenantDeliveries), dedicated webhook KMS key (cdktf/src/stacks/dev.ts resource webhookSecretsKey), Lambda workers (`webhook-fanout-worker`, `webhook-delivery-worker`, `controller` in cdktf/src/backend/*), and API Gateway HTTP API routes (cdktf/src/stacks/dev.ts routes block).
+Data flow narrative:
+ 1. StepFunctions workflow states BuildWebhookSuccessEvent/BuildWebhookFailure emit a v1 event when a job completes or fails.
+ 2. Event JSON is enqueued onto `${prefix}-webhook-fanout.fifo` (EmitWebhookSuccess/EmitWebhookFailure states).
+ 3. `webhook-fanout-worker` (cdktf/src/backend/webhooks/fanout-worker.ts) consumes the fanout queue, validates schema, persists the event, queries active endpoints, and enqueues per-endpoint deliveries into `${prefix}-webhook-delivery.fifo` while seeding delivery log rows.
+ 4. `webhook-delivery-worker` (cdktf/src/backend/webhooks/delivery-worker.ts) pulls delivery queue messages, loads endpoint plus event, enforces rate limits and SSRF checks, signs requests, delivers via HTTPS, records attempt/retry metadata, and requeues if needed.
+ 5. Controller HTTP APIs (cdktf/src/backend/controller/index.ts) expose endpoints/deliveries/replays stored in DynamoDB.
+ASCII diagram:
+             +--------------+           +-----------------+
+   Job ----> | StepFunctions| --SQS--> | Fanout FIFO     | --Lambda--> Delivery FIFO --Lambda--> HTTPS endpoint
+             +--------------+           +-----------------+             |                               |
+                   |                                                DynamoDB events/logs <----+--------+
+                   +--> DynamoDB webhook-events (PutItem)          DynamoDB endpoints         Controller API
+
+3) StepFunctions Emission Logic
+Defined in cdktf/src/stacks/dev.ts (workflowDefinition) and mirrored in state-machines/kyc.json. Terminal states `BuildWebhookSuccessEvent` and `BuildWebhookFailureEvent` populate `$.webhook_event` with:
+- `event_id`: deterministic `States.Format('EVT#{}#{}#{}#{}', $.tenantId, $.env, $.jobId, event_type)` so retries dedupe cleanly.
+- `event_type`: `kyc.job.completed` or `kyc.job.failed`.
+- `version`: "v1".
+- `tenant_id`, `environment`, `job_id`, `created_at` (state entered time).
+- `data`: success payload `{ status: "COMPLETED" }` or failure payload `{ status: "FAILED", error, cause }`.
+`EmitWebhookSuccess` and `EmitWebhookFailure` use `arn:aws:states:::sqs:sendMessage` with `MessageBody` = `States.JsonToString($.webhook_event)` pointed at `${prefix}-webhook-fanout.fifo`. Before enqueuing, state-machines/kyc.json state `PutWebhookEvent` writes the event to `${prefix}-webhook-events` keyed by `event_id`, guaranteeing idempotency when jobs retry or internal APIs inject duplicates.
+
+4) Webhook Storage Model (DynamoDB)
+- `${prefix}-webhook-endpoints` (cdktf/src/stacks/dev.ts): hash key tenant_id, range key endpoint_id. Stores WebhookEndpointRecord (types.ts) including environment (`SANDBOX`/`PROD`/`BOTH`), allowed event types, encrypted signing secret (`signing_secret_ciphertext_b64`), overrides (max_retries, rate_limit_per_min), status, metadata, audit timestamps. No TTL so history persists.
+- `${prefix}-webhook-events`: hash key event_id. Persisted via fanout worker and controller to keep canonical event bodies for later deliveries, tests, or replays (`getWebhookEvent`, `putWebhookEventIfAbsent` in webhooks/store.ts).
+- `${prefix}-webhook-delivery-logs`: hash key delivery_id, attributes tenant_id + created_at, plus GSI_TenantDeliveries (hash tenant_id, range created_at, projection ALL). WebhookDeliveryLogRecord (types.ts) captures status, attempt_count, max_retries, next_attempt_at, replay counters, request headers, response snippets (truncated), etc. Delivery worker transitions status PENDING -> IN_PROGRESS -> DELIVERED/FAILED_PERMANENT using UpdateCommand; controller queries GSI for listing.
+
+5) Queue Model (SQS FIFO)
+Fanout FIFO (cdktf/src/stacks/dev.ts resource webhookFanoutQueue): FIFO, content-based dedup, visibility timeout 180s, long polling 20s, retention 86400s, DLQ redrive to shared `${prefix}-dlq.fifo` after 5 receives. MessageGroupId is naturally the combination of tenant + event type because StepFunctions produces deterministic event IDs per job event. Delivery FIFO (webhookDeliveryQueue) shares the same tuning but uses endpoint_id as MessageGroupId, guaranteeing ordered deliveries per endpoint. Dedup IDs hash event_id or delivery_id (see controller/fanout worker SQS SendMessage) so duplicates inside the FIFO dedup window collapse, while idempotent DynamoDB writes handle duplicates outside the window.
+
+6) Lambdas: Responsibilities + Hardening
+A) Controller API (`cdktf/src/backend/controller/index.ts`)
+- Routed via Apigatewayv2Route definitions in cdktf/src/stacks/dev.ts (routes POST/GET/PATCH under /webhooks/*). Key routes:
+  * `POST /webhooks/events/enqueue`: requires header `x-internal-webhook-token` == `WEBHOOK_INTERNAL_ENQUEUE_TOKEN`. Validates body with `validateWebhookEventPayload` (schema.ts) limited to 200 KB, enforces tenant/environment match, writes to `${prefix}-webhook-events`, and enqueues to fanout queue with MessageGroupId `${tenant_id}#${event_type}` and dedup SHA-256(event_id).
+  * `GET /webhooks/deliveries`: tenant-scoped query via `listDeliveriesByTenant` (store.ts) hitting GSI_TenantDeliveries and using base64 cursors for pagination.
+  * `GET /webhooks/deliveries/{deliveryId}` -> `getDelivery` for detailed log.
+  * `POST /webhooks/deliveries/{deliveryId}/replay`: enforces `MAX_REPLAYS_PER_HOUR` (env) unless override header `x-webhooks-admin-replay` matches `WEBHOOK_ADMIN_REPLAY_TOKEN`. On success, updates delivery log using `replayDelivery` (store.ts) and enqueues message to delivery FIFO with dedup hashed by deliveryId + timestamp.
+  * Endpoint CRUD/test routes (POST/GET/PATCH /webhooks/endpoints, rotate-secret, test) rely on DynamoDB Put/Get/Update. Test route seeds system.webhook.test event and immediate delivery for verification.
+- Env vars: `WEBHOOK_ENDPOINTS_TABLE`, `WEBHOOK_EVENTS_TABLE`, `WEBHOOK_DELIVERY_LOGS_TABLE`, `WEBHOOK_FANOUT_QUEUE_URL`, `WEBHOOK_DELIVERY_QUEUE_URL`, `WEBHOOK_KMS_KEY_ID`, `WEBHOOK_INTERNAL_ENQUEUE_TOKEN`, `WEBHOOK_ADMIN_REPLAY_TOKEN`, `MAX_REPLAYS_PER_HOUR`, plus tenant/env context and billing tables. Sensitive fields (signing secrets, payload bodies) never logged; logs use safe identifiers only.
+
+B) fanout-worker (`cdktf/src/backend/webhooks/fanout-worker.ts`)
+- Accepts messages from fanout FIFO. Body may be `{ event: {...} }` (controller) or `{ event_id }` (state machine). Validates/resolves to WebhookEventV1 (schema.ts) and ensures created_at/version defaults.
+- Stores event via conditional PutItem. Queries `${prefix}-webhook-endpoints` for tenant-specific endpoints and filters by environment + event_types (listActiveSubscribedEndpoints). For each endpoint, creates delivery_id = `event_id#endpoint_id`, writes log row with status=PENDING, attempt_count=0, max_retries derived from endpoint override or default, and enqueues to delivery FIFO with MessageGroupId endpoint_id. Logs/metrics include tenant/environment/endpoint with no payload leakage.
+
+C) delivery-worker (`cdktf/src/backend/webhooks/delivery-worker.ts`)
+- Env vars: `WEBHOOK_ENDPOINTS_TABLE`, `WEBHOOK_EVENTS_TABLE`, `WEBHOOK_DELIVERY_LOGS_TABLE`, `DELIVERY_QUEUE_URL`, `WEBHOOK_KMS_KEY_ID`, `DEFAULT_MAX_RETRIES`, `REQUEST_TIMEOUT_MS` (10s default), `MAX_BODY_BYTES` (262144 default).
+- Guardrails: validatePublicHttpsUrl enforces https:// scheme, prohibits private IPs (net.isIP + isPrivateIp helper) and resolves DNS via dns/promises to ensure no SSRF. Requests use a fixed User-Agent (`kyc-webhooks/1.0`), no redirect following, and TLS verification.
+- Payload building: WebhookDeliveryPayload JSON, signed using decrypted secret from KMS (kms:Decrypt). If payload length exceeds MAX_BODY_BYTES, delivery is marked FAILED_PERMANENT immediately with explanatory message, no HTTP request.
+- Retry scheduling: statuses transition PENDING -> IN_PROGRESS when sending, DELIVERED on HTTP 2xx, or remain PENDING with next_attempt_at set based on attempt_count, max_retries, and endpoint rate limits (`rate_limit_per_min` stored on endpoint). After exhausting retries, status becomes FAILED_PERMANENT and message is removed (DLQ capture handled by SQS). Delivery logs capture last_request_headers (minus secrets), response snippets truncated, and timestamp fields updated.
+
+7) Schema Registry
+`cdktf/src/backend/webhooks/schema.ts` defines allowed event types (`kyc.job.completed`, `kyc.job.failed`, `system.webhook.test`), allowed environments (`SANDBOX`, `PROD`), version lock "v1", canonical fields (tenant_id, environment, job_id, correlation_id, created_at, data), and serialized size limit 200 KB. Both controller enqueue route and fanout-worker call `validateWebhookEventPayload`, ensuring the same schema, while delivery-worker reuses WebhookDeliveryPayload (types.ts) for outbound requests.
+
+8) Security & IAM
+- KMS key policy override in cdktf/src/stacks/dev.ts restricts encrypt/decrypt/generate-data-key permissions to account root plus the controller lambda role and delivery worker role (Sid AllowWebhookLambdas). No other principals can read webhook signing secrets.
+- IAM: fanout/delivery roles each have dedicated inline policies allowing only SQS operations on their specific queues and DynamoDB actions on webhook tables; controller role similarly limited plus kms:* on the webhook key. StepFunctions role only allows sqs:SendMessage to queues and lambda:InvokeFunction for video tasks. No broad wildcards were introduced beyond required kms:* on the single key and ecr:GetAuthorizationToken earlier documented.
+- HTTP security: delivery worker enforces HTTPS-only, blocks private networks, and caps payload size so secrets/PII never leave logs. Controller tokens (`WEBHOOK_INTERNAL_ENQUEUE_TOKEN`, `WEBHOOK_ADMIN_REPLAY_TOKEN`) guard privileged endpoints.
+
+9) Operational Runbook
+Code/infra checks:
+- Inspect StepFunctions definition (state-machines/kyc.json) or `aws stepfunctions describe-state-machine` to ensure states EmitWebhookSuccess/EmitWebhookFailure reference `webhookFanoutQueue.url`.
+- Validate Lambda event source mappings (`webhookFanoutMapping`, `webhookDeliveryMapping` in cdktf/src/stacks/dev.ts) exist and point to the correct queues with batchSize 10 and Enabled status.
+- DynamoDB verification: run `aws dynamodb describe-table` for `${prefix}-webhook-delivery-logs` to confirm GSI_TenantDeliveries; insert a test event via `POST /webhooks/endpoints/{endpointId}/test` and observe entries in events table, delivery log, and queue metrics.
+- API Gateway routes: check HTTP API route list contains POST/GET endpoints exactly as defined (POST /webhooks/events/enqueue, GET /webhooks/deliveries, GET /webhooks/deliveries/{deliveryId}, POST /webhooks/deliveries/{deliveryId}/replay, etc.) with integration target controller lambda.
+- Replay procedure: call `POST /webhooks/deliveries/{deliveryId}/replay` with optional `reason` and `max_retries`. On success, delivery log fields `replay_count`, `last_replay_reason`, `last_replay_at`, `next_attempt_at` update, and a new message appears in delivery FIFO.
+Common failure modes & troubleshooting:
+- Fanout queue DLQ growth: indicates schema validation or endpoint query errors. Check CloudWatch `/aws/lambda/<prefix>-webhook-fanout-worker` logs.
+- Delivery stuck PENDING: inspect delivery log for `next_attempt_at` and ensure endpoint `rate_limit_per_min` not throttling; adjust via PATCH endpoint or wait for window.
+- Replay rate limit: controller returns 429 with `ReplayRateLimited`; use admin header or wait for `replay_window_start + 1h`.
+- Invalid webhook target: delivery-worker marks FAILED_PERMANENT with `Webhook target_url must be https://` or private IP error; fix endpoint config before replaying.
+- StepFunctions not emitting: confirm IAM policy `sfnPolicy` includes `sqs:SendMessage` to queue ARN and that state machine role uses it.
+
+10) Design Notes / Constraints
+- SQS FIFO dedup window (~5 minutes) means duplicates after that window may appear; DynamoDB conditional writes (event_id, delivery_id) enforce idempotency across workers.
+- DynamoDB tables intentionally omit TTL; operators must manage retention manually for compliance.
+- Payload size caps: schema validator enforces <=200 KB per event; delivery worker enforces `MAX_BODY_BYTES` (default 262144 bytes) before issuing HTTP calls to avoid exceeding partner limits.
+
+11) MANDATORY: Keep This Doc Updated
+Any future change to pipeline webhooks (state machine events, queues, schema, controller APIs, workers, IAM, security) MUST update docs/PIPELINE_AND_WEBHOOKS_V1_IMPLEMENTATION.txt and MUST add a changelog entry plus cross-link in docs/OBSERVABILITY_RELIABILITY_V1_UPDATES.txt. All future implementation prompts must remind contributors to update both docs.

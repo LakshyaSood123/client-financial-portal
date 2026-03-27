@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { motion } from "framer-motion";
 import { AdminLayout, SURF_SUPPORT, SURF_DEFAULT, TEXT, MUTED, cardShell, DARK_1 } from "./AdminLayout";
 import {
@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 
 const CLIENTS = [
-  { id: "CLT-001", name: "Acme Corp Ltd",        type: "Business",   email: "compliance@acme.com",     country: "India", kyb: "Verified", risk: "Low",    plan: "Enterprise", joined: "Jan 12, 2025", revenue: "₹48,200"   },
+  { id: "CLT-001", name: "Anime Corp Ltd",       type: "Business",   email: "compliance@acme.com",     country: "India", kyb: "Verified", risk: "Low",    plan: "Enterprise", joined: "Jan 12, 2025", revenue: "₹48,200"   },
   { id: "CLT-002", name: "David Chen",            type: "Individual", email: "d.chen@email.com",        country: "India", kyb: "Verified", risk: "Medium", plan: "Growth",     joined: "Feb 3, 2025",  revenue: "₹3,400"    },
   { id: "CLT-003", name: "Nova Ventures",         type: "Business",   email: "ops@novaventures.io",     country: "India", kyb: "Rejected", risk: "High",   plan: "—",          joined: "Feb 28, 2025", revenue: "₹0"        },
   { id: "CLT-004", name: "Sarah Williams",        type: "Individual", email: "s.williams@mail.co",      country: "India", kyb: "Verified", risk: "Low",    plan: "Starter",    joined: "Mar 1, 2025",  revenue: "₹850"      },
@@ -28,6 +28,20 @@ const RISK_COLORS: Record<string, string> = {
   Low:    "#22C55E",
   Medium: "#d97706",
   High:   "#f54a4a",
+};
+
+const TABLE_COLUMNS = "80px 1fr 120px 100px 100px 100px 90px";
+
+const clientRowStyle: CSSProperties = {
+  gridTemplateColumns: TABLE_COLUMNS,
+  height: 60,
+  borderBottom: "1px solid rgba(13,18,33,0.05)",
+  borderLeft: "2px solid transparent",
+};
+
+const clientRowHover = {
+  backgroundColor: "rgba(13,18,33,0.03)",
+  borderLeftColor: "#22C55E",
 };
 
 export default function ClientManagement() {
@@ -136,7 +150,7 @@ export default function ClientManagement() {
             style={{
               color: MUTED,
               borderBottom: "1px solid rgba(13,18,33,0.07)",
-              gridTemplateColumns: "80px 1fr 120px 100px 100px 100px 90px",
+              gridTemplateColumns: TABLE_COLUMNS,
             }}
           >
             {["ID", "Client", "Country", "KYB", "Risk", "Plan", "Revenue"].map((col) => (
@@ -157,16 +171,11 @@ export default function ClientManagement() {
               <motion.div
                 key={client.id}
                 className="grid gap-4 px-5 items-center cursor-pointer transition-all"
-                style={{
-                  gridTemplateColumns: "80px 1fr 120px 100px 100px 100px 90px",
-                  height: 60,
-                  borderBottom: "1px solid rgba(13,18,33,0.05)",
-                  borderLeft: "2px solid transparent",
-                }}
+                style={clientRowStyle}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.35 + i * 0.04 }}
-                whileHover={{ background: "rgba(13,18,33,0.03)", borderLeftColor: "#22C55E" } as React.CSSProperties}
+                whileHover={clientRowHover}
               >
                 <span className="font-mono text-xs" style={{ color: MUTED }}>{client.id}</span>
 

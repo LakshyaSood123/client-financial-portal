@@ -294,7 +294,7 @@ border-right: 1px solid rgba(255,255,255,0.08);
         Bell icon (red dot badge)
         HelpCircle icon
         Separator line
-        Avatar (name: Stefan / sub: Acme Corp Ltd)
+        Avatar (name: Stefan / sub: Anime Corp Ltd)
 ```
 
 **Health pill:**
@@ -775,7 +775,7 @@ Content:
 ```
 Status chip: ● ACTIVE — bg rgba(168,255,62,0.1) color #a8ff3e border rgba(168,255,62,0.25)
              dot: w-1.5 h-1.5 rounded-full bg #a8ff3e box-shadow 0 0 6px rgba(168,255,62,0.7)
-Company: "Acme Corp Ltd" — Clash Display 700, 18px
+Company: "Anime Corp Ltd" — Clash Display 700, 18px
 Sub:     "KYB Verified · Growth Plan" — 12px #6b8a82
 
 Fields:
@@ -1059,7 +1059,7 @@ Left side: ID (JetBrains Mono 12px #3d5a52, w-80px) | Name (13px bold) / Type (1
 Right side: ● Risk text | Time | Status badge
 
 ID       Name              Type        Status    Time       Risk
-KYC-2847 Acme Corp Ltd     Business    approved  2 min ago  Low
+KYC-2847 Anime Corp Ltd    Business    approved  2 min ago  Low
 KYC-2846 David Chen        Individual  pending   8 min ago  Medium
 KYC-2845 Nova Ventures     Business    rejected  14 min ago High
 KYC-2844 Sarah Williams    Individual  approved  22 min ago Low
@@ -1189,7 +1189,7 @@ State: `useState("id") sortCol`, `useState("asc") sortDir`. Note: sort changes s
 
 | ID | Name | Type | Email | Country | KYB | Risk | Plan | Revenue |
 |---|---|---|---|---|---|---|---|---|
-| CLT-001 | Acme Corp Ltd | Business | compliance@acme.com | USA | Verified | Low | Enterprise | $48,200 |
+| CLT-001 | Anime Corp Ltd | Business | compliance@acme.com | USA | Verified | Low | Enterprise | $48,200 |
 | CLT-002 | David Chen | Individual | d.chen@email.com | Singapore | Verified | Medium | Growth | $3,400 |
 | CLT-003 | Nova Ventures | Business | ops@novaventures.io | UK | Rejected | High | — | $0 |
 | CLT-004 | Sarah Williams | Individual | s.williams@mail.co | Australia | Verified | Low | Starter | $850 |

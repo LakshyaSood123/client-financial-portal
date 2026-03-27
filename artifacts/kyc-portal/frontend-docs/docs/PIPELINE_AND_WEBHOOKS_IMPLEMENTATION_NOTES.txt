@@ -1,0 +1,24 @@
+PIPELINE_AND_WEBHOOKS_IMPLEMENTATION_NOTES
+Scope: Webhook fanout/delivery pipeline (ref: docs/PIPELINE_AND_WEBHOOKS_V1_IMPLEMENTATION.txt for full spec).
+
+Key Components
+- Step Functions emits webhook events (`state-machines/kyc.json` and `cdktf/src/stacks/dev.ts` workflowDefinition) to `${prefix}-webhook-fanout.fifo` with deterministic `event_id`.
+- Fanout worker (`cdktf/src/backend/webhooks/fanout-worker.ts`) persists events to `${prefix}-webhook-events`, queries `${prefix}-webhook-endpoints`, and enqueues endpoint deliveries to `${prefix}-webhook-delivery.fifo` while seeding `${prefix}-webhook-delivery-logs`.
+- Delivery worker (`cdktf/src/backend/webhooks/delivery-worker.ts`) enforces HTTPS/SSRF protections, rate limits, retries, and writes delivery status updates to DynamoDB; KMS decrypts signing secrets via `webhookSecretsKey`.
+- Controller routes (`cdktf/src/backend/controller/index.ts`) expose endpoint CRUD, delivery replay, and internal enqueue APIs. All routes are protected at the edge by the HTTP API Lambda authorizer; internal-only actions may additionally require shared secrets depending on route semantics.
+- Production execution contract: Step Functions sends agent work items to SQS (MessageBody is a JSON string via `States.JsonToString($)`), ECS agent services long-poll SQS and process messages, and agents optionally emit rating events to the billing ingestion queue.
+
+Data Stores / Queues
+- DynamoDB: `${prefix}-webhook-endpoints`, `${prefix}-webhook-events`, `${prefix}-webhook-delivery-logs` (with `GSI_TenantDeliveries`), encrypted secrets stored under `webhookSecretsKey`.
+- SQS FIFO: `${prefix}-webhook-fanout.fifo` (fanout) and `${prefix}-webhook-delivery.fifo` (per-endpoint ordering, DLQ to `${prefix}-dlq.fifo`).
+
+Operational Notes
+- Delivery dedupe: SQS content-based dedup + DynamoDB conditional writes on `event_id`/`delivery_id`.
+- Payload limits: schema validator caps events at 200 KB; delivery worker enforces `MAX_BODY_BYTES`.
+- Replay safety: controller enforces `MAX_REPLAYS_PER_HOUR` unless admin override header present.
+- Failure handling: DLQ alarms exist on queues; delivery failures update DynamoDB and require replay/test to resume.
+- Authenticated API requests are normalized only after trusted identity is injected (HTTP API authorizer context for the controller; FastAPI auth middleware for local agent `/process`), so downstream components never depend on caller-provided tenant metadata.
+- Retention scans (agents + Lambda) fully paginate through DynamoDB using LastEvaluatedKey backoff, and the retention Lambda runs single-threaded via reserved concurrency so overlapping cleanups cannot occur.
+
+Update Policy
+- Any change to Step Functions events, webhook queues, schemas, controller routes, or worker IAM/KMS usage MUST update this notes file and the authoritative `docs/PIPELINE_AND_WEBHOOKS_V1_IMPLEMENTATION.txt`. Include a summary in `docs/KYC_PLATFORM_CHANGELOG_AND_VERIFICATION_NOTES.txt` for PR reviewers.

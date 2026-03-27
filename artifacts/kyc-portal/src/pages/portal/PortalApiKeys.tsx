@@ -58,11 +58,11 @@ export default function PortalApiKeys() {
           </p>
         </div>
         <button
+          className="cta-3d btn-primary"
           onClick={() => setCreating(true)}
           style={{
             display: "flex", alignItems: "center", gap: 7, padding: "9px 18px",
             borderRadius: 12, border: "none", cursor: "pointer",
-            background: "linear-gradient(135deg, #F97316, #F59E0B)",
             color: "#fff", fontFamily: "'Satoshi', sans-serif", fontWeight: 700, fontSize: 13,
           }}
         >
@@ -97,9 +97,8 @@ export default function PortalApiKeys() {
                     fontFamily: "'Satoshi', sans-serif", fontSize: 13.5, color: "#1C1917", outline: "none",
                   }}
                 />
-                <button onClick={simulateCreate} style={{
+                <button className="cta-3d btn-primary" onClick={simulateCreate} style={{
                   padding: "9px 18px", borderRadius: 10, border: "none", cursor: "pointer",
-                  background: "linear-gradient(135deg, #F97316, #F59E0B)",
                   color: "#fff", fontFamily: "'Satoshi', sans-serif", fontWeight: 700, fontSize: 13,
                 }}>
                   Generate
@@ -139,20 +138,22 @@ export default function PortalApiKeys() {
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.06 }}
+              className="data-row-3d"
               style={{
                 display: "grid", gridTemplateColumns: "180px 1fr 120px 120px 120px 100px",
                 padding: "14px 20px", alignItems: "center",
                 borderBottom: i < MOCK_KEYS.length - 1 ? "1px solid rgba(120,90,50,0.06)" : "none",
                 background: "#FAF8F4",
+                animationDelay: `${i * 60}ms`,
               }}
             >
               <span style={{ fontSize: 13.5, fontWeight: 600, color: "#1C1917", fontFamily: "'Satoshi', sans-serif" }}>
                 {key.name}
               </span>
               <MaskedSecret prefix={key.prefix} suffix="••••••••" />
-              <div style={{
+              <div className={`status-badge-3d ${key.status === "active" ? "badge-active" : "badge-failed"}`} style={{
                 display: "inline-flex", alignItems: "center", gap: 5,
-                background: st.bg, borderRadius: 20, padding: "3px 10px", width: "fit-content",
+                background: st.bg, borderRadius: 20, padding: "3px 10px", width: "fit-content", boxShadow: `0 2px 8px ${st.color}59`,
               }}>
                 {key.status === "active"
                   ? <CheckCircle2 style={{ width: 11, height: 11, color: st.color }} />
@@ -169,6 +170,7 @@ export default function PortalApiKeys() {
               <div style={{ display: "flex", gap: 6 }}>
                 {key.status === "active" && (
                   <button
+                    className="cta-3d"
                     onClick={() => simulateRotate(key.name, key.prefix)}
                     title="Rotate"
                     style={{ background: "rgba(249,115,22,0.1)", border: "none", borderRadius: 8, cursor: "pointer", padding: "6px 8px", color: "#F97316" }}
@@ -177,6 +179,7 @@ export default function PortalApiKeys() {
                   </button>
                 )}
                 <button
+                  className="cta-3d"
                   title="Revoke"
                   style={{ background: "rgba(248,113,113,0.1)", border: "none", borderRadius: 8, cursor: "pointer", padding: "6px 8px", color: "#f87171" }}
                 >

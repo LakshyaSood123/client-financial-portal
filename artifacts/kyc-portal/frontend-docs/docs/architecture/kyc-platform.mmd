@@ -1,0 +1,48 @@
+flowchart TB
+  classDef component fill:#e1f5ff,stroke:#0277bd,stroke-width:2px,color:#111;
+  classDef note fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#111;
+  classDef queue fill:#fff3f3,stroke:#b23b3b,stroke-width:2px,color:#111;
+  classDef sec fill:#fef,stroke:#737,stroke-width:2px,color:#111;
+
+  Clients["Client Interfaces<br/>(SDKs, integrations, ops CLI)"]:::component
+  Edge["Edge Front Door<br/>(CloudFront + WAF)"]:::sec
+  Api["HTTP API<br/>(API Gateway HTTP API)"]:::sec
+  Authz["REQUEST Authorizer<br/>(Bearer api_key_id.secret + Argon2id)<br/>Origin verify header check"]:::sec
+  Guard["Admission Guard<br/>(pre-orchestration)"]:::component
+  Control["Control Plane APIs<br/>(admin-gated routes)"]:::component
+  Runtime["Runtime Orchestration<br/>(SFN + SQS FIFO agents)"]:::component
+  Billing["Billing & Rating<br/>(SQS FIFO -> billing lambda)"]:::component
+  Compliance["Compliance & Retention<br/>(holds + retention job)"]:::component
+  Webhooks["Webhook Delivery<br/>(SQS + workers + shared SSRF)"]:::component
+  Obs["Observability<br/>(CloudWatch EMF, dashboards, alarms)"]:::component
+
+  NoteIntentional["Intentional deviations preserved:<br/>- video-liveness uses SFN waitForTaskToken (Lambda/SageMaker path)<br/>- rating events stream is SQS FIFO (not EventBridge)"]:::note
+
+  Clients --> Edge --> Api --> Authz --> Guard --> Runtime
+  Control --> Api
+  Control --> Guard
+  Runtime --> Webhooks
+  Runtime --> Billing
+  Compliance --> Runtime
+  Compliance --> Control
+
+  Edge -.-> Obs
+  Api -.-> Obs
+  Authz -.-> Obs
+  Guard -.-> Obs
+  Control -.-> Obs
+  Runtime -.-> Obs
+  Billing -.-> Obs
+  Webhooks -.-> Obs
+  Compliance -.-> Obs
+
+  subgraph Streams["Event Streams"]
+    RatingQ["rating-events.fifo (SQS FIFO)"]:::queue
+    NotifyQ["notifications (SQS)"]:::queue
+  end
+
+  Runtime --> RatingQ --> Billing
+  Control --> NotifyQ
+
+  NoteIntentional --> Streams
+

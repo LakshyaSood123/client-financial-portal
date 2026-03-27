@@ -6,14 +6,15 @@ interface InternalOnlyBannerProps {
 
 export function InternalOnlyBanner({ bffRequired = true }: InternalOnlyBannerProps) {
   return (
-    <div style={{
-      background: "linear-gradient(90deg, rgba(251,191,36,0.12), rgba(251,191,36,0.06))",
-      borderBottom: "1px solid rgba(251,191,36,0.25)",
-      padding: "9px 24px",
-      display: "flex",
-      alignItems: "center",
-      gap: 10,
-    }}>
+    <div
+      className="admin-system-strip"
+      style={{
+        padding: "9px 24px",
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+      }}
+    >
       <ShieldAlert style={{ width: 15, height: 15, color: "#d97706", flexShrink: 0 }} />
       <span style={{ fontSize: 12.5, fontWeight: 600, color: "#92400e", fontFamily: "'Satoshi', sans-serif" }}>
         Internal Use Only — Admin Console

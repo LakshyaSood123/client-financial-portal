@@ -13,21 +13,23 @@ export function GlassPanel({ children, className, hoverable = false, ...props }:
     <motion.div
       className={cn("rounded-2xl relative overflow-hidden", className)}
       style={{
-        background: "#FAF8F4",
-        border: "1px solid rgba(120,90,50,0.08)",
-        boxShadow: "0 1px 4px rgba(120,90,50,0.05)",
+        background: "var(--nk-surface)",
+        border: "1px solid var(--nk-border)",
+        boxShadow: "var(--elev-2)",
         transition: hoverable ? "transform 0.25s ease, box-shadow 0.25s ease" : undefined,
+        transformStyle: "preserve-3d",
+        willChange: hoverable ? "transform, box-shadow" : undefined,
         ...props.style,
       }}
       {...props}
       onMouseEnter={hoverable ? e => {
         (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)";
-        (e.currentTarget as HTMLElement).style.boxShadow = "0 6px 20px rgba(120,90,50,0.08)";
+        (e.currentTarget as HTMLElement).style.boxShadow = "var(--elev-3)";
         props.onMouseEnter?.(e);
       } : props.onMouseEnter}
       onMouseLeave={hoverable ? e => {
         (e.currentTarget as HTMLElement).style.transform = "";
-        (e.currentTarget as HTMLElement).style.boxShadow = "0 1px 4px rgba(120,90,50,0.05)";
+        (e.currentTarget as HTMLElement).style.boxShadow = "var(--elev-2)";
         props.onMouseLeave?.(e);
       } : props.onMouseLeave}
     >

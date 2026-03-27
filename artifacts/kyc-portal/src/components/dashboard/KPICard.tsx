@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
+import { TiltCard } from "@/components/shared/TiltCard";
 
 interface KPICardProps {
   title: string;
   value: string;
   percent: number;
   color: string;
-  trend?: number;
   delay?: number;
 }
 
-export function KPICard({ title, value, percent, color, trend, delay = 0 }: KPICardProps) {
+export function KPICard({ title, value, percent, color, delay = 0 }: KPICardProps) {
   const size = 120;
   const strokeWidth = 8;
   const radius = (size - strokeWidth * 2) / 2;
@@ -26,7 +26,7 @@ export function KPICard({ title, value, percent, color, trend, delay = 0 }: KPIC
     : circumference;
 
   return (
-    <div
+    <TiltCard
       className="relative flex flex-col items-center justify-center cursor-pointer"
       style={{
         background: "#FAF8F4",
@@ -34,16 +34,10 @@ export function KPICard({ title, value, percent, color, trend, delay = 0 }: KPIC
         borderRadius: 20,
         boxShadow: "0 1px 4px rgba(120,90,50,0.05)",
         height: 168,
-        transition: "transform 0.3s ease, box-shadow 0.3s ease",
+        overflow: "visible",
+        transition: "transform 0.15s ease, box-shadow 0.15s ease",
       }}
-      onMouseEnter={e => {
-        (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)";
-        (e.currentTarget as HTMLDivElement).style.boxShadow = `0 10px 28px rgba(120,90,50,0.08), 0 0 20px ${color}18`;
-      }}
-      onMouseLeave={e => {
-        (e.currentTarget as HTMLDivElement).style.transform = "";
-        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 1px 4px rgba(120,90,50,0.05)";
-      }}
+      strength={5}
     >
       {/* Subtle color glow */}
       <div style={{
@@ -54,7 +48,7 @@ export function KPICard({ title, value, percent, color, trend, delay = 0 }: KPIC
       }} />
 
       {/* Ring */}
-      <div style={{ position: "relative", width: size, height: size }}>
+      <div className="status-ring-wrap" style={{ position: "relative", width: size, height: size, animationDelay: `${delay + 0.1}s`, overflow: "visible" }}>
         <svg
           width={size}
           height={size}
@@ -112,21 +106,6 @@ export function KPICard({ title, value, percent, color, trend, delay = 0 }: KPIC
           </span>
         </div>
       </div>
-
-      {/* Trend badge */}
-      {trend !== undefined && (
-        <div style={{
-          position: "absolute", top: 10, right: 10,
-          fontSize: "10px", fontWeight: 700,
-          padding: "2px 8px",
-          borderRadius: 999,
-          background: trend >= 0 ? "rgba(34,197,94,0.12)" : "rgba(245,74,74,0.1)",
-          color: trend >= 0 ? "#22C55E" : "#f54a4a",
-          border: `1px solid ${trend >= 0 ? "rgba(34,197,94,0.2)" : "rgba(245,74,74,0.2)"}`,
-        }}>
-          {trend >= 0 ? "+" : ""}{trend}%
-        </div>
-      )}
-    </div>
+    </TiltCard>
   );
 }

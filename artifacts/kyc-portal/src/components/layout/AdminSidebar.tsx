@@ -1,59 +1,86 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  LayoutDashboard, Users, ShieldCheck, AlertTriangle,
-  Lock, CreditCard, Key, Activity, Webhook,
-  LogOut, ChevronRight,
+  LayoutDashboard,
+  Users,
+  ShieldCheck,
+  AlertTriangle,
+  SlidersHorizontal,
+  CreditCard,
+  Key,
+  Webhook,
+  BellRing,
+  Activity,
+  ServerCog,
+  LogOut,
+  ChevronRight,
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
 const NAV_ITEMS = [
-  { icon: LayoutDashboard, label: "Overview",        path: "/admin"                     },
-  { icon: Users,           label: "Tenants",         path: "/admin/tenants"             },
-  { icon: ShieldCheck,     label: "KYC Review",      path: "/admin/kyc",       badge: 14 },
-  { icon: AlertTriangle,   label: "Risk",            path: "/admin/risk",      badge: 3  },
-  { icon: Lock,            label: "Compliance Holds",path: "/admin/compliance-holds"    },
-  { icon: CreditCard,      label: "Billing",         path: "/admin/billing"             },
-  { icon: Key,             label: "API Keys",        path: "/admin/apikeys"             },
-  { icon: Activity,        label: "Events",          path: "/admin/control-plane-events"},
-  { icon: Webhook,         label: "Webhooks",        path: "/admin/webhooks"            },
+  { icon: LayoutDashboard, label: "Overview", path: "/admin" },
+  { icon: Users, label: "Tenants", path: "/admin/tenants" },
+  { icon: ShieldCheck, label: "KYB", path: "/admin/kyc", badge: 14 },
+  { icon: AlertTriangle, label: "Risk", path: "/admin/risk", badge: 3 },
+  { icon: SlidersHorizontal, label: "Plans & Overrides", path: "/admin/plans-overrides" },
+  { icon: CreditCard, label: "Billing Ops", path: "/admin/billing" },
+  { icon: Key, label: "API Keys", path: "/admin/apikeys" },
+  { icon: Webhook, label: "Webhooks Ops", path: "/admin/webhooks" },
+  { icon: BellRing, label: "Notifications", path: "/admin/notifications" },
+  { icon: Activity, label: "Control Plane Events", path: "/admin/control-plane-events" },
+  { icon: ServerCog, label: "Platform Ops", path: "/admin/platform-ops" },
 ];
 
-const DARK  = "#0e1219";
-const DIM   = "rgba(255,255,255,0.36)";
-const ON    = "#ffffff";
-const ACTV  = "rgba(255,255,255,0.10)";
+const DARK = "#0e1219";
+const DIM = "rgba(255,255,255,0.36)";
+const ON = "#ffffff";
+const ACTIVE = "rgba(255,255,255,0.10)";
 const HOVER = "rgba(255,255,255,0.05)";
 
+export const ADMIN_SIDEBAR_COLLAPSED_W = 72;
+export const ADMIN_SIDEBAR_EXPANDED_W = 244;
+export const ADMIN_SIDEBAR_STORAGE_KEY = "admin-sidebar-expanded";
+export const ADMIN_SIDEBAR_EVENT = "admin-sidebar-expanded-changed";
+
+export function getAdminSidebarExpanded(): boolean {
+  try {
+    return localStorage.getItem(ADMIN_SIDEBAR_STORAGE_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
+function persistAdminSidebarExpanded(value: boolean) {
+  try {
+    localStorage.setItem(ADMIN_SIDEBAR_STORAGE_KEY, String(value));
+  } catch {}
+  try {
+    window.dispatchEvent(new CustomEvent(ADMIN_SIDEBAR_EVENT, { detail: value }));
+  } catch {}
+}
+
 export function AdminSidebar() {
-  const [expanded, setExpanded] = useState<boolean>(() => {
-    try { return localStorage.getItem("admin-sidebar-expanded") === "true"; }
-    catch { return false; }
-  });
+  const [expanded, setExpanded] = useState<boolean>(() => getAdminSidebarExpanded());
   const [location] = useLocation();
 
   const toggle = () => {
-    setExpanded(e => {
-      const next = !e;
-      try { localStorage.setItem("admin-sidebar-expanded", String(next)); } catch {}
+    setExpanded((current) => {
+      const next = !current;
+      persistAdminSidebarExpanded(next);
       return next;
     });
   };
 
-  const isActive = (path: string) =>
-    path === "/admin"
-      ? location === "/admin"
-      : location.startsWith(path);
+  const isActive = (path: string) => (path === "/admin" ? location === "/admin" : location.startsWith(path));
 
   return (
     <motion.aside
-      className="fixed left-0 top-0 bottom-0 z-50 flex flex-col"
-      style={{ background: DARK, borderRadius: "0 24px 24px 0" }}
-      initial={{ width: 72 }}
-      animate={{ width: expanded ? 228 : 72 }}
-      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+      className="fixed left-0 top-0 bottom-0 z-50 flex flex-col admin-sidebar"
+      style={{ background: "linear-gradient(180deg, #071121 0%, #091426 100%)", borderRadius: "0 24px 24px 0" }}
+      initial={{ width: ADMIN_SIDEBAR_COLLAPSED_W }}
+      animate={{ width: expanded ? ADMIN_SIDEBAR_EXPANDED_W : ADMIN_SIDEBAR_COLLAPSED_W }}
+      transition={{ duration: 0.18, ease: "easeOut" }}
     >
-      {/* Logo */}
       <div className="flex items-center h-[72px] px-5 shrink-0 overflow-hidden">
         <div
           className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
@@ -65,21 +92,26 @@ export function AdminSidebar() {
           {expanded && (
             <motion.div
               className="ml-3 overflow-hidden whitespace-nowrap"
-              initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }}
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -8 }}
               transition={{ duration: 0.16 }}
             >
               <span className="font-bold text-white text-sm">Nexus</span>
-              <span style={{ color: "#F97316" }} className="font-bold text-sm">KYC</span>
-              <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.4)" }}>Admin</span>
+              <span style={{ color: "#F97316" }} className="font-bold text-sm">
+                KYC
+              </span>
+              <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.4)" }}>
+                Admin
+              </span>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Expand toggle */}
       <button
         onClick={toggle}
-        className="absolute -right-3 top-10 w-6 h-6 rounded-full flex items-center justify-center"
+        className="absolute -right-3 top-10 w-6 h-6 rounded-full flex items-center justify-center admin-icon-button"
         style={{ background: "#1e2634", border: "1px solid rgba(255,255,255,0.12)" }}
       >
         <motion.div animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
@@ -87,28 +119,36 @@ export function AdminSidebar() {
         </motion.div>
       </button>
 
-      {/* Nav */}
       <nav className="flex-1 px-3 py-2 flex flex-col gap-1 overflow-hidden">
-        {NAV_ITEMS.map(item => {
+        {NAV_ITEMS.map((item) => {
           const active = isActive(item.path);
           return (
             <Link key={item.path} href={item.path} style={{ textDecoration: "none" }}>
               <motion.div
-                className="flex items-center gap-3 rounded-xl cursor-pointer relative overflow-hidden"
+                className={`flex items-center gap-3 rounded-xl cursor-pointer relative overflow-hidden admin-nav-item ${active ? "active" : ""}`}
                 style={{
                   padding: expanded ? "10px 12px" : "10px",
                   justifyContent: expanded ? "flex-start" : "center",
-                  background: active ? ACTV : "transparent",
+                  background: active ? ACTIVE : "transparent",
                 }}
-                whileHover={{ background: active ? ACTV : HOVER }}
+                whileHover={{ background: active ? ACTIVE : HOVER, x: active ? 0 : 3, y: -1 }}
+                whileTap={{ scale: 0.99 }}
               >
+                <span className="nav-depth-accent" />
                 <item.icon style={{ width: 18, height: 18, color: active ? ON : DIM, flexShrink: 0 }} />
                 <AnimatePresence>
                   {expanded && (
                     <motion.span
-                      initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }}
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -8 }}
                       transition={{ duration: 0.14 }}
-                      style={{ color: active ? ON : DIM, fontSize: 13.5, fontWeight: active ? 700 : 500, whiteSpace: "nowrap" }}
+                      style={{
+                        color: active ? ON : DIM,
+                        fontSize: 13.5,
+                        fontWeight: active ? 700 : 500,
+                        whiteSpace: "nowrap",
+                      }}
                     >
                       {item.label}
                     </motion.span>
@@ -116,18 +156,21 @@ export function AdminSidebar() {
                 </AnimatePresence>
                 {item.badge && (
                   <AnimatePresence>
-                    {expanded && (
+                    {expanded ? (
                       <motion.span
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
                         className="ml-auto text-xs font-bold rounded-full px-2 py-0.5"
                         style={{ background: "rgba(249,115,22,0.25)", color: "#F97316", fontSize: 11 }}
                       >
                         {item.badge}
                       </motion.span>
-                    )}
-                    {!expanded && (
+                    ) : (
                       <motion.span
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
                         className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
                         style={{ background: "#F97316" }}
                       />
@@ -140,22 +183,27 @@ export function AdminSidebar() {
         })}
       </nav>
 
-      {/* Logout */}
       <div className="px-3 pb-4 shrink-0">
         <motion.button
-          className="flex items-center gap-3 rounded-xl w-full"
+          className="flex items-center gap-3 rounded-xl w-full admin-nav-item"
           style={{
             padding: expanded ? "10px 12px" : "10px",
             justifyContent: expanded ? "flex-start" : "center",
-            background: "transparent", border: "none", cursor: "pointer",
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
           }}
-          whileHover={{ background: HOVER }}
+          whileHover={{ background: HOVER, x: 3, y: -1 }}
+          whileTap={{ scale: 0.99 }}
         >
+          <span className="nav-depth-accent" />
           <LogOut style={{ width: 18, height: 18, color: DIM, flexShrink: 0 }} />
           <AnimatePresence>
             {expanded && (
               <motion.span
-                initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -8 }}
                 transition={{ duration: 0.14 }}
                 style={{ color: DIM, fontSize: 13.5, fontWeight: 500, whiteSpace: "nowrap" }}
               >
