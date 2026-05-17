@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useLocation } from "wouter";
 import { GlobalSearchBox, type SearchItem } from "@/components/layout/GlobalSearchBox";
 import { MOCK_TENANTS } from "@/pages/admin/adminTenantData";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const PAGE_TITLES: Record<string, string> = {
   "/admin": "Overview",
@@ -69,6 +70,8 @@ export function AdminTopBar({ sidebarWidth }: AdminTopBarProps) {
   const [location] = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const pageTitle = PAGE_TITLES[location] || "Admin";
+  const isMobile = useMediaQuery("(max-width: 1023px)");
+  const headerHeight = isMobile ? 76 : 64;
 
   useEffect(() => {
     const updateScroll = () => setScrolled(window.scrollY > 20);
@@ -82,21 +85,24 @@ export function AdminTopBar({ sidebarWidth }: AdminTopBarProps) {
       className={`flex items-center justify-between px-8 fixed top-0 right-0 z-40 admin-topbar ${scrolled ? "scrolled" : ""}`}
       style={{
         left: sidebarWidth,
-        height: 64,
+        height: headerHeight,
         background: "rgba(243,247,252,0.92)",
         borderBottom: "1px solid rgba(217,229,240,0.85)",
         overflow: "visible",
+        paddingLeft: isMobile ? 16 : 32,
+        paddingRight: isMobile ? 16 : 32,
+        gap: isMobile ? 12 : 0,
       }}
       animate={{ left: sidebarWidth }}
       transition={{ duration: 0.18, ease: "easeOut" }}
       initial={false}
     >
-      <p className="font-display font-bold" style={{ fontSize: 17, color: DARK, letterSpacing: "-0.01em" }}>
+      <p className="font-display font-bold" style={{ fontSize: isMobile ? 15 : 17, color: DARK, letterSpacing: "-0.01em", flexShrink: 0 }}>
         {pageTitle}
       </p>
 
-      <div className="flex-1 flex justify-center px-8">
-        <div className="w-full max-w-[400px] admin-command-surface rounded-2xl">
+      <div className="flex-1 flex justify-center" style={{ minWidth: 0, paddingLeft: isMobile ? 0 : 32, paddingRight: isMobile ? 0 : 32 }}>
+        <div className="w-full admin-command-surface rounded-2xl" style={{ maxWidth: isMobile ? "100%" : 400 }}>
           <GlobalSearchBox
             items={ADMIN_SEARCH_ITEMS}
             placeholder="Search clients, applications, events..."
@@ -106,7 +112,7 @@ export function AdminTopBar({ sidebarWidth }: AdminTopBarProps) {
         </div>
       </div>
 
-      <div className="flex items-center gap-3 shrink-0">
+      <div className="flex items-center gap-2 shrink-0">
         <div
           className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer transition-opacity admin-button admin-button-primary"
           style={{ background: DARK, color: "#ffffff" }}
@@ -115,7 +121,7 @@ export function AdminTopBar({ sidebarWidth }: AdminTopBarProps) {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-40 bg-white" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
           </span>
-          14 Pending
+          {isMobile ? "14" : "14 Pending"}
         </div>
 
         <button
@@ -137,7 +143,7 @@ export function AdminTopBar({ sidebarWidth }: AdminTopBarProps) {
           >
             A
           </div>
-          <div>
+          <div style={{ display: isMobile ? "none" : "block" }}>
             <p className="text-sm font-display font-semibold leading-tight" style={{ color: DARK }}>
               Admin
             </p>

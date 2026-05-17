@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, XCircle, Eye, Filter, Download, Building2, User, FileText, Clock, ChevronDown } from "lucide-react";
 import { AdminLayout, SURF_SUPPORT, SURF_DEFAULT, TEXT, MUTED, cardShell, DARK_1 } from "./AdminLayout";
 import { useLocation } from "wouter";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const QUEUE_ITEMS = [
   { id: "KYC-2846", name: "David Chen", type: "Individual", email: "david.chen@email.com", submitted: "2 hours ago", docs: 3, risk: "Medium", country: "Singapore", flags: ["PEP Check Required"] },
@@ -21,6 +22,7 @@ const RISK_STYLES: Record<string, { color: string; bg: string; className: string
 };
 
 export default function KYCQueue() {
+  const mobile = useMediaQuery("(max-width: 767px)");
   const [location] = useLocation();
   const [filter, setFilter] = useState("All");
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -61,8 +63,8 @@ export default function KYCQueue() {
 
   return (
     <AdminLayout>
-      <div className="p-8 space-y-6">
-        <motion.div className="flex items-center justify-between" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+      <div className="space-y-6" style={{ padding: mobile ? "20px 16px" : "32px" }}>
+        <motion.div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <div>
             <h1 className="font-display" style={{ fontSize: 48, fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.05, color: TEXT }}>
               KYC Review Queue
@@ -71,7 +73,7 @@ export default function KYCQueue() {
               {QUEUE_ITEMS.length} applications awaiting review — prioritised by risk
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors admin-button" style={{ background: SURF_SUPPORT, border: "1px solid rgba(13,18,33,0.07)", color: MUTED }}>
               <Download className="w-4 h-4" /> Export
             </button>
@@ -81,7 +83,7 @@ export default function KYCQueue() {
           </div>
         </motion.div>
 
-        <motion.div className="flex items-center gap-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+        <motion.div className="flex flex-wrap items-center gap-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
           {["All", "Individual", "Business", "High", "Medium", "Low"].map((f) => (
             <button
               key={f}
@@ -102,13 +104,13 @@ export default function KYCQueue() {
 
             return (
               <motion.div key={item.id} className="admin-task-card" style={{ ...cardShell, background: SURF_DEFAULT, borderRadius: 22, opacity: decision ? 0.55 : 1 }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: decision ? 0.55 : 1, y: 0 }} transition={{ delay: 0.25 + i * 0.06 }}>
-                <div className="flex items-center px-5 h-16 gap-4">
+                <div className="flex flex-wrap items-center gap-4 px-5 py-4 md:h-16 md:flex-nowrap">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: item.type === "Business" ? "rgba(139,111,244,0.12)" : "rgba(34,197,94,0.1)" }}>
                     {item.type === "Business" ? <Building2 className="w-5 h-5" style={{ color: "#8b6ff4" }} /> : <User className="w-5 h-5" style={{ color: "#22C55E" }} />}
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex w-full flex-wrap items-center gap-2 md:w-auto md:flex-nowrap">
                       <p className="text-sm font-bold" style={{ color: TEXT }}>{item.name}</p>
                       <span className="font-mono text-[10px]" style={{ color: MUTED }}>{item.id}</span>
                       {item.flags.length > 0 && <span className="px-2 py-0.5 rounded text-[9px] font-bold admin-pill admin-pill-warning">{item.flags.length} flag{item.flags.length > 1 ? "s" : ""}</span>}
@@ -150,7 +152,7 @@ export default function KYCQueue() {
                     </div>
                   )}
 
-                  <button onClick={() => setExpanded(isExpanded ? null : item.id)} className="w-7 h-7 rounded-lg flex items-center justify-center transition-all admin-icon-button" style={{ color: MUTED }}>
+                  <button onClick={() => setExpanded(isExpanded ? null : item.id)} className="ml-auto h-7 w-7 rounded-lg flex items-center justify-center transition-all admin-icon-button md:ml-0" style={{ color: MUTED }}>
                     <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
                       <ChevronDown className="w-4 h-4" />
                     </motion.div>
@@ -160,7 +162,7 @@ export default function KYCQueue() {
                 <AnimatePresence>
                   {isExpanded && (
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }} className="overflow-hidden">
-                      <div className="mx-5 mb-4 p-4 rounded-2xl grid grid-cols-3 gap-6" style={{ background: SURF_SUPPORT, border: "1px solid rgba(13,18,33,0.06)" }}>
+                      <div className="mx-5 mb-4 grid grid-cols-1 gap-6 rounded-2xl p-4 lg:grid-cols-3" style={{ background: SURF_SUPPORT, border: "1px solid rgba(13,18,33,0.06)" }}>
                         <div>
                           <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: MUTED }}>Submitted Documents</p>
                           <div className="space-y-1.5">

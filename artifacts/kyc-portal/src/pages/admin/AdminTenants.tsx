@@ -5,6 +5,7 @@ import { AdminLayout, SURF_SUPPORT, SURF_DEFAULT, TEXT, MUTED, cardShell, DARK_1
 import { BackendPlaceholder } from "@/components/shared/BackendPlaceholder";
 import { Search, Filter, Building2, CheckCircle2, XCircle, Clock, AlertTriangle, Link2, X } from "lucide-react";
 import { MOCK_TENANTS, focusDefinitions, type NotificationFocusKey } from "./adminTenantData";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const badgeTone = {
   positive: { color: "#4ade80", bg: "rgba(74,222,128,0.12)", icon: CheckCircle2 },
@@ -27,6 +28,7 @@ const toneFor = (value: string) => {
 };
 
 export default function AdminTenants() {
+  const mobile = useMediaQuery("(max-width: 767px)");
   const [location, setLocation] = useLocation();
   const [searchValue, setSearchValue] = useState(() => {
     if (typeof window === "undefined") {
@@ -68,7 +70,7 @@ export default function AdminTenants() {
 
   return (
     <AdminLayout>
-      <div style={{ padding: "28px 32px" }}>
+      <div style={{ padding: mobile ? "20px 16px" : "28px 32px" }}>
         <h1 style={{ margin: "0 0 4px", fontSize: 24, fontWeight: 800, color: TEXT, letterSpacing: "-0.02em" }}>
           Tenants
         </h1>
@@ -88,7 +90,8 @@ export default function AdminTenants() {
               ...cardShell,
               background: SURF_DEFAULT,
               display: "flex",
-              alignItems: "center",
+              flexDirection: mobile ? "column" : "row",
+              alignItems: mobile ? "stretch" : "center",
               justifyContent: "space-between",
               gap: 16,
               padding: "14px 18px",
@@ -137,7 +140,7 @@ export default function AdminTenants() {
           </div>
         ) : null}
 
-        <div style={{ display: "flex", gap: 10, marginBottom: 20, alignItems: "center" }}>
+        <div style={{ display: "flex", flexDirection: mobile ? "column" : "row", gap: 10, marginBottom: 20, alignItems: mobile ? "stretch" : "center" }}>
           <div
             className="admin-command-surface"
             style={{
@@ -172,6 +175,7 @@ export default function AdminTenants() {
             style={{
               display: "flex",
               alignItems: "center",
+              justifyContent: "center",
               gap: 6,
               padding: "8px 14px",
               borderRadius: 10,
@@ -182,19 +186,21 @@ export default function AdminTenants() {
               fontFamily: "'Satoshi', sans-serif",
               fontWeight: 600,
               fontSize: 13,
+              width: mobile ? "100%" : "fit-content",
             }}
           >
             <Filter style={{ width: 14, height: 14 }} /> Filter
           </button>
         </div>
 
-        <div className="admin-panel admin-table-shell" style={{ ...cardShell, background: SURF_DEFAULT, overflow: "hidden" }}>
+        <div className="admin-panel admin-table-shell" style={{ ...cardShell, background: SURF_DEFAULT, overflowX: mobile ? "auto" : "hidden" }}>
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "120px 1.3fr 100px 130px 130px 120px 140px 120px",
               padding: "10px 20px",
               borderBottom: "1px solid rgba(13,18,33,0.07)",
+              minWidth: 990,
             }}
           >
             {["Tenant ID", "Name", "Plan", "KYB", "Billing", "Ops", "Env Access", "Joined"].map((heading) => (
@@ -223,6 +229,7 @@ export default function AdminTenants() {
                 borderBottom: index < visibleTenants.length - 1 ? "1px solid rgba(13,18,33,0.05)" : "none",
                 background: SURF_SUPPORT,
                 boxShadow: isLinkedMatch ? "inset 3px 0 0 #F97316" : "none",
+                minWidth: 990,
               }}
             >
               <code style={{ fontSize: 11.5, color: MUTED }}>{tenant.id}</code>

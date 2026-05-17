@@ -418,6 +418,23 @@
     pointer-events: none;
   }
 
+  @media (max-width: 768px) {
+    .account-panel,
+    .account-panel-3d,
+    .account-panel:hover,
+    .account-panel-3d:hover,
+    .parallax-layer-1,
+    .parallax-layer-2 {
+      transform: none !important;
+      transition: none;
+    }
+
+    .account-panel,
+    .account-panel-3d {
+      box-shadow: var(--elev-2);
+    }
+  }
+
   .admin-card,
   .admin-panel,
   .admin-table-shell,

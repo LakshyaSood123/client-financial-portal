@@ -4,6 +4,7 @@ import { useLocation } from "wouter";
 import { AdminLayout, SURF_DEFAULT, SURF_SUPPORT, TEXT, MUTED, cardShell } from "./AdminLayout";
 import { BackendPlaceholder } from "@/components/shared/BackendPlaceholder";
 import { MOCK_TENANTS, focusDefinitions, type NotificationFocusKey } from "./adminTenantData";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const ROUTES = [
   {
@@ -30,11 +31,12 @@ const ROUTES = [
 ];
 
 export default function AdminNotifications() {
+  const mobile = useMediaQuery("(max-width: 767px)");
   const [, setLocation] = useLocation();
 
   return (
     <AdminLayout>
-      <div style={{ padding: "28px 32px" }}>
+      <div style={{ padding: mobile ? "20px 16px" : "28px 32px" }}>
         <h1 style={{ margin: "0 0 4px", fontSize: 24, fontWeight: 800, color: TEXT, letterSpacing: "-0.02em" }}>
           Notifications
         </h1>
@@ -47,7 +49,7 @@ export default function AdminNotifications() {
           description="Notification routing requires dispatcher and template endpoints. The docs bundle identifies the target channels shown here."
         />
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(3, 1fr)", gap: 16, marginBottom: 24 }}>
           {[
             { label: "Active routes", value: "12", icon: BellRing, color: "#2563eb" },
             { label: "Email templates", value: "8", icon: Mail, color: "#22C55E" },
@@ -83,13 +85,14 @@ export default function AdminNotifications() {
           ))}
         </div>
 
-        <div className="admin-panel admin-table-shell" style={{ ...cardShell, background: SURF_SUPPORT, overflow: "hidden" }}>
+        <div className="admin-panel admin-table-shell" style={{ ...cardShell, background: SURF_SUPPORT, overflowX: mobile ? "auto" : "hidden" }}>
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "1.6fr 140px 1fr 140px",
               padding: "12px 20px",
               borderBottom: "1px solid rgba(13,18,33,0.07)",
+              minWidth: 760,
             }}
           >
             {["Route", "Channel", "Owner", "Status"].map((heading) => (
@@ -125,6 +128,7 @@ export default function AdminNotifications() {
                   borderTop: "none",
                   textAlign: "left",
                   cursor: "pointer",
+                  minWidth: 760,
                 }}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}

@@ -10,6 +10,7 @@ import {
 } from "@/components/layout/AdminSidebar";
 import { AdminTopBar } from "@/components/layout/AdminTopBar";
 import { InternalOnlyBanner } from "@/components/shared/InternalOnlyBanner";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -35,6 +36,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarExpanded, setSidebarExpanded] = useState<boolean>(() => getAdminSidebarExpanded());
   const [location] = useLocation();
   const reduceMotion = useReducedMotion();
+  const isMobile = useMediaQuery("(max-width: 1023px)");
 
   useEffect(() => {
     const handleSidebarChange = (event: Event) => {
@@ -46,7 +48,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     return () => window.removeEventListener(ADMIN_SIDEBAR_EVENT, handleSidebarChange as EventListener);
   }, []);
 
-  const sidebarWidth = sidebarExpanded ? ADMIN_SIDEBAR_EXPANDED_W : ADMIN_SIDEBAR_COLLAPSED_W;
+  const sidebarWidth = isMobile ? ADMIN_SIDEBAR_COLLAPSED_W : sidebarExpanded ? ADMIN_SIDEBAR_EXPANDED_W : ADMIN_SIDEBAR_COLLAPSED_W;
+  const topbarHeight = isMobile ? 76 : 64;
 
   return (
     <div className="min-h-screen font-sans admin-shell-layer" style={{ background: ADMIN_BG }}>
@@ -55,7 +58,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       <main
         style={{
           marginLeft: sidebarWidth,
-          paddingTop: 64,
+          paddingTop: topbarHeight,
           transition: "margin-left 0.18s ease-out",
           display: "flex",
           flexDirection: "column",

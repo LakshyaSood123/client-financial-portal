@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { MainHeader } from "@/components/layout/MainHeader";
 import { RightPanel } from "@/components/dashboard/RightPanel";
 import { ChevronDown } from "lucide-react";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface PortalShellProps {
   children: ReactNode;
@@ -15,6 +16,8 @@ interface PortalShellProps {
 
 export function PortalShell({ children, title, subtitle, showRail = true }: PortalShellProps) {
   const [location] = useLocation();
+  const isMobile = useMediaQuery("(max-width: 1023px)");
+  const isPhone = useMediaQuery("(max-width: 767px)");
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showScrollHint, setShowScrollHint] = useState(false);
   const [headerElevated, setHeaderElevated] = useState(false);
@@ -70,7 +73,7 @@ export function PortalShell({ children, title, subtitle, showRail = true }: Port
           zIndex: 1,
         }}
       >
-        <MainHeader title={title} subtitle={subtitle} elevated={headerElevated} />
+        <MainHeader title={title} subtitle={subtitle} elevated={headerElevated} mobile={isMobile} />
 
         <div
           style={{
@@ -87,7 +90,7 @@ export function PortalShell({ children, title, subtitle, showRail = true }: Port
               overflowY: "auto",
               minWidth: 0,
               minHeight: 0,
-              padding: "4px 28px 32px",
+              padding: isPhone ? "4px 10px 20px" : isMobile ? "4px 14px 20px" : "4px 28px 32px",
             }}
           >
             <AnimatePresence mode="wait" initial={false}>
@@ -100,11 +103,16 @@ export function PortalShell({ children, title, subtitle, showRail = true }: Port
                 style={{ transformOrigin: "center center", transformStyle: "preserve-3d" }}
               >
                 {children}
+                {showRail && isMobile && (
+                  <div style={{ marginTop: 20 }}>
+                    <RightPanel />
+                  </div>
+                )}
               </motion.div>
             </AnimatePresence>
           </div>
 
-          {showRail && (
+          {showRail && !isMobile && (
             <div
               style={{
                 width: 320,
@@ -121,7 +129,7 @@ export function PortalShell({ children, title, subtitle, showRail = true }: Port
       </div>
 
       <AnimatePresence>
-        {showScrollHint && (
+        {showScrollHint && !isMobile && (
           <motion.div
             key="scroll-hint"
             initial={{ opacity: 0 }}

@@ -11,6 +11,7 @@ import {
   Circle,
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const ACTIVITY = [
   { id: 1, label: "Webhook retry completed", detail: "billing.paid replay delivered successfully", time: "Mar 23", icon: Webhook, color: "#F97316", bg: "rgba(249,115,22,0.1)" },
@@ -30,6 +31,7 @@ const ONBOARDING = [
 ];
 
 export function RightPanel() {
+  const isPhone = useMediaQuery("(max-width: 768px)");
   const done = ONBOARDING.filter((step) => step.done).length;
   const total = ONBOARDING.length;
   const [, setLocation] = useLocation();
@@ -114,55 +116,57 @@ export function RightPanel() {
           </div>
         </section>
 
-        <section
-          className="rounded-2xl p-4 parallax-layer-2"
-          style={{
-            background: "#EBE1D5",
-            border: "1px solid rgba(120,90,50,0.08)",
-            boxShadow: "0 1px 4px rgba(120,90,50,0.05)",
-          }}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-display font-bold" style={{ fontSize: 16, color: "#1C1917" }}>
-              Go-Live Checklist
-            </h2>
-            <span className="text-xs font-mono" style={{ color: "#A09080" }}>
-              {done}/{total} complete
-            </span>
-          </div>
+        {!isPhone && (
+          <section
+            className="rounded-2xl p-4 parallax-layer-2"
+            style={{
+              background: "#EBE1D5",
+              border: "1px solid rgba(120,90,50,0.08)",
+              boxShadow: "0 1px 4px rgba(120,90,50,0.05)",
+            }}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-display font-bold" style={{ fontSize: 16, color: "#1C1917" }}>
+                Go-Live Checklist
+              </h2>
+              <span className="text-xs font-mono" style={{ color: "#A09080" }}>
+                {done}/{total} complete
+              </span>
+            </div>
 
-          <div className="h-1.5 rounded-full mb-4 overflow-hidden" style={{ background: "rgba(120,90,50,0.1)" }}>
-            <div
-              className="h-full rounded-full"
-              style={{
-                background: "linear-gradient(90deg, #F97316, #F59E0B)",
-                width: `${(done / total) * 100}%`,
-                transition: "width 0.2s ease-out",
-              }}
-            />
-          </div>
+            <div className="h-1.5 rounded-full mb-4 overflow-hidden" style={{ background: "rgba(120,90,50,0.1)" }}>
+              <div
+                className="h-full rounded-full"
+                style={{
+                  background: "linear-gradient(90deg, #F97316, #F59E0B)",
+                  width: `${(done / total) * 100}%`,
+                  transition: "width 0.2s ease-out",
+                }}
+              />
+            </div>
 
-          <div className="space-y-2.5">
-            {ONBOARDING.map((step, index) => (
-              <div key={index} className="data-row-3d flex items-center gap-3" style={{ animationDelay: `${index * 60}ms` }}>
-                {step.done ? (
-                  <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: "#22C55E" }} />
-                ) : (
-                  <Circle className="w-4 h-4 flex-shrink-0" style={{ color: "rgba(120,90,50,0.25)" }} />
-                )}
-                <span
-                  className="text-xs"
-                  style={{
-                    color: step.done ? "#A09080" : "#57493C",
-                    textDecoration: step.done ? "line-through" : undefined,
-                  }}
-                >
-                  {step.label}
-                </span>
-              </div>
-            ))}
-          </div>
-        </section>
+            <div className="space-y-2.5">
+              {ONBOARDING.map((step, index) => (
+                <div key={index} className="data-row-3d flex items-center gap-3" style={{ animationDelay: `${index * 60}ms` }}>
+                  {step.done ? (
+                    <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: "#22C55E" }} />
+                  ) : (
+                    <Circle className="w-4 h-4 flex-shrink-0" style={{ color: "rgba(120,90,50,0.25)" }} />
+                  )}
+                  <span
+                    className="text-xs"
+                    style={{
+                      color: step.done ? "#A09080" : "#57493C",
+                      textDecoration: step.done ? "line-through" : undefined,
+                    }}
+                  >
+                    {step.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );

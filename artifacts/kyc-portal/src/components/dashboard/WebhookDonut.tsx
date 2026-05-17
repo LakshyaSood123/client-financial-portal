@@ -14,7 +14,7 @@ export function WebhookDonut() {
 
   return (
     <GlassPanel hoverable className="p-5 col-span-12 lg:col-span-4 flex flex-col" style={{ background: "#F2EBE1" }}>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div>
           <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#1C1917" }}>
             Webhooks
@@ -32,8 +32,8 @@ export function WebhookDonut() {
         </Link>
       </div>
 
-      <div className="flex items-center gap-3 flex-1">
-        <div className="webhook-chart-wrap" style={{ position: "relative", width: 160, height: 160, flexShrink: 0 }}>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-1">
+        <div className="webhook-chart-wrap mx-auto sm:mx-0" style={{ position: "relative", width: 160, height: 160, flexShrink: 0 }}>
           <PieChart width={160} height={160}>
             <Pie
               data={data}

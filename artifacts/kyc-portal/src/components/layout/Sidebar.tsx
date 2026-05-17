@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, Link } from "wouter";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import {
   LayoutDashboard,
   Compass,
@@ -34,6 +35,7 @@ const UTIL_ITEMS = [
   { label: "Sign Out", icon: LogOut },
 ];
 
+const MOBILE_W = 44;
 const COLLAPSED_W = 56;
 const EXPANDED_W = 220;
 const PANEL = "#F2EAE1";
@@ -44,11 +46,12 @@ const HOVER = "rgba(120,90,50,0.08)";
 
 export function Sidebar() {
   const [location] = useLocation();
+  const isMobile = useMediaQuery("(max-width: 1023px)");
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     try {
-      return localStorage.getItem("portal-sidebar-collapsed") === "true";
+      return localStorage.getItem("portal-sidebar-collapsed") !== "false";
     } catch {
-      return false;
+      return true;
     }
   });
 
@@ -64,7 +67,8 @@ export function Sidebar() {
       ? location === "/portal" || location === "/"
       : location.startsWith(path);
 
-  const width = collapsed ? COLLAPSED_W : EXPANDED_W;
+  const collapsedState = isMobile ? true : collapsed;
+  const width = isMobile ? MOBILE_W : collapsedState ? COLLAPSED_W : EXPANDED_W;
 
   return (
     <motion.div
@@ -78,7 +82,7 @@ export function Sidebar() {
         borderRadius: "0 28px 28px 0",
         display: "flex",
         flexDirection: "column",
-        padding: collapsed ? "24px 10px 20px" : "24px 16px 20px",
+        padding: isMobile ? "18px 6px 16px" : collapsedState ? "24px 10px 20px" : "24px 16px 20px",
         overflow: "visible",
         position: "relative",
         zIndex: 30,
@@ -91,7 +95,7 @@ export function Sidebar() {
         style={{
           display: "flex",
           alignItems: "center",
-          justifyContent: collapsed ? "center" : "space-between",
+          justifyContent: collapsedState ? "center" : "space-between",
           marginBottom: 28,
           minHeight: 30,
         }}
@@ -108,8 +112,8 @@ export function Sidebar() {
         >
           <div
             style={{
-              width: 30,
-              height: 30,
+              width: isMobile ? 24 : 30,
+              height: isMobile ? 24 : 30,
               borderRadius: 10,
               flexShrink: 0,
               background: "linear-gradient(135deg, #F97316, #F59E0B)",
@@ -118,10 +122,10 @@ export function Sidebar() {
               justifyContent: "center",
             }}
           >
-            <span style={{ color: "#fff", fontWeight: 900, fontSize: 14, letterSpacing: "-0.02em" }}>N</span>
+            <span style={{ color: "#fff", fontWeight: 900, fontSize: isMobile ? 12 : 14, letterSpacing: "-0.02em" }}>N</span>
           </div>
           <AnimatePresence>
-            {!collapsed && (
+            {!collapsedState && (
               <motion.span
                 initial={{ opacity: 0, width: 0 }}
                 animate={{ opacity: 1, width: "auto" }}
@@ -143,7 +147,7 @@ export function Sidebar() {
         </Link>
 
         <AnimatePresence>
-          {!collapsed && (
+          {!collapsedState && !isMobile && (
             <motion.button
               className="cta-3d"
               initial={{ opacity: 0 }}
@@ -170,7 +174,7 @@ export function Sidebar() {
       </div>
 
       <AnimatePresence>
-        {collapsed && (
+        {collapsedState && !isMobile && (
           <motion.button
             className="cta-3d"
             initial={{ opacity: 0 }}
@@ -202,7 +206,7 @@ export function Sidebar() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {!collapsed && (
+        {!collapsedState && (
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -229,13 +233,13 @@ export function Sidebar() {
           display: "flex",
           flexDirection: "column",
           gap: 2,
-          marginTop: collapsed ? 0 : undefined,
+          marginTop: collapsedState ? 0 : undefined,
         }}
       >
         {NAV_ITEMS.map((item) => {
           const active = isActive(item.path);
           return (
-            <div key={item.path} style={{ position: "relative" }} title={collapsed ? item.label : undefined}>
+            <div key={item.path} style={{ position: "relative" }} title={collapsedState ? item.label : undefined}>
               {active && (
                 <div
                   style={{
@@ -254,9 +258,9 @@ export function Sidebar() {
                     zIndex: 1,
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: collapsed ? "center" : "flex-start",
+                    justifyContent: collapsedState ? "center" : "flex-start",
                     gap: 10,
-                    padding: collapsed ? "10px 0" : "10px 14px",
+                    padding: isMobile ? "10px 0" : collapsedState ? "10px 0" : "10px 14px",
                     borderRadius: 16,
                     color: active ? "#ffffff" : DIM,
                     cursor: "pointer",
@@ -264,11 +268,11 @@ export function Sidebar() {
                     boxShadow: active ? "inset 0 0 0 1px rgba(255,255,255,0.08), 0 10px 24px rgba(249,115,22,0.12)" : "none",
                     transformStyle: "preserve-3d",
                   }}
-                >
-                  <span className="nav-depth-accent" />
-                  <item.icon style={{ width: 16, height: 16, flexShrink: 0 }} />
+                  >
+                    <span className="nav-depth-accent" />
+                  <item.icon style={{ width: isMobile ? 15 : 16, height: isMobile ? 15 : 16, flexShrink: 0 }} />
                   <AnimatePresence>
-                    {!collapsed && (
+                    {!collapsedState && (
                       <motion.span
                         initial={{ opacity: 0, width: 0 }}
                         animate={{ opacity: 1, width: "auto" }}
@@ -308,7 +312,7 @@ export function Sidebar() {
             <>
               <item.icon style={{ width: 16, height: 16, flexShrink: 0 }} />
               <AnimatePresence>
-                {!collapsed && (
+                {!collapsedState && (
                   <motion.span
                     initial={{ opacity: 0, width: 0 }}
                     animate={{ opacity: 1, width: "auto" }}
@@ -329,13 +333,13 @@ export function Sidebar() {
               <Link key={item.label} href={item.path} style={{ textDecoration: "none" }}>
                 <div
                   className={`nav-item nav-depth-item ${active ? "active nav-depth-active" : ""}`}
-                  title={collapsed ? item.label : undefined}
+                  title={collapsedState ? item.label : undefined}
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: collapsed ? "center" : "flex-start",
+                    justifyContent: collapsedState ? "center" : "flex-start",
                     gap: 10,
-                    padding: collapsed ? "10px 0" : "10px 14px",
+                    padding: isMobile ? "10px 0" : collapsedState ? "10px 0" : "10px 14px",
                     borderRadius: 16,
                     color: active ? "#1C1917" : DIM,
                     cursor: "pointer",
@@ -356,13 +360,13 @@ export function Sidebar() {
             <button
               className="nav-item nav-depth-item"
               key={item.label}
-              title={collapsed ? item.label : undefined}
+              title={collapsedState ? item.label : undefined}
               style={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: collapsed ? "center" : "flex-start",
+                justifyContent: collapsedState ? "center" : "flex-start",
                 gap: 10,
-                padding: collapsed ? "10px 0" : "10px 14px",
+                padding: isMobile ? "10px 0" : collapsedState ? "10px 0" : "10px 14px",
                 borderRadius: 16,
                 border: "none",
                 background: "transparent",

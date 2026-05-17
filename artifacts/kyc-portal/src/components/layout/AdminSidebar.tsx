@@ -16,6 +16,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Overview", path: "/admin" },
@@ -62,8 +63,10 @@ function persistAdminSidebarExpanded(value: boolean) {
 export function AdminSidebar() {
   const [expanded, setExpanded] = useState<boolean>(() => getAdminSidebarExpanded());
   const [location] = useLocation();
+  const isMobile = useMediaQuery("(max-width: 1023px)");
 
   const toggle = () => {
+    if (isMobile) return;
     setExpanded((current) => {
       const next = !current;
       persistAdminSidebarExpanded(next);
@@ -72,13 +75,14 @@ export function AdminSidebar() {
   };
 
   const isActive = (path: string) => (path === "/admin" ? location === "/admin" : location.startsWith(path));
+  const expandedState = isMobile ? false : expanded;
 
   return (
     <motion.aside
       className="fixed left-0 top-0 bottom-0 z-50 flex flex-col admin-sidebar"
       style={{ background: "linear-gradient(180deg, #071121 0%, #091426 100%)", borderRadius: "0 24px 24px 0" }}
       initial={{ width: ADMIN_SIDEBAR_COLLAPSED_W }}
-      animate={{ width: expanded ? ADMIN_SIDEBAR_EXPANDED_W : ADMIN_SIDEBAR_COLLAPSED_W }}
+      animate={{ width: expandedState ? ADMIN_SIDEBAR_EXPANDED_W : ADMIN_SIDEBAR_COLLAPSED_W }}
       transition={{ duration: 0.18, ease: "easeOut" }}
     >
       <div className="flex items-center h-[72px] px-5 shrink-0 overflow-hidden">
@@ -89,7 +93,7 @@ export function AdminSidebar() {
           <span className="font-display font-black text-sm text-white">N</span>
         </div>
         <AnimatePresence>
-          {expanded && (
+          {expandedState && (
             <motion.div
               className="ml-3 overflow-hidden whitespace-nowrap"
               initial={{ opacity: 0, x: -8 }}
@@ -112,9 +116,9 @@ export function AdminSidebar() {
       <button
         onClick={toggle}
         className="absolute -right-3 top-10 w-6 h-6 rounded-full flex items-center justify-center admin-icon-button"
-        style={{ background: "#1e2634", border: "1px solid rgba(255,255,255,0.12)" }}
+        style={{ background: "#1e2634", border: "1px solid rgba(255,255,255,0.12)", display: isMobile ? "none" : "flex" }}
       >
-        <motion.div animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
+        <motion.div animate={{ rotate: expandedState ? 180 : 0 }} transition={{ duration: 0.2 }}>
           <ChevronRight style={{ width: 12, height: 12, color: DIM }} />
         </motion.div>
       </button>
@@ -127,8 +131,8 @@ export function AdminSidebar() {
               <motion.div
                 className={`flex items-center gap-3 rounded-xl cursor-pointer relative overflow-hidden admin-nav-item ${active ? "active" : ""}`}
                 style={{
-                  padding: expanded ? "10px 12px" : "10px",
-                  justifyContent: expanded ? "flex-start" : "center",
+                  padding: expandedState ? "10px 12px" : "10px",
+                  justifyContent: expandedState ? "flex-start" : "center",
                   background: active ? ACTIVE : "transparent",
                 }}
                 whileHover={{ background: active ? ACTIVE : HOVER, x: active ? 0 : 3, y: -1 }}
@@ -137,7 +141,7 @@ export function AdminSidebar() {
                 <span className="nav-depth-accent" />
                 <item.icon style={{ width: 18, height: 18, color: active ? ON : DIM, flexShrink: 0 }} />
                 <AnimatePresence>
-                  {expanded && (
+                  {expandedState && (
                     <motion.span
                       initial={{ opacity: 0, x: -8 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -156,7 +160,7 @@ export function AdminSidebar() {
                 </AnimatePresence>
                 {item.badge && (
                   <AnimatePresence>
-                    {expanded ? (
+                    {expandedState ? (
                       <motion.span
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -187,8 +191,8 @@ export function AdminSidebar() {
         <motion.button
           className="flex items-center gap-3 rounded-xl w-full admin-nav-item"
           style={{
-            padding: expanded ? "10px 12px" : "10px",
-            justifyContent: expanded ? "flex-start" : "center",
+            padding: expandedState ? "10px 12px" : "10px",
+            justifyContent: expandedState ? "flex-start" : "center",
             background: "transparent",
             border: "none",
             cursor: "pointer",
@@ -199,7 +203,7 @@ export function AdminSidebar() {
           <span className="nav-depth-accent" />
           <LogOut style={{ width: 18, height: 18, color: DIM, flexShrink: 0 }} />
           <AnimatePresence>
-            {expanded && (
+            {expandedState && (
               <motion.span
                 initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}

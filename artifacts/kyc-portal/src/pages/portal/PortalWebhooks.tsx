@@ -1,6 +1,7 @@
 import { PortalShell } from "./PortalShell";
 import { BackendPlaceholder } from "@/components/shared/BackendPlaceholder";
 import { CheckCircle2, Plus, RefreshCw, RotateCcw, TriangleAlert, Webhook, XCircle } from "lucide-react";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const ENDPOINTS = [
   { url: "https://api.acme.io/hooks/kyb", status: "Active", successRate: "99.1%", events: ["kyb.approved", "kyb.rejected"] },
@@ -62,6 +63,8 @@ const iconButton: React.CSSProperties = {
 };
 
 export default function PortalWebhooks() {
+  const mobile = useMediaQuery("(max-width: 767px)");
+
   return (
     <PortalShell title="Webhooks" subtitle="Manage endpoints, inspect delivery health, and rotate signing secrets" showRail={false}>
       <BackendPlaceholder
@@ -69,12 +72,12 @@ export default function PortalWebhooks() {
         description="Displaying illustrative webhook configuration. Live management should connect to the documented webhook endpoints and ops runbook."
       />
 
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+      <div style={{ display: "flex", flexDirection: mobile ? "column" : "row", alignItems: mobile ? "stretch" : "center", justifyContent: "space-between", gap: mobile ? 14 : 0, marginBottom: 20 }}>
         <div>
           <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#1C1917" }}>Endpoints</h2>
           <p style={{ margin: "4px 0 0", fontSize: 12.5, color: "#A09080" }}>Primary delivery targets and their recent health.</p>
         </div>
-        <button className="cta-3d btn-primary" style={primaryButton}>
+        <button className="cta-3d btn-primary" style={{ ...primaryButton, width: mobile ? "100%" : "fit-content", justifyContent: "center" }}>
           <Plus style={{ width: 14, height: 14 }} /> Add Endpoint
         </button>
       </div>
@@ -91,7 +94,8 @@ export default function PortalWebhooks() {
                 borderRadius: 18,
                 padding: 20,
                 display: "flex",
-                alignItems: "center",
+                alignItems: mobile ? "stretch" : "center",
+                flexDirection: mobile ? "column" : "row",
                 gap: 16,
               }}
             >
@@ -114,7 +118,7 @@ export default function PortalWebhooks() {
                   ))}
                 </div>
               </div>
-              <div style={{ textAlign: "right" }}>
+              <div style={{ textAlign: mobile ? "left" : "right", width: mobile ? "100%" : "auto" }}>
                 <div style={{ fontSize: 12, color: "#A09080", marginBottom: 4 }}>Success rate</div>
                 <div style={{ fontSize: 28, fontWeight: 800, color: healthy ? "#22C55E" : "#F59E0B", letterSpacing: "-0.02em" }}>{endpoint.successRate}</div>
               </div>
@@ -126,8 +130,8 @@ export default function PortalWebhooks() {
         })}
       </div>
 
-      <div style={{ background: "#F7F3EE", borderRadius: 18, border: "1px solid rgba(120,90,50,0.08)", overflow: "hidden" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 20px", borderBottom: "1px solid rgba(120,90,50,0.08)" }}>
+      <div style={{ background: "#F7F3EE", borderRadius: 18, border: "1px solid rgba(120,90,50,0.08)", overflowX: mobile ? "auto" : "hidden" }}>
+        <div style={{ display: "flex", flexDirection: mobile ? "column" : "row", justifyContent: "space-between", alignItems: mobile ? "stretch" : "center", gap: mobile ? 14 : 0, padding: "18px 20px", borderBottom: "1px solid rgba(120,90,50,0.08)" }}>
           <div>
             <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#1C1917" }}>Recent Deliveries</h2>
             <p style={{ margin: "4px 0 0", fontSize: 12.5, color: "#A09080" }}>Last 30 days of delivery attempts for tenant-facing webhook events.</p>
@@ -137,7 +141,7 @@ export default function PortalWebhooks() {
           </button>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "160px 1fr 140px 170px 100px", padding: "12px 20px", borderBottom: "1px solid rgba(120,90,50,0.08)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "160px 1fr 140px 170px 100px", padding: "12px 20px", borderBottom: "1px solid rgba(120,90,50,0.08)", minWidth: 760 }}>
           {["Delivery ID", "Event", "Status", "Timestamp", "Actions"].map((heading) => (
             <span key={heading} style={{ fontSize: 10.5, fontWeight: 700, color: "#A09080", textTransform: "uppercase", letterSpacing: "0.06em" }}>
               {heading}
@@ -159,6 +163,7 @@ export default function PortalWebhooks() {
                 borderBottom: index < DELIVERIES.length - 1 ? "1px solid rgba(120,90,50,0.06)" : "none",
                 background: "#FAF8F4",
                 animationDelay: `${index * 60}ms`,
+                minWidth: 760,
               }}
             >
               <code style={{ fontSize: 12, color: "#8B7355" }}>{delivery.id}</code>

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { CheckCircle2, Clock, AlertTriangle, FileText, Upload, ShieldCheck, XCircle } from "lucide-react";
 import { Link } from "wouter";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const CREAM = "#FAF8F4";
 const WARM = "#F2EBE1";
@@ -49,6 +50,219 @@ const item = {
 };
 
 export function VerificationTab() {
+  const mobile = useMediaQuery("(max-width: 768px)");
+
+  if (mobile) {
+    return (
+      <motion.div
+        className="space-y-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+      >
+        <div style={{ ...mkCard(CREAM), padding: 16 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
+            <div style={{ minWidth: 0 }}>
+              <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: "#A09080" }}>
+                KYB Status
+              </p>
+              <div className="flex items-center gap-3 flex-wrap">
+                <h2 className="font-display font-bold" style={{ fontSize: 28, letterSpacing: "-0.02em", color: "#1C1917", lineHeight: 1 }}>
+                  Verified
+                </h2>
+                <div
+                  className="px-3 py-1 rounded-full text-xs font-bold"
+                  style={{ background: "rgba(34,197,94,0.12)", color: "#22C55E", border: "1px solid rgba(34,197,94,0.2)" }}
+                >
+                  Approved
+                </div>
+              </div>
+              <p className="text-xs mt-2" style={{ color: "#A09080" }}>
+                Verified Mar 18, 2026 · expires Mar 18, 2028
+              </p>
+            </div>
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.15)" }}
+            >
+              <ShieldCheck className="w-6 h-6" style={{ color: "#22C55E" }} />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            {[
+              { label: "Entity Type", value: "Private Ltd" },
+              { label: "Risk Tier", value: "Low" },
+              { label: "Jurisdiction", value: "UK" },
+            ].map((field) => (
+              <div
+                key={field.label}
+                className="rounded-xl"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 16,
+                  padding: "12px 14px",
+                  background: "rgba(120,90,50,0.05)",
+                }}
+              >
+                <p className="text-[10px] uppercase tracking-wider" style={{ color: "#A09080" }}>
+                  {field.label}
+                </p>
+                <p className="text-sm font-bold text-right" style={{ color: "#1C1917" }}>
+                  {field.value}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ ...mkCard(WARM), padding: 16 }}>
+          <div className="flex items-center justify-between mb-4 gap-3">
+            <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#1C1917" }}>
+              Risk Assessment
+            </h3>
+            <span
+              className="text-xs px-3 py-1 rounded-full font-bold"
+              style={{ background: "rgba(34,197,94,0.12)", color: "#22C55E", whiteSpace: "nowrap" }}
+            >
+              Low Risk
+            </span>
+          </div>
+          <div className="space-y-2">
+            {RISK_FACTORS.map((factor) => (
+              <div
+                key={factor.label}
+                className="rounded-xl"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr auto",
+                  gap: 12,
+                  alignItems: "center",
+                  padding: "12px 14px",
+                  background: "rgba(120,90,50,0.05)",
+                }}
+              >
+                <span className="text-sm leading-snug" style={{ color: "#A09080" }}>
+                  {factor.label}
+                </span>
+                <div className="flex items-center gap-2 min-w-0 justify-self-end">
+                  <span className="text-sm font-medium text-right leading-snug" style={{ color: "#1C1917", maxWidth: 152 }}>
+                    {factor.value}
+                  </span>
+                  {factor.status === "clear" ? (
+                    <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#22C55E" }} />
+                  ) : (
+                    <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#F59E0B" }} />
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ ...mkCard(CREAM), padding: 16 }}>
+          <div className="flex items-center justify-between mb-4 gap-4">
+            <h3 className="font-display font-bold" style={{ fontSize: 18, color: "#1C1917" }}>
+              Submitted Documents
+            </h3>
+            <Link
+              href="/portal/uploads"
+              className="text-xs font-semibold transition-colors hover:text-[#1C1917]"
+              style={{ color: "#A09080", flexShrink: 0 }}
+            >
+              Upload More {"->"}
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {DOCUMENTS.map((document) => {
+              const status = DOC_STATUS[document.status];
+              return (
+                <div
+                  key={document.name}
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 12,
+                    padding: 14,
+                    borderRadius: 16,
+                    background: "#FAF8F4",
+                    border: "1px solid rgba(120,90,50,0.08)",
+                  }}
+                >
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${status.color}14` }}>
+                    <FileText className="w-4 h-4" style={{ color: status.color }} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p className="text-sm font-semibold" style={{ color: "#1C1917", lineHeight: 1.35 }}>
+                      {document.name}
+                    </p>
+                    <p className="text-[11px] mt-1" style={{ color: "#A09080" }}>
+                      {document.date} · {document.size}
+                    </p>
+                  </div>
+                  <div
+                    className={`status-badge-3d ${
+                      document.status === "verified"
+                        ? "badge-completed"
+                        : document.status === "pending"
+                          ? "badge-queued"
+                          : "badge-failed"
+                    }`}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 6,
+                      padding: "4px 10px",
+                      borderRadius: 999,
+                      background: `${status.color}14`,
+                      color: status.color,
+                      flexShrink: 0,
+                    }}
+                  >
+                    <status.icon className="w-3 h-3" />
+                    <span style={{ fontSize: 11.5, fontWeight: 700 }}>{status.label}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div style={{ ...mkCard(BLUSH), padding: 16 }}>
+          <h3 className="font-display font-bold mb-5" style={{ fontSize: 18, color: "#1C1917" }}>
+            Verification Timeline
+          </h3>
+          <div className="relative">
+            <div className="absolute left-4 top-0 bottom-0 w-px" style={{ background: "rgba(120,90,50,0.12)" }} />
+            <div className="space-y-5">
+              {TIMELINE.map((event, index) => (
+                <div key={index} className="flex items-start gap-4 pl-9 relative">
+                  <div
+                    className="absolute left-0 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ background: `${event.color}14`, border: `1.5px solid ${event.color}30` }}
+                  >
+                    <event.icon className="w-3.5 h-3.5" style={{ color: event.color }} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold leading-tight" style={{ color: "#1C1917" }}>
+                      {event.event}
+                    </p>
+                    <p className="text-[11px] mt-0.5" style={{ color: "#A09080" }}>
+                      {event.date}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div className="space-y-5" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
       <div className="grid grid-cols-12 gap-5">
@@ -62,7 +276,10 @@ export function VerificationTab() {
                 <h2 className="font-display font-bold" style={{ fontSize: 32, letterSpacing: "-0.02em", color: "#1C1917" }}>
                   Verified
                 </h2>
-                <div className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: "rgba(34,197,94,0.12)", color: "#22C55E", border: "1px solid rgba(34,197,94,0.2)" }}>
+                <div
+                  className="px-3 py-1 rounded-full text-xs font-bold"
+                  style={{ background: "rgba(34,197,94,0.12)", color: "#22C55E", border: "1px solid rgba(34,197,94,0.2)" }}
+                >
                   Approved
                 </div>
               </div>

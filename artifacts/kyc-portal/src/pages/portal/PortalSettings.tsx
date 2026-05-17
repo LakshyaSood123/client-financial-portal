@@ -1,6 +1,7 @@
 import { PortalShell } from "./PortalShell";
 import { BackendPlaceholder } from "@/components/shared/BackendPlaceholder";
 import { CheckCircle2, Globe, Mail, Shield, UserRound } from "lucide-react";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const panel: React.CSSProperties = {
   background: "#F7F3EE",
@@ -99,14 +100,18 @@ const NOTIFICATION_ITEMS = [
 ];
 
 export default function PortalSettings() {
+  const mobile = useMediaQuery("(max-width: 768px)");
+
   return (
     <PortalShell title="Settings" subtitle="Tenant profile, notification preferences, and environment configuration" showRail={false}>
-      <BackendPlaceholder
-        type="mock"
-        description="Displaying illustrative settings. Live profile and environment controls require the tenant settings and notification APIs."
-      />
+      {!mobile && (
+        <BackendPlaceholder
+          type="mock"
+          description="Displaying illustrative settings. Live profile and environment controls require the tenant settings and notification APIs."
+        />
+      )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "1fr 1fr", gap: mobile ? 14 : 20 }}>
         <div style={panel}>
           <div style={headerRow}>
             <UserRound style={headerIcon} />
@@ -115,7 +120,7 @@ export default function PortalSettings() {
               <p style={panelSubtitle}>Primary organization metadata exposed to the portal.</p>
             </div>
           </div>
-          <div style={fieldGrid}>
+          <div style={{ ...fieldGrid, gridTemplateColumns: mobile ? "1fr" : "1fr 1fr" }}>
             {[
               ["Tenant ID", "ten_4x8a"],
               ["Legal name", "Anime Corp Ltd"],
@@ -162,7 +167,7 @@ export default function PortalSettings() {
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {NOTIFICATION_ITEMS.map((item) => (
-              <div key={item.title} style={toggleRow}>
+              <div key={item.title} style={{ ...toggleRow, alignItems: mobile ? "flex-start" : "center", flexDirection: mobile ? "column" : "row", gap: mobile ? 10 : 16 }}>
                 <div>
                   <div style={{ fontSize: 13.5, color: "#1C1917", fontWeight: 600 }}>{item.title}</div>
                   <div style={{ fontSize: 11.5, color: "#8B7355", marginTop: 3 }}>{item.detail}</div>

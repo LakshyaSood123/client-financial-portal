@@ -3,6 +3,7 @@ import { Users, Clock3, ShieldCheck, AlertTriangle, Shield } from "lucide-react"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { AdminLayout, SURF_SUPPORT, SURF_DEFAULT, SURF_ANALYTIC, DARK_1, DARK_2, TEXT, MUTED, cardShell } from "./AdminLayout";
 import { useAdminTilt } from "@/hooks/useAdminTilt";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const R = 22;
 
@@ -155,9 +156,11 @@ function OverviewKpiCard({
 }
 
 export default function AdminOverview() {
+  const isMobile = useMediaQuery("(max-width: 1023px)");
+
   return (
     <AdminLayout>
-      <div className="px-8 pt-5 pb-8 space-y-4">
+      <div className="px-4 md:px-8 pt-5 pb-8 space-y-4">
         <motion.div {...fade(0.05)}>
           <h1 className="font-display" style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, color: TEXT }}>
             Good evening, Admin
@@ -167,16 +170,16 @@ export default function AdminOverview() {
           </p>
         </motion.div>
 
-        <div className="flex gap-4 items-start">
+        <div className="flex flex-col xl:flex-row gap-4 items-start">
           <div className="flex-1 min-w-0 flex flex-col gap-4">
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
               {STATS.map((stat, index) => (
                 <OverviewKpiCard key={stat.label} stat={stat} delay={0.1 + index * 0.06} />
               ))}
             </div>
 
-            <div className="grid grid-cols-12 gap-4">
-              <motion.div style={{ ...mkCard(SURF_ANALYTIC), gridColumn: "span 4" }} className="col-span-4 flex flex-col admin-panel admin-panel-hover chart-panel" {...fade(0.32)}>
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
+              <motion.div style={{ ...mkCard(SURF_ANALYTIC) }} className="xl:col-span-4 flex flex-col admin-panel admin-panel-hover chart-panel" {...fade(0.32)}>
                 <p className="text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: MUTED }}>Tenants By Billing Status</p>
                 <div className="flex items-end gap-3 mb-3">
                   <span className="font-display font-black" style={{ fontSize: 38, letterSpacing: "-0.04em", lineHeight: 1, color: TEXT }}>412</span>
@@ -211,7 +214,7 @@ export default function AdminOverview() {
                 </div>
               </motion.div>
 
-              <motion.div style={{ ...mkCard(SURF_ANALYTIC), gridColumn: "span 8" }} className="col-span-8 admin-panel admin-panel-hover chart-panel" {...fade(0.36)}>
+              <motion.div style={{ ...mkCard(SURF_ANALYTIC) }} className="xl:col-span-8 admin-panel admin-panel-hover chart-panel" {...fade(0.36)}>
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: MUTED }}>Webhook Failures Over Time</p>
@@ -239,7 +242,7 @@ export default function AdminOverview() {
               </motion.div>
             </div>
 
-            <motion.div style={{ ...mkCard(SURF_SUPPORT), padding: 20 }} className="admin-panel admin-table-shell" {...fade(0.42)}>
+            <motion.div style={{ ...mkCard(SURF_SUPPORT), padding: 20, overflowX: isMobile ? "auto" : "visible" }} className="admin-panel admin-table-shell" {...fade(0.42)}>
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="text-[11px] font-bold uppercase tracking-wider mb-0.5" style={{ color: MUTED }}>Recent KYC Activity</p>
@@ -287,7 +290,7 @@ export default function AdminOverview() {
             </motion.div>
           </div>
 
-          <div className="flex flex-col gap-4" style={{ width: 252, flexShrink: 0 }}>
+          <div className="flex flex-col gap-4 w-full xl:w-auto" style={{ width: isMobile ? "100%" : 252, flexShrink: 0 }}>
             <motion.div style={{ ...darkCard, background: DARK_1 }} className="admin-monitor ops-monitor-panel" {...fade(0.18)}>
               <div className="flex items-center gap-2 mb-1">
                 <span className="relative flex h-2 w-2">

@@ -46,7 +46,7 @@ const CustomTooltip = ({
 export function UsageChart() {
   return (
     <GlassPanel hoverable className="p-6 col-span-12 lg:col-span-8 flex flex-col" style={{ background: "#F2EBE1" }}>
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
         <div>
           <h3 className="font-display font-bold" style={{ fontSize: "20px", color: "#1C1917" }}>
             Jobs Processed
@@ -64,7 +64,7 @@ export function UsageChart() {
         </Link>
       </div>
 
-      <div className="flex items-center gap-5 mb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5 mb-5">
         <div>
           <span className="font-display font-bold" style={{ fontSize: 28, letterSpacing: "-0.02em", color: "#1C1917" }}>
             1,124
@@ -73,7 +73,7 @@ export function UsageChart() {
             jobs this cycle
           </span>
         </div>
-        <div className="h-8 w-px" style={{ background: "rgba(120,90,50,0.12)" }} />
+        <div className="hidden sm:block h-8 w-px" style={{ background: "rgba(120,90,50,0.12)" }} />
         <div>
           <span className="font-display font-bold" style={{ fontSize: 18, color: "#F97316" }}>
             +29%

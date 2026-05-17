@@ -1,11 +1,14 @@
 import { Key, AlertTriangle } from "lucide-react";
 import { AdminLayout, SURF_SUPPORT, SURF_DEFAULT, TEXT, MUTED, cardShell } from "./AdminLayout";
 import { BackendPlaceholder } from "@/components/shared/BackendPlaceholder";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export default function AdminApiKeys() {
+  const mobile = useMediaQuery("(max-width: 767px)");
+
   return (
     <AdminLayout>
-      <div style={{ padding: "28px 32px" }}>
+      <div style={{ padding: mobile ? "20px 16px" : "28px 32px" }}>
         <h1 style={{ margin: "0 0 4px", fontSize: 24, fontWeight: 800, color: TEXT, letterSpacing: "-0.02em" }}>
           Admin API Keys
         </h1>
@@ -13,7 +16,7 @@ export default function AdminApiKeys() {
           Platform-level API keys for internal integrations. Not visible to tenants.
         </p>
 
-        <div className="admin-restricted-banner" style={{ display: "flex", alignItems: "center", gap: 7, background: "rgba(248,113,113,0.1)", borderRadius: 10, padding: "8px 14px", border: "1px solid rgba(248,113,113,0.2)", marginBottom: 20, width: "fit-content" }}>
+        <div className="admin-restricted-banner" style={{ display: "flex", alignItems: "center", gap: 7, background: "rgba(248,113,113,0.1)", borderRadius: 10, padding: "8px 14px", border: "1px solid rgba(248,113,113,0.2)", marginBottom: 20, width: mobile ? "100%" : "fit-content" }}>
           <AlertTriangle style={{ width: 14, height: 14, color: "#f87171", flexShrink: 0 }} />
           <span style={{ fontSize: 12.5, fontWeight: 600, color: "#f87171" }}>
             These keys carry platform-level permissions. Treat with extreme care. Rotation logs are retained.
@@ -31,14 +34,14 @@ export default function AdminApiKeys() {
             <span style={{ fontSize: 15, fontWeight: 700, color: TEXT }}>Platform Keys</span>
           </div>
           {["Integration-Webhook-Delivery", "Compliance-Export-Service", "Analytics-Aggregation"].map((name, index) => (
-            <div key={name} className="admin-row api-key-row" style={{ background: SURF_SUPPORT, borderRadius: 10, padding: "12px 16px", marginBottom: 8, display: "flex", alignItems: "center", justifyContent: "space-between", animationDelay: `${index * 50}ms` }}>
+            <div key={name} className="admin-row api-key-row" style={{ background: SURF_SUPPORT, borderRadius: 10, padding: "12px 16px", marginBottom: 8, display: "flex", flexDirection: mobile ? "column" : "row", alignItems: mobile ? "flex-start" : "center", justifyContent: "space-between", gap: mobile ? 8 : 16, animationDelay: `${index * 50}ms` }}>
               <div>
                 <div style={{ fontSize: 13.5, fontWeight: 600, color: TEXT, marginBottom: 3 }}>{name}</div>
                 <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: MUTED, letterSpacing: "0.02em" }}>
                   sk_adm_••••••••••••••••
                 </code>
               </div>
-              <span style={{ fontSize: 11.5, color: MUTED, fontStyle: "italic", minWidth: 110, textAlign: "right" }}>backend pending</span>
+              <span style={{ fontSize: 11.5, color: MUTED, fontStyle: "italic", minWidth: mobile ? 0 : 110, textAlign: mobile ? "left" : "right" }}>backend pending</span>
             </div>
           ))}
         </div>

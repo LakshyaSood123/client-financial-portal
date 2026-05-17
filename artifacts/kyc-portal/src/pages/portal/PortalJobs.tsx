@@ -2,6 +2,7 @@ import { PortalShell } from "./PortalShell";
 import { BackendPlaceholder } from "@/components/shared/BackendPlaceholder";
 import { TiltCard } from "@/components/shared/TiltCard";
 import { CheckCircle2, Clock3, Download, Eye, Search, XCircle } from "lucide-react";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const JOBS = [
   { id: "job_9r2ka", source: "prod_primary", type: "KYB refresh", status: "Completed", submitted: "Mar 23, 14:32", duration: "3m 18s" },
@@ -32,6 +33,8 @@ const ghostButton: React.CSSProperties = {
 };
 
 export default function PortalJobs() {
+  const mobile = useMediaQuery("(max-width: 767px)");
+
   return (
     <PortalShell title="Jobs" subtitle="Job execution status, throughput, and recent processing activity" showRail={false}>
       <BackendPlaceholder
@@ -39,7 +42,7 @@ export default function PortalJobs() {
         description="Displaying illustrative job data. Live data should map to the documented /jobs and /jobs/{jobId} APIs."
       />
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(4, 1fr)", gap: 16, marginBottom: 20 }}>
         {[
           { label: "Cycle jobs", value: "1,124", note: "+29% vs previous cycle" },
           { label: "Queue backlog", value: "14", note: "Analyst review required" },
@@ -69,15 +72,15 @@ export default function PortalJobs() {
           background: "#F7F3EE",
           borderRadius: 18,
           border: "1px solid rgba(120,90,50,0.08)",
-          overflow: "hidden",
+          overflowX: mobile ? "auto" : "hidden",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 20px", borderBottom: "1px solid rgba(120,90,50,0.08)" }}>
+        <div style={{ display: "flex", flexDirection: mobile ? "column" : "row", justifyContent: "space-between", alignItems: mobile ? "stretch" : "center", gap: mobile ? 14 : 0, padding: "18px 20px", borderBottom: "1px solid rgba(120,90,50,0.08)" }}>
           <div>
             <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#1C1917" }}>Recent Jobs</h2>
             <p style={{ margin: "4px 0 0", fontSize: 12.5, color: "#A09080" }}>Latest execution records exposed to tenant users.</p>
           </div>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", flexDirection: mobile ? "column" : "row", gap: 8 }}>
             <button className="cta-3d" style={ghostButton}>
               <Search style={{ width: 14, height: 14 }} /> Filter
             </button>
@@ -87,7 +90,7 @@ export default function PortalJobs() {
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "140px 1fr 140px 150px 100px 80px", padding: "10px 20px", borderBottom: "1px solid rgba(120,90,50,0.07)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "140px 1fr 140px 150px 100px 80px", padding: "10px 20px", borderBottom: "1px solid rgba(120,90,50,0.07)", minWidth: 750 }}>
           {["Job ID", "Type", "Status", "Submitted", "Duration", "Inspect"].map((heading) => (
             <span key={heading} style={{ fontSize: 10.5, fontWeight: 700, color: "#A09080", textTransform: "uppercase", letterSpacing: "0.06em" }}>
               {heading}
@@ -109,6 +112,7 @@ export default function PortalJobs() {
                 borderBottom: index < JOBS.length - 1 ? "1px solid rgba(120,90,50,0.06)" : "none",
                 background: "#FAF8F4",
                 animationDelay: `${index * 60}ms`,
+                minWidth: 750,
               }}
             >
               <code style={{ fontSize: 12, color: "#8B7355" }}>{job.id}</code>
