@@ -39,7 +39,7 @@ jobs:
 
       - name: Build portal for Pages
         env:
-          BASE_PATH: /kyc-frontend/
+          BASE_PATH: /client-financial-portal/
         run: pnpm --filter @workspace/kyc-portal run build
 
       - name: Add SPA fallback

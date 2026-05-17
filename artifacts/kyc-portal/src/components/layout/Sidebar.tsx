@@ -4,11 +4,9 @@ import { useLocation, Link } from "wouter";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import {
   LayoutDashboard,
-  Compass,
   Key,
   BriefcaseBusiness,
   Upload,
-  CreditCard,
   Webhook,
   ShieldCheck,
   Settings,
@@ -20,11 +18,9 @@ import {
 
 const NAV_ITEMS = [
   { path: "/portal", label: "Overview", icon: LayoutDashboard },
-  { path: "/portal/onboarding", label: "Onboarding", icon: Compass },
   { path: "/portal/apikeys", label: "API Keys", icon: Key },
   { path: "/portal/jobs", label: "Jobs", icon: BriefcaseBusiness },
   { path: "/portal/uploads", label: "Uploads", icon: Upload },
-  { path: "/portal/billing", label: "Billing", icon: CreditCard },
   { path: "/portal/webhooks", label: "Webhooks", icon: Webhook },
   { path: "/portal/compliance", label: "Compliance", icon: ShieldCheck },
 ];
